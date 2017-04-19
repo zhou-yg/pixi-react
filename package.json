@@ -1,0 +1,34 @@
+{
+  "name": "pact",
+  "version": "0.0.1",
+  "description": "set/get data structure",
+  "main": "./bin/index.js",
+  "scripts": {
+    "build": "webpack --progress --display-error-details"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zhou-yg/pact.git"
+  },
+  "author": "zhou-yg",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/zhou-yg/pact/issues"
+  },
+  "homepage": "https://github.com/zhou-yg/pact#readme",
+  "devDependencies": {
+    "babel-core": "^6.23.1",
+    "babel-loader": "^6.3.2",
+    "babel-plugin-transform-es2015-spread": "^6.22.0",
+    "babel-plugin-transform-react-jsx": "^6.24.1",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-es2015": "^6.22.0",
+    "babel-runtime": "^6.23.0",
+    "lodash": "^4.17.4",
+    "webpack": "^2.2.1"
+  },
+  "dependencies": {
+    "pixi": "^0.3.1",
+    "pixi.js": "^4.5.0"
+  }
+}
