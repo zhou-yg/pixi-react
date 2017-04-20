@@ -4,7 +4,8 @@
   "description": "set/get data structure",
   "main": "./bin/index.js",
   "scripts": {
-    "build": "webpack --progress --display-error-details"
+    "build": "webpack --progress --display-error-details",
+    "build-w": "webpack --progress --display-error-details --watch"
   },
   "repository": {
     "type": "git",

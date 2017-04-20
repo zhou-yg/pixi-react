@@ -2,6 +2,18 @@ export function isReservedType(name) {
   return name === 'c' || name === 'container';
 }
 
+export function isVNode(obj) {
+  const keys = Object.keys(obj);
+
+  return ['props','type', 'children'].every(k => {
+    return keys.indexOf(k) !== -1;
+  })
+}
+
+export function isPixiObj(obj) {
+  return obj && obj.addChild
+}
+
 export function compareObject(obj1, obj2) {
   if(obj1 === obj2){
     return true;

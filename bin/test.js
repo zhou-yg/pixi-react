@@ -81,8 +81,9 @@ exports.PactComponent = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-exports.h = h;
 exports.renderTo = renderTo;
+exports.mountComponent = mountComponent;
+exports.h = h;
 
 var _utils = __webpack_require__(1);
 
@@ -96,8 +97,43 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+function renderTo(node, pixiContainer) {
+
+  var instance = new node.type(node.props);
+  var instanceVNode = instance.render();
+  instance.pixiEl = pixiContainer;
+
+  mountComponent(instanceVNode, instance);
+
+  return instance;
+}
+
+function mountComponent(node, parentComponent) {
+  var instance = new node.type(node.props);
+  var vNode = instance.render();
+
+  if (utils.isPixiObj(vNode)) {
+    instance.pixiEl = vNode;
+
+    parentComponent.children.push(instance);
+
+    parentComponent.pixiEl.addChild(vNode);
+  } else if (utils.isVNode(vNode)) {
+    instance.pixiEl = parentComponent.pixiEl;
+    instance.children = parentComponent.children;
+    mountComponent(vNode, instance);
+  }
+
+  node.children.map(function (childNode) {
+
+    mountComponent(childNode, instance);
+  });
+
+  return instance;
+}
+
 var PactComponent = exports.PactComponent = function () {
-  function PactComponent(props, children) {
+  function PactComponent(props) {
     _classCallCheck(this, PactComponent);
 
     this.state = {};
@@ -107,9 +143,10 @@ var PactComponent = exports.PactComponent = function () {
 
     this.isMounted = false;
 
+    this.node;
     this.el;
     this.pixiEl;
-    this.children = children;
+    this.children = [];
   }
 
   _createClass(PactComponent, [{
@@ -143,6 +180,8 @@ var PactComponent = exports.PactComponent = function () {
   return PactComponent;
 }();
 
+var j = 0;
+
 var Container = function (_PactComponent) {
   _inherits(Container, _PactComponent);
 
@@ -156,7 +195,12 @@ var Container = function (_PactComponent) {
     key: 'render',
     value: function render() {
       return {
-        addChild: function addChild() {}
+        name: j++,
+        props: this.props,
+        children: [],
+        addChild: function addChild(c) {
+          this.children.push(c);
+        }
       };
     }
   }]);
@@ -186,14 +230,6 @@ function h(componentClass, props) {
   return node;
 }
 
-function renderTo(node, pixiContainer) {
-  var instance = new node.type(node.props, node.children);
-
-  console.log(instance);
-
-  pixiContainer.addChild(instance.pixiEl);
-}
-
 /***/ }),
 /* 1 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -205,9 +241,23 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.isReservedType = isReservedType;
+exports.isVNode = isVNode;
+exports.isPixiObj = isPixiObj;
 exports.compareObject = compareObject;
 function isReservedType(name) {
   return name === 'c' || name === 'container';
+}
+
+function isVNode(obj) {
+  var keys = Object.keys(obj);
+
+  return ['props', 'type', 'children'].every(function (k) {
+    return keys.indexOf(k) !== -1;
+  });
+}
+
+function isPixiObj(obj) {
+  return obj && obj.addChild;
 }
 
 function compareObject(obj1, obj2) {
@@ -243,8 +293,37 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var T = function (_PactComponent) {
-  _inherits(T, _PactComponent);
+var T2 = function (_PactComponent) {
+  _inherits(T2, _PactComponent);
+
+  function T2() {
+    _classCallCheck(this, T2);
+
+    return _possibleConstructorReturn(this, (T2.__proto__ || Object.getPrototypeOf(T2)).apply(this, arguments));
+  }
+
+  _createClass(T2, [{
+    key: "click",
+    value: function click() {
+      return 1;
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      return (0, _pact.h)(
+        "c",
+        { key: "t2root" },
+        (0, _pact.h)("c", { key: "t2C1" }),
+        (0, _pact.h)("c", { key: "t2c2" })
+      );
+    }
+  }]);
+
+  return T2;
+}(_pact.PactComponent);
+
+var T = function (_PactComponent2) {
+  _inherits(T, _PactComponent2);
 
   function T() {
     _classCallCheck(this, T);
@@ -253,18 +332,18 @@ var T = function (_PactComponent) {
   }
 
   _createClass(T, [{
-    key: 'click',
+    key: "click",
     value: function click() {
       return 1;
     }
   }, {
-    key: 'render',
+    key: "render",
     value: function render() {
       return (0, _pact.h)(
-        'c',
+        "c",
         null,
-        (0, _pact.h)('c', { onClick: this.click }),
-        (0, _pact.h)('c', null)
+        (0, _pact.h)("c", { key: "c1", onClick: this.click }),
+        (0, _pact.h)(T2, null)
       );
     }
   }]);
@@ -274,9 +353,23 @@ var T = function (_PactComponent) {
 
 var ele = (0, _pact.h)(T);
 
-(0, _pact.renderTo)(ele, {
-  addChild: function addChild() {}
-});
+var topContainer = {
+  children: [],
+  addChild: function addChild(c) {
+    this.children.push(c);
+  }
+};
+var instance = (0, _pact.renderTo)(ele, topContainer);
+
+console.log('===');
+
+var i = 0;
+function show(obj) {
+  console.log(i++ + ":", obj.children);
+  obj.children.forEach(show);
+}
+//show(topContainer);
+show(instance);
 
 /***/ })
 /******/ ]);

@@ -2,9 +2,43 @@
 //import PIXI from 'pixi.js'
 import * as utils from './utils.js';
 
+export function renderTo(node, pixiContainer) {
+
+  const instance = new node.type(node.props);
+  const instanceVNode = instance.render();
+  instance.pixiEl = pixiContainer;
+
+  mountComponent(instanceVNode, instance);
+
+  return instance;
+}
+
+export function mountComponent(node, parentComponent) {
+  const instance = new node.type(node.props);
+  const vNode = instance.render();
+
+  if(utils.isPixiObj(vNode)){
+    instance.pixiEl = vNode;
+
+    parentComponent.children.push(instance);
+
+    parentComponent.pixiEl.addChild(vNode);
+  } else if(utils.isVNode(vNode)){
+    instance.pixiEl = parentComponent.pixiEl;
+    instance.children = parentComponent.children;
+    mountComponent(vNode, instance);
+  }
+
+  node.children.map(childNode => {
+
+    mountComponent(childNode, instance);
+  });
+
+  return instance;
+}
 
 export class PactComponent {
-  constructor (props, children) {
+  constructor (props) {
     this.state = {};
     this.props = {};
 
@@ -12,9 +46,10 @@ export class PactComponent {
 
     this.isMounted = false;
 
+    this.node
     this.el;
     this.pixiEl;
-    this.children = children;
+    this.children = [];
 
   }
   setState (obj) {
@@ -42,6 +77,7 @@ export class PactComponent {
   }
 }
 
+var j = 0;
 class Container extends PactComponent {
   constructor (props) {
     super(props);
@@ -49,14 +85,18 @@ class Container extends PactComponent {
 
   render () {
     return {
-      addChild:()=>{},
+      name:j++,
+      props: this.props,
+      children:[],
+      addChild(c){
+        this.children.push(c)
+      },
     }
   }
 }
 
 
 export function h(componentClass, props, ...children) {
-
   // @TODO
   if(utils.isReservedType(componentClass)){
     componentClass = Container;
@@ -74,12 +114,4 @@ export function h(componentClass, props, ...children) {
   };
 
   return node;
-}
-
-export function renderTo(node, pixiContainer) {
-  const instance = new node.type(node.props, node.children);
-
-  console.log(instance);
-
-  pixiContainer.addChild(instance.pixiEl);
 }
