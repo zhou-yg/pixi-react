@@ -81,7 +81,8 @@ exports.PactComponent = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-exports.default = h;
+exports.h = h;
+exports.renderTo = renderTo;
 
 var _utils = __webpack_require__(1);
 
@@ -96,7 +97,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var PactComponent = exports.PactComponent = function () {
-  function PactComponent(props) {
+  function PactComponent(props, children) {
     _classCallCheck(this, PactComponent);
 
     this.state = {};
@@ -106,12 +107,9 @@ var PactComponent = exports.PactComponent = function () {
 
     this.isMounted = false;
 
-    this.el = this.render();
-    this.children = [];
-
-    if (!this.el) {
-      throw new Error('render function return undefined');
-    }
+    this.el;
+    this.pixiEl;
+    this.children = children;
   }
 
   _createClass(PactComponent, [{
@@ -123,54 +121,14 @@ var PactComponent = exports.PactComponent = function () {
   }, {
     key: 'update',
     value: function update() {
-      var _this = this;
-
-      console.log('update');
-      this.children.forEach(function (childInstance) {
-        childInstance.update();
-      });
-      var newEl = this.render();
-      //diff
-      var ii = 0;
-
-      this.children.slice().map(function (childInstance, i) {
-        var newChildInstance = newEl.children[i];
-        if (newChildInstance) {
-
-          if (compareObject(childInstance.state, newChildInstance.state) && compareObject(childInstance.props, newChildInstance.props)) {} else {
-            _this.removeChild(childInstance);
-            _this.addChildAt(newChildInstance, i);
-            newChildInstance.didMount();
-          }
-        } else {
-          _this.removeChild(childInstance);
-        }
-      });
-
-      while (this.children.length + ii < newEl.children.length) {
-        this.addChild(newEl.children[this.children.length + ii]);
-        ii++;
-      }
+      // @TODO
     }
   }, {
     key: 'addChild',
-    value: function addChild(pactObj, i) {
-      if (i !== undefined) {
-        this.children.splice(i, 0, pactObj);
-        //@WARNING
-        this.el.addChildAt(pactObj.el, i);
-      } else {
-        this.children.push(pactObj);
-        this.el.addChild(pactObj.el);
-      }
-    }
+    value: function addChild(pactObj, i) {}
   }, {
     key: 'removeChild',
-    value: function removeChild(pactObj) {
-      var i = this.children.indexOf(pactObj);
-      this.children.splice(i, 1);
-      this.el.removeChild(pactObj.el);
-    }
+    value: function removeChild(pactObj) {}
   }, {
     key: 'didMount',
     value: function didMount() {}
@@ -207,35 +165,33 @@ var Container = function (_PactComponent) {
 }(PactComponent);
 
 function h(componentClass, props) {
-  var instance;
-
-  if (utils.isReservedType(componentClass)) {
-    instance = new Container(props);
-  } else if (componentClass instanceof PactComponent) {
-    instance = new componentClass(props);
-  } else {
-    throw new Error('the compoennt muse be a PactComponent');
-  }
-
   for (var _len = arguments.length, children = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
     children[_key - 2] = arguments[_key];
   }
 
-  if (children.length > 0) {
-    instance.children.slice().filter(function (childInstance) {
-      instance.removeChild(childInstance);
-      childInstance.unmount();
-      return 0;
-    });
-
-    children.forEach(function (childInstance) {
-      instance.addChild(childInstance);
-      childInstance.didMount();
-      return childInstance;
-    });
+  // @TODO
+  if (utils.isReservedType(componentClass)) {
+    componentClass = Container;
+  } else if (1) {} else {
+    console.log(componentClass);
+    throw new Error('the compoennt muse be a PactComponent');
   }
 
-  return instance;
+  var node = {
+    type: componentClass,
+    props: props,
+    children: children
+  };
+
+  return node;
+}
+
+function renderTo(node, pixiContainer) {
+  var instance = new node.type(node.props, node.children);
+
+  console.log(instance);
+
+  pixiContainer.addChild(instance.pixiEl);
 }
 
 /***/ }),

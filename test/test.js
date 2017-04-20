@@ -1,4 +1,4 @@
-import h, {PactComponent} from '../src/pact';
+import {h, renderTo,PactComponent} from '../src/pact';
 
 class T extends PactComponent {
 
@@ -17,8 +17,8 @@ class T extends PactComponent {
 }
 
 
-const t = new T();
+const ele = h(T);
 
-t.setState({
-  name: 1,
+renderTo(ele, {
+  addChild(){}
 })

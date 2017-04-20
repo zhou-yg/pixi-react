@@ -2,12 +2,9 @@
 //import PIXI from 'pixi.js'
 import * as utils from './utils.js';
 
-const ComponentContext = {
-  current: null;
-}
 
 export class PactComponent {
-  constructor (props) {
+  constructor (props, children) {
     this.state = {};
     this.props = {};
 
@@ -15,12 +12,10 @@ export class PactComponent {
 
     this.isMounted = false;
 
-    this.el = this.render();
-    this.children = [];
+    this.el;
+    this.pixiEl;
+    this.children = children;
 
-    if(!this.el){
-      throw new Error('render function return undefined');
-    }
   }
   setState (obj) {
     this.state = Object.assign({}, this.state, obj);
@@ -32,19 +27,8 @@ export class PactComponent {
   }
 
   addChild (pactObj, i) {
-    if(i !== undefined){
-      this.children.splice(i, 0 ,pactObj);
-      //@WARNING
-      this.el.addChildAt(pactObj.el, i);
-    }else{
-      this.children.push(pactObj);
-      this.el.addChild(pactObj.el);
-    }
   }
   removeChild (pactObj) {
-    const i = this.children.indexOf(pactObj);
-    this.children.splice(i, 1);
-    this.el.removeChild(pactObj.el);
   }
   didMount () {
 
@@ -71,31 +55,31 @@ class Container extends PactComponent {
 }
 
 
-export default function h(componentClass, props, ...children) {
-  var instance;
+export function h(componentClass, props, ...children) {
 
   // @TODO
   if(utils.isReservedType(componentClass)){
-    instance = new Container(props);
-  } else if(componentClass instanceof PactComponent){
-    instance = new componentClass(props);
+    componentClass = Container;
+  } else if(1){
+
   } else {
+    console.log(componentClass);
     throw new Error('the compoennt muse be a PactComponent');
   }
 
-  if(children.length > 0){
-    instance.children.slice().filter((childInstance) => {
-      instance.removeChild(childInstance);
-      childInstance.unmount();
-      return 0;
-    });
+  var node = {
+    type: componentClass,
+    props,
+    children,
+  };
 
-    children.forEach(childInstance => {
-      instance.addChild(childInstance);
-      childInstance.didMount();
-      return childInstance;
-    });
-  }
+  return node;
+}
 
-  return instance;
+export function renderTo(node, pixiContainer) {
+  const instance = new node.type(node.props, node.children);
+
+  console.log(instance);
+
+  pixiContainer.addChild(instance.pixiEl);
 }
