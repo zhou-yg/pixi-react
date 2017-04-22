@@ -42,7 +42,7 @@ const topContainer = {
 }
 const instance = renderTo(ele,topContainer);
 
-console.log('===');
+console.log('=== show ===');
 
 var i=0;
 function show(obj) {
@@ -51,3 +51,9 @@ function show(obj) {
 }
 //show(topContainer);
 show(instance);
+
+console.log('=== setState ===')
+
+instance.setState({
+  name: 1,
+});
