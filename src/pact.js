@@ -2,8 +2,45 @@
 //import PIXI from 'pixi.js'
 import * as utils from './utils.js';
 
-function updateChildren() {
+const {isUndef, isDef} = utils;
 
+function updateChildren(instanceParentVnode, newParentVnode) {
+  const oldCh = instanceParentVnode.children;
+  const newCh = newParentVnode.children;
+
+  const oldLen = oldCh.length;
+  const newLen = newCh.length;
+
+  var oldStartIndex = 0;
+  var oldEndIndex = 0;
+  var oldStartVnode = oldCh[0];
+  var oldEndVnode = oldCh[oldLen - 1];
+
+  var newStartIndex = 0;
+  var newEndIndex = newLen -1;
+  var newStartVnode = newCh[0];
+  var newEndVnode = newCh[newLen-1];
+
+  while (oldStartIndex <= oldEndIndex && newStartIndex <= newEndIndex) {
+    //...diff
+  }
+}
+
+function patchVnode(oldVNode, newVNode) {
+  let isEquivalentNode = utils.equalVNode(oldVNode, newVNode);
+
+  if(isEquivalentNode){
+    let isEquivalentNodeWithChildren = utils.equalVNode(oldVNode, newVNode, true);
+
+    if(isEquivalentNodeWithChildren){
+      // 完全等价的节点，不同替换。继续检查子节点
+      oldVNode.children.forEach((oldChildVNode, i) => {
+        patchVnode(oldChildVNode, newVNode.children[i]);
+      });
+    } else {
+      updateChildren(oldVNode, newVNode);
+    }
+  }
 }
 
 function updateComponent(instance) {
@@ -12,19 +49,7 @@ function updateComponent(instance) {
   if(utils.isPixiObj(newVNode)){
 
   } else if(utils.isVNode(newVNode)){
-
-    let isEquivalentNode = utils.equalVNode(instance.vNode, newVNode);
-    console.log(instance, isEquivalentNode);
-
-    if(isEquivalentNode){
-      let isEquivalentNodeWithChildren = utils.equalVNode(instance.vNode, newVNode, true);
-
-      if(isEquivalentNodeWithChildren){
-        // 完全等价的节点，不同替换
-      } else {
-        let newChildren = updateChildren(instanceVNode, newVNode);
-      }
-    }
+    patchVnode(instance.vNode, newVNode)
   }
 }
 
@@ -137,8 +162,12 @@ export function h(componentClass, props, ...children) {
     throw new Error('the compoennt muse be a PactComponent');
   }
 
-  var node = {
+  const key = props.key;
+  delete props.key;
+
+  const node = {
     type: componentClass,
+    key,
     props,
     children,
   };

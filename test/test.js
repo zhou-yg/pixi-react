@@ -1,5 +1,6 @@
 import {h, renderTo, mountComponent,PactComponent} from '../src/pact';
 
+
 class T2 extends PactComponent {
 
   click () {

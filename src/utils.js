@@ -1,4 +1,10 @@
 'use strict';
+export function isDef(v) {
+  return !!v || v === 0;
+}
+export function isUndef(v) {
+  return v === undefined;
+}
 
 export function isReservedType(name) {
   return name === 'c' || name === 'container';
@@ -21,6 +27,10 @@ export function isEqualObj(obj1,obj2) {
 }
 
 export function equalVNode(obj1,obj2,checkChildren) {
+  if(isDef(obj1.key) || isDef(obj2.key)){
+    return obj1.key === obj2.key;
+  }
+
   if(obj1.type === obj2.type){
     const isSameProps = compareObject(obj1.props,obj2.props);
     // console.log(`isSameProps:`,isSameProps);

@@ -97,25 +97,54 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function updateChildren() {}
+var isUndef = utils.isUndef,
+    isDef = utils.isDef;
+
+
+function updateChildren(instanceParentVnode, newParentVnode) {
+  var oldCh = instanceParentVnode.children;
+  var newCh = newParentVnode.children;
+
+  var oldLen = oldCh.length;
+  var newLen = newCh.length;
+
+  var oldStartIndex = 0;
+  var oldEndIndex = 0;
+  var oldStartVnode = oldCh[0];
+  var oldEndVnode = oldCh[oldLen - 1];
+
+  var newStartIndex = 0;
+  var newEndIndex = newLen - 1;
+  var newStartVnode = newCh[0];
+  var newEndVnode = newCh[newLen - 1];
+
+  while (oldStartIndex <= oldEndIndex && newStartIndex <= newEndIndex) {
+    //...diff
+  }
+}
+
+function patchVnode(oldVNode, newVNode) {
+  var isEquivalentNode = utils.equalVNode(oldVNode, newVNode);
+
+  if (isEquivalentNode) {
+    var isEquivalentNodeWithChildren = utils.equalVNode(oldVNode, newVNode, true);
+
+    if (isEquivalentNodeWithChildren) {
+      // 完全等价的节点，不同替换。继续检查子节点
+      oldVNode.children.forEach(function (oldChildVNode, i) {
+        patchVnode(oldChildVNode, newVNode.children[i]);
+      });
+    } else {
+      updateChildren(oldVNode, newVNode);
+    }
+  }
+}
 
 function updateComponent(instance) {
   var newVNode = instance.render();
 
   if (utils.isPixiObj(newVNode)) {} else if (utils.isVNode(newVNode)) {
-
-    var isEquivalentNode = utils.equalVNode(instance.vNode, newVNode);
-    console.log(instance, isEquivalentNode);
-
-    if (isEquivalentNode) {
-      var isEquivalentNodeWithChildren = utils.equalVNode(instance.vNode, newVNode, true);
-
-      if (isEquivalentNodeWithChildren) {
-        // 完全等价的节点，不同替换
-      } else {
-        var newChildren = updateChildren(instanceVNode, newVNode);
-      }
-    }
+    patchVnode(instance.vNode, newVNode);
   }
 }
 
@@ -245,8 +274,12 @@ function h(componentClass, props) {
     throw new Error('the compoennt muse be a PactComponent');
   }
 
+  var key = props.key;
+  delete props.key;
+
   var node = {
     type: componentClass,
+    key: key,
     props: props,
     children: children
   };
@@ -267,12 +300,21 @@ Object.defineProperty(exports, "__esModule", {
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
+exports.isDef = isDef;
+exports.isUndef = isUndef;
 exports.isReservedType = isReservedType;
 exports.isVNode = isVNode;
 exports.isPixiObj = isPixiObj;
 exports.isEqualObj = isEqualObj;
 exports.equalVNode = equalVNode;
 exports.compareObject = compareObject;
+function isDef(v) {
+  return !!v || v === 0;
+}
+function isUndef(v) {
+  return v === undefined;
+}
+
 function isReservedType(name) {
   return name === 'c' || name === 'container';
 }
@@ -292,6 +334,10 @@ function isPixiObj(obj) {
 function isEqualObj(obj1, obj2) {}
 
 function equalVNode(obj1, obj2, checkChildren) {
+  if (isDef(obj1.key) || isDef(obj2.key)) {
+    return obj1.key === obj2.key;
+  }
+
   if (obj1.type === obj2.type) {
     var isSameProps = compareObject(obj1.props, obj2.props);
     // console.log(`isSameProps:`,isSameProps);
