@@ -4,9 +4,21 @@ import * as utils from './utils.js';
 
 const {isUndef, isDef} = utils;
 
+function replaceVNode() {
+  //...@TODO
+}
+function addVNode(parentVNode, newVNode, targetIndex) {
+  const newInstance = mountComponent(newVNode, parentVNode.instance);
+  parentVNode.instance.children.splice(targetIndex, 0 , newInstance);
+
+  if(!newInstance.vNode){
+    parentVNode.pixiEl.addChildAt(newInstance.pixiEl, targetIndex);
+  }
+}
+
 function updateChildren(instanceParentVnode, newParentVnode) {
-  const oldCh = instanceParentVnode.children;
-  const newCh = newParentVnode.children;
+  const oldCh = instanceParentVnode.children.slice();
+  const newCh = newParentVnode.children.slice();
 
   const oldLen = oldCh.length;
   const newLen = newCh.length;
@@ -21,15 +33,38 @@ function updateChildren(instanceParentVnode, newParentVnode) {
   var newStartVnode = newCh[0];
   var newEndVnode = newCh[newLen-1];
 
-  while (oldStartIndex <= oldEndIndex && newStartIndex <= newEndIndex) {
+  while (newStartIndex <= newEndIndex) {
     //...diff
+    //
+    let newVNode = newCh[newStartIndex];
+    let newIndex = 0;
+    while(newIndex < oldLen - 1){
+      let oldVNode = oldCh[newIndex];
+      if(utils.equalVNode(oldVNode, newVNode)){
+        patchVnode(oldVNode, newVNode);
+        break;
+      }else{
+        let findOldVNode = false;
+        let j = newStartIndex + 1;
+        while (j < newEndIndex) {
+          let newVNode2 = newCh[j];
+          if(utils.equalVNode(oldVNode, newVNode2)){
+            addVNode(instanceParentVnode, newVNode, newIndex);
+            findOldVNode = true;
+            newIndex++;
+          }
+          j++;
+        }
+        if(!findOldVNode){
+          replaceVNode(instanceParentVnode,)
+          newIndex++;
+        }
+      }
+    }
   }
 }
 
 function patchVnode(oldVNode, newVNode) {
-  let isEquivalentNode = utils.equalVNode(oldVNode, newVNode);
-
-  if(isEquivalentNode){
     let isEquivalentNodeWithChildren = utils.equalVNode(oldVNode, newVNode, true);
 
     if(isEquivalentNodeWithChildren){
@@ -40,7 +75,6 @@ function patchVnode(oldVNode, newVNode) {
     } else {
       updateChildren(oldVNode, newVNode);
     }
-  }
 }
 
 function updateComponent(instance) {
@@ -49,50 +83,61 @@ function updateComponent(instance) {
   if(utils.isPixiObj(newVNode)){
 
   } else if(utils.isVNode(newVNode)){
-    patchVnode(instance.vNode, newVNode)
+    var isEquivalentNode = utils.equalVNode(instance.vNode, newVNode);
+    if (isEquivalentNode){
+      patchVnode(instance.vNode, newVNode)
+    }
   }
 }
 
-export function mountComponent(node, parentComponent) {
+function mountComponent(node, parentComponent) {
   const instance = new node.type(node.props);
   const vNode = instance.render();
-
+  vNode.instance = instance;
 
   if(utils.isPixiObj(vNode)){
     instance.pixiEl = vNode;
 
-    parentComponent.children.push(instance);
-
-    parentComponent.pixiEl.addChild(vNode);
   } else if(utils.isVNode(vNode)){
     instance.vNode = vNode;
     instance.pixiEl = parentComponent.pixiEl;
-    instance.children = parentComponent.children;
-    mountComponent(vNode, instance);
+
+    const childInstance = mountComponent(vNode, instance);
+
+    if(!childInstance.vNode){
+      instance.pixiEl.addChild(childInstance.pixiEl);
+      instance.children.push(childInstance);
+    }
   }
 
   node.children.map(childNode => {
 
-    mountComponent(childNode, instance);
+    const childInstance = mountComponent(childNode, instance);
+    if(!childInstance.vNode){
+      instance.pixiEl.addChild(childInstance.pixiEl);
+      instance.children.push(childInstance);
+    }
   });
 
   return instance;
 }
 
-export function renderTo(node, pixiContainer) {
+function renderTo(node, pixiContainer) {
 
   const instance = new node.type(node.props);
   const instanceVNode = instance.render();
   instance.pixiEl = pixiContainer;
   instance.vNode = instanceVNode;
 
-  mountComponent(instanceVNode, instance);
+  const childInstance = mountComponent(instanceVNode, instance);
+
+  instance.children.push(childInstance);
 
   return instance;
 }
 
 
-export class PactComponent {
+class PactComponent {
   constructor (props) {
     this.state = {};
     this.props = {};
@@ -151,12 +196,16 @@ class Container extends PactComponent {
 }
 
 
-export function h(componentClass, props, ...children) {
+function h(componentClass, props, ...children) {
+  if(!props){
+    props = {};
+  }
   // @TODO
   if(utils.isReservedType(componentClass)){
     componentClass = Container;
-  } else if(1){
-
+  } else if(typeof componentClass === 'function'){
+    //暂时忽略 props.children
+    children = [];
   } else {
     console.log(componentClass);
     throw new Error('the compoennt muse be a PactComponent');
@@ -168,9 +217,13 @@ export function h(componentClass, props, ...children) {
   const node = {
     type: componentClass,
     key,
+    instance: null,
     props,
     children,
   };
 
   return node;
 }
+module.exports.renderTo = renderTo;
+module.exports.PactComponent = PactComponent;
+module.exports.h = h;

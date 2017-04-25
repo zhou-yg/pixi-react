@@ -74,16 +74,7 @@
 
 //import PIXI from 'pixi.js'
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.PactComponent = undefined;
-
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-exports.mountComponent = mountComponent;
-exports.renderTo = renderTo;
-exports.h = h;
 
 var _utils = __webpack_require__(1);
 
@@ -101,9 +92,21 @@ var isUndef = utils.isUndef,
     isDef = utils.isDef;
 
 
+function replaceVNode() {
+  //...@TODO
+}
+function addVNode(parentVNode, newVNode, targetIndex) {
+  var newInstance = mountComponent(newVNode, parentVNode.instance);
+  parentVNode.instance.children.splice(targetIndex, 0, newInstance);
+
+  if (!newInstance.vNode) {
+    parentVNode.pixiEl.addChildAt(newInstance.pixiEl, targetIndex);
+  }
+}
+
 function updateChildren(instanceParentVnode, newParentVnode) {
-  var oldCh = instanceParentVnode.children;
-  var newCh = newParentVnode.children;
+  var oldCh = instanceParentVnode.children.slice();
+  var newCh = newParentVnode.children.slice();
 
   var oldLen = oldCh.length;
   var newLen = newCh.length;
@@ -118,25 +121,47 @@ function updateChildren(instanceParentVnode, newParentVnode) {
   var newStartVnode = newCh[0];
   var newEndVnode = newCh[newLen - 1];
 
-  while (oldStartIndex <= oldEndIndex && newStartIndex <= newEndIndex) {
+  while (newStartIndex <= newEndIndex) {
     //...diff
+    //
+    var newVNode = newCh[newStartIndex];
+    var newIndex = 0;
+    while (newIndex < oldLen - 1) {
+      var oldVNode = oldCh[newIndex];
+      if (utils.equalVNode(oldVNode, newVNode)) {
+        patchVnode(oldVNode, newVNode);
+        break;
+      } else {
+        var findOldVNode = false;
+        var _j = newStartIndex + 1;
+        while (_j < newEndIndex) {
+          var newVNode2 = newCh[_j];
+          if (utils.equalVNode(oldVNode, newVNode2)) {
+            addVNode(instanceParentVnode, newVNode, newIndex);
+            findOldVNode = true;
+            newIndex++;
+          }
+          _j++;
+        }
+        if (!findOldVNode) {
+          replaceVNode(instanceParentVnode);
+          newIndex++;
+        }
+      }
+    }
   }
 }
 
 function patchVnode(oldVNode, newVNode) {
-  var isEquivalentNode = utils.equalVNode(oldVNode, newVNode);
+  var isEquivalentNodeWithChildren = utils.equalVNode(oldVNode, newVNode, true);
 
-  if (isEquivalentNode) {
-    var isEquivalentNodeWithChildren = utils.equalVNode(oldVNode, newVNode, true);
-
-    if (isEquivalentNodeWithChildren) {
-      // 完全等价的节点，不同替换。继续检查子节点
-      oldVNode.children.forEach(function (oldChildVNode, i) {
-        patchVnode(oldChildVNode, newVNode.children[i]);
-      });
-    } else {
-      updateChildren(oldVNode, newVNode);
-    }
+  if (isEquivalentNodeWithChildren) {
+    // 完全等价的节点，不同替换。继续检查子节点
+    oldVNode.children.forEach(function (oldChildVNode, i) {
+      patchVnode(oldChildVNode, newVNode.children[i]);
+    });
+  } else {
+    updateChildren(oldVNode, newVNode);
   }
 }
 
@@ -144,30 +169,39 @@ function updateComponent(instance) {
   var newVNode = instance.render();
 
   if (utils.isPixiObj(newVNode)) {} else if (utils.isVNode(newVNode)) {
-    patchVnode(instance.vNode, newVNode);
+    var isEquivalentNode = utils.equalVNode(instance.vNode, newVNode);
+    if (isEquivalentNode) {
+      patchVnode(instance.vNode, newVNode);
+    }
   }
 }
 
 function mountComponent(node, parentComponent) {
   var instance = new node.type(node.props);
   var vNode = instance.render();
+  vNode.instance = instance;
 
   if (utils.isPixiObj(vNode)) {
     instance.pixiEl = vNode;
-
-    parentComponent.children.push(instance);
-
-    parentComponent.pixiEl.addChild(vNode);
   } else if (utils.isVNode(vNode)) {
     instance.vNode = vNode;
     instance.pixiEl = parentComponent.pixiEl;
-    instance.children = parentComponent.children;
-    mountComponent(vNode, instance);
+
+    var childInstance = mountComponent(vNode, instance);
+
+    if (!childInstance.vNode) {
+      instance.pixiEl.addChild(childInstance.pixiEl);
+      instance.children.push(childInstance);
+    }
   }
 
   node.children.map(function (childNode) {
 
-    mountComponent(childNode, instance);
+    var childInstance = mountComponent(childNode, instance);
+    if (!childInstance.vNode) {
+      instance.pixiEl.addChild(childInstance.pixiEl);
+      instance.children.push(childInstance);
+    }
   });
 
   return instance;
@@ -180,12 +214,14 @@ function renderTo(node, pixiContainer) {
   instance.pixiEl = pixiContainer;
   instance.vNode = instanceVNode;
 
-  mountComponent(instanceVNode, instance);
+  var childInstance = mountComponent(instanceVNode, instance);
+
+  instance.children.push(childInstance);
 
   return instance;
 }
 
-var PactComponent = exports.PactComponent = function () {
+var PactComponent = function () {
   function PactComponent(props) {
     _classCallCheck(this, PactComponent);
 
@@ -266,10 +302,16 @@ function h(componentClass, props) {
     children[_key - 2] = arguments[_key];
   }
 
+  if (!props) {
+    props = {};
+  }
   // @TODO
   if (utils.isReservedType(componentClass)) {
     componentClass = Container;
-  } else if (1) {} else {
+  } else if (typeof componentClass === 'function') {
+    //暂时忽略 props.children
+    children = [];
+  } else {
     console.log(componentClass);
     throw new Error('the compoennt muse be a PactComponent');
   }
@@ -280,12 +322,16 @@ function h(componentClass, props) {
   var node = {
     type: componentClass,
     key: key,
+    instance: null,
     props: props,
     children: children
   };
 
   return node;
 }
+module.exports.renderTo = renderTo;
+module.exports.PactComponent = PactComponent;
+module.exports.h = h;
 
 /***/ }),
 /* 1 */
@@ -410,6 +456,14 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var i = 0;
+function show(obj) {
+  if (obj.children.length > 0) {
+    console.log(i++ + ":", obj.children);
+    obj.children.forEach(show);
+  }
+}
+
 var T2 = function (_PactComponent) {
   _inherits(T2, _PactComponent);
 
@@ -457,10 +511,10 @@ var T = function (_PactComponent2) {
     key: "render",
     value: function render() {
       return (0, _pact.h)(
-        "c",
+        T2,
         null,
         (0, _pact.h)("c", { key: "c1", onClick: this.click }),
-        (0, _pact.h)(T2, null)
+        (0, _pact.h)("c", null)
       );
     }
   }]);
@@ -479,12 +533,6 @@ var topContainer = {
 var instance = (0, _pact.renderTo)(ele, topContainer);
 
 console.log('=== show ===');
-
-var i = 0;
-function show(obj) {
-  console.log(i++ + ":", obj.children);
-  obj.children.forEach(show);
-}
 //show(topContainer);
 show(instance);
 

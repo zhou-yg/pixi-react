@@ -1,4 +1,12 @@
-import {h, renderTo, mountComponent,PactComponent} from '../src/pact';
+import {h, renderTo,PactComponent} from '../src/pact';
+
+var i=0;
+function show(obj) {
+  if(obj.children.length > 0){
+    console.log(`${i++}:`, obj.children);
+    obj.children.forEach(show);
+  }
+}
 
 
 class T2 extends PactComponent {
@@ -25,10 +33,10 @@ class T extends PactComponent {
 
   render () {
     return (
-      <c>
+      <T2>
         <c key="c1" onClick={this.click}></c>
-        <T2></T2>
-      </c>
+        <c></c>
+      </T2>
     );
   }
 }
@@ -44,12 +52,6 @@ const topContainer = {
 const instance = renderTo(ele,topContainer);
 
 console.log('=== show ===');
-
-var i=0;
-function show(obj) {
-  console.log(`${i++}:`, obj.children);
-  obj.children.forEach(show);
-}
 //show(topContainer);
 show(instance);
 
