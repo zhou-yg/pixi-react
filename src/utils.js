@@ -27,37 +27,38 @@ export function isEqualObj(obj1,obj2) {
 }
 
 export function equalVNode(obj1,obj2,checkChildren) {
+  var isSameNode;
+
   if(isDef(obj1.key) || isDef(obj2.key)){
-    return obj1.key === obj2.key;
-  }
-
-  if(obj1.type === obj2.type){
-    const isSameProps = compareObject(obj1.props,obj2.props);
-    // console.log(`isSameProps:`,isSameProps);
-    if(isSameProps){
-      const len = obj1.children.length;
-      // console.log('len:',checkChildren, len, obj2.children.length);
-      if(checkChildren && len === obj2.children.length){
-        let i = 0;
-        let isSameChild = true;
-
-        while (i < len) {
-          let childObj1 = obj1.children[i];
-          let childObj2 = obj2.children[i];
-
-          isSameChild = equalVNode(childObj1, childObj2);
-          if(!isSameChild){
-            break;
-          }
-          i++;
-        }
-        return isSameChild;
-      }
-      return true;
+    isSameNode = obj1.key === obj2.key;
+  }else {
+    if(obj1.type === obj2.type){
+      isSameNode = compareObject(obj1.props,obj2.props);
     }
   }
 
-  return false;
+  if(isSameNode && checkChildren){
+    const len = obj1.children.length;
+    isSameNode =len === obj2.children.length;
+    if(isSameNode){
+      let i = 0;
+      let isSameChild = true;
+
+      while (i < len) {
+        let childObj1 = obj1.children[i];
+        let childObj2 = obj2.children[i];
+
+        isSameChild = equalVNode(childObj1, childObj2);
+        if(!isSameChild){
+          break;
+        }
+        i++;
+      }
+      isSameNode = isSameChild;
+    }
+  }
+
+  return isSameNode;
 }
 
 export function compareObject(obj1, obj2) {

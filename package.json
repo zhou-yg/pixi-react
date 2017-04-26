@@ -6,7 +6,8 @@
   "scripts": {
     "build": "webpack --progress --display-error-details",
     "build-w": "webpack --progress --display-error-details --watch",
-    "mocha":"mocha bin/test.js"
+    "mocha":"mocha bin/test.js",
+    "mocha-w":"mocha --watch bin/test.js"
   },
   "repository": {
     "type": "git",

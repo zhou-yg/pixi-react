@@ -9,10 +9,18 @@ function replaceVNode() {
 }
 function addVNode(parentVNode, newVNode, targetIndex) {
   const newInstance = mountComponent(newVNode, parentVNode.instance);
+
+  console.log(parentVNode);
+  console.log(newVNode);
+  console.log(parentVNode.instance);
+  console.log('=== addVNode ===');
+
   parentVNode.instance.children.splice(targetIndex, 0 , newInstance);
+  parentVNode.children.splice(targetIndex,0 , newVNode);
 
   if(!newInstance.vNode){
-    parentVNode.pixiEl.addChildAt(newInstance.pixiEl, targetIndex);
+    console.log(parentVNode.instance.pixiEl);
+    parentVNode.instance.pixiEl.addChildAt(newInstance.pixiEl, targetIndex);
   }
 }
 
@@ -41,6 +49,8 @@ function updateChildren(instanceParentVnode, newParentVnode) {
     while(newIndex < oldLen - 1){
       let oldVNode = oldCh[newIndex];
       if(utils.equalVNode(oldVNode, newVNode)){
+        console.log(`equalVNode`, oldVNode);
+        console.log(`equalVNode`, newVNode);
         patchVnode(oldVNode, newVNode);
         break;
       }else{
@@ -56,20 +66,27 @@ function updateChildren(instanceParentVnode, newParentVnode) {
           j++;
         }
         if(!findOldVNode){
-          replaceVNode(instanceParentVnode,)
+          replaceVNode(instanceParentVnode);
           newIndex++;
         }
       }
     }
+    newStartIndex++;
   }
+  console.log('=== updateChildren ===')
 }
 
 function patchVnode(oldVNode, newVNode) {
     let isEquivalentNodeWithChildren = utils.equalVNode(oldVNode, newVNode, true);
 
+    console.log(`isEquivalentNodeWithChildren:`,oldVNode.key,isEquivalentNodeWithChildren);
+    console.log(oldVNode);
+    console.log(newVNode);
+    console.log('== patchVnode ==');
+
     if(isEquivalentNodeWithChildren){
       // 完全等价的节点，不同替换。继续检查子节点
-      oldVNode.children.forEach((oldChildVNode, i) => {
+      oldVNode.children.slice().forEach((oldChildVNode, i) => {
         patchVnode(oldChildVNode, newVNode.children[i]);
       });
     } else {
@@ -88,6 +105,10 @@ function updateComponent(instance) {
       patchVnode(instance.vNode, newVNode)
     }
   }
+  
+  instance.children.forEach(childInstance => {
+    updateComponent(childInstance);
+  });
 }
 
 function mountComponent(node, parentComponent) {
@@ -102,11 +123,11 @@ function mountComponent(node, parentComponent) {
     instance.vNode = vNode;
     instance.pixiEl = parentComponent.pixiEl;
 
-    const childInstance = mountComponent(vNode, instance);
+    const rootInstance = mountComponent(vNode, instance);
 
-    if(!childInstance.vNode){
-      instance.pixiEl.addChild(childInstance.pixiEl);
-      instance.children.push(childInstance);
+    if(!rootInstance.vNode){
+      instance.pixiEl.addChild(rootInstance.pixiEl);
+      instance.rootInstance = rootInstance;
     }
   }
 
@@ -126,16 +147,17 @@ function renderTo(node, pixiContainer) {
 
   const instance = new node.type(node.props);
   const instanceVNode = instance.render();
+
   instance.pixiEl = pixiContainer;
   instance.vNode = instanceVNode;
+  instanceVNode.instance = instance;
 
-  const childInstance = mountComponent(instanceVNode, instance);
+  const rootInstance = mountComponent(instanceVNode, instance);
 
-  instance.children.push(childInstance);
+  instance.rootInstance = rootInstance;
 
   return instance;
 }
-
 
 class PactComponent {
   constructor (props) {
@@ -145,11 +167,10 @@ class PactComponent {
     Object.assign(this.props, props);
 
     this.isMounted = false;
-
     this.vNode; //render产生的虚拟node
     this.pixiEl; //pixi对象
+    this.rootInstance; //根实例对象
     this.children = []; //子PactComponent对象
-
   }
   setState (obj) {
     this.state = Object.assign({}, this.state, obj);
@@ -191,6 +212,9 @@ class Container extends PactComponent {
       addChild(c){
         this.children.push(c)
       },
+      addChildAt(c,i){
+        this.children.splice(i,0,c);
+      }
     }
   }
 }
@@ -226,6 +250,7 @@ function h(componentClass, props, ...children) {
 
   return node;
 }
+
 module.exports.Container = Container;
 module.exports.renderTo = renderTo;
 module.exports.PactComponent = PactComponent;
