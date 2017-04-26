@@ -4,7 +4,8 @@ module.exports = {
 
   entry: {
     index: path.join(__dirname, './src/pact.js'),
-    test: path.join(__dirname, './test/test.js'),
+    t: path.join(__dirname, './test/test.js'),
+    test: path.join(__dirname, './test/index.js'),
   },
   output: {
     path: path.join(__dirname, './bin/'),

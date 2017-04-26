@@ -305,6 +305,10 @@ function h(componentClass, props) {
   if (!props) {
     props = {};
   }
+  children = children.filter(function (child) {
+    return !!child;
+  });
+
   // @TODO
   if (utils.isReservedType(componentClass)) {
     componentClass = Container;
