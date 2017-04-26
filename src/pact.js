@@ -6,20 +6,18 @@ const {isUndef, isDef} = utils;
 
 function replaceVNode() {
   //...@TODO
+  console.log('replaceVNode:');
 }
 function addVNode(parentVNode, newVNode, targetIndex) {
   const newInstance = mountComponent(newVNode, parentVNode.instance);
 
-  console.log(parentVNode);
-  console.log(newVNode);
-  console.log(parentVNode.instance);
-  console.log('=== addVNode ===');
-
-  parentVNode.instance.children.splice(targetIndex, 0 , newInstance);
+  parentVNode.instance.rootInstance.children.splice(targetIndex, 0 , newInstance);
   parentVNode.children.splice(targetIndex,0 , newVNode);
 
+  console.log(targetIndex,parentVNode.instance);
+  console.log('=== addVNode ===');
+  
   if(!newInstance.vNode){
-    console.log(parentVNode.instance.pixiEl);
     parentVNode.instance.pixiEl.addChildAt(newInstance.pixiEl, targetIndex);
   }
 }
@@ -105,7 +103,7 @@ function updateComponent(instance) {
       patchVnode(instance.vNode, newVNode)
     }
   }
-  
+
   instance.children.forEach(childInstance => {
     updateComponent(childInstance);
   });
@@ -205,17 +203,7 @@ class Container extends PactComponent {
   }
 
   render () {
-    return {
-      name:j++,
-      props: this.props,
-      children:[],
-      addChild(c){
-        this.children.push(c)
-      },
-      addChildAt(c,i){
-        this.children.splice(i,0,c);
-      }
-    }
+    return new PIXI.Container(this.props);
   }
 }
 

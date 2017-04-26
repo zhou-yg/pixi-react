@@ -2,12 +2,13 @@
   "name": "pact",
   "version": "0.0.1",
   "description": "set/get data structure",
-  "main": "./bin/index.js",
+  "main": "./dist/index.js",
   "scripts": {
     "build": "webpack --progress --display-error-details",
     "build-w": "webpack --progress --display-error-details --watch",
-    "mocha":"mocha bin/test.js",
-    "mocha-w":"mocha --watch bin/test.js"
+    "dist": "webpack --progress --display-error-details --config webpack.config.pro.js",
+    "mocha": "mocha bin/test.js",
+    "mocha-w": "mocha --watch bin/test.js"
   },
   "repository": {
     "type": "git",
@@ -29,6 +30,7 @@
     "babel-runtime": "^6.23.0",
     "lodash": "^4.17.4",
     "mocha": "^3.3.0",
+    "pixi-fake.js": "^1.0.0",
     "webpack": "^2.2.1"
   },
   "dependencies": {

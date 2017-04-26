@@ -1,4 +1,5 @@
 'use strict';
+
 export function isDef(v) {
   return !!v || v === 0;
 }

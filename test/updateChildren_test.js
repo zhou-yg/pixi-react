@@ -25,28 +25,21 @@ class T extends PactComponent {
 describe('组件生命周期', function () {
   const tVNode = h(T);
 
-  const topContainerFn = () => {
-    return {
-      children:[],
-      addChild(c){
-        this.children.push(c)
-      },
-      addChildAt(c,i){
-        this.children.splice(i,0,c);
-      },
-    };
-  }
-  const topContainer = topContainerFn();
-  const topContainer2 = topContainerFn();
+  const topContainer = new PIXI.Container();
+  const topContainer2 = new PIXI.Container();
+
+  const _log  = console.log;
+  // console.log = () => {};
+
   const tInstance = renderTo(tVNode,topContainer);
   const tInstance2 = renderTo(tVNode,topContainer2);
 
-  const oldCh = tInstance2.children.slice();
+  const oldCh = tInstance2.rootInstance.children.slice();
   tInstance2.setState({
     a:true
   });
 
-  const newCh = tInstance2.children.slice();
+  console.log = _log;
 
   describe('初始化', function() {
 
@@ -85,8 +78,11 @@ describe('组件生命周期', function () {
       equal(tInstance2.vNode.children[2].key, 'c2','第三个儿子key');
     });
     it('添加新的节点', function() {
+      const newCh = tInstance2.rootInstance.children.slice();
       // body...
-      equal(tInstance2.children.length, 3 , '子节点长度');
+      equal(tInstance2.rootInstance.children.length, 3 , '子节点长度');
+      equal(oldCh[0], newCh[1], '第一个节点不变');
+      equal(oldCh[1], newCh[2], '第二个节点不变');
     });
   });
 });

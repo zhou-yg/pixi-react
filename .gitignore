@@ -81,4 +81,6 @@ node_modules
 
 _test/
 ./bin/*.js
-bin/
+dist/
+./dist/
+./dist/*.js
