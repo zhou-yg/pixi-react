@@ -226,6 +226,7 @@ function h(componentClass, props, ...children) {
 
   return node;
 }
+module.exports.Container = Container;
 module.exports.renderTo = renderTo;
 module.exports.PactComponent = PactComponent;
 module.exports.h = h;
