@@ -70,13 +70,24 @@
 /* 0 */
 /***/ (function(module, exports, __webpack_require__) {
 
+/**
+ * Created by zyg on 16/7/15.
+ */
+module.exports = __webpack_require__(3)
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
 "use strict";
 /* WEBPACK VAR INJECTION */(function(PIXI) {
 //import PIXI from 'pixi.js'
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _utils = __webpack_require__(1);
+var _utils = __webpack_require__(2);
 
 var utils = _interopRequireWildcard(_utils);
 
@@ -92,18 +103,29 @@ var isUndef = utils.isUndef,
     isDef = utils.isDef;
 
 
-function replaceVNode() {
+function replaceVNode(parentVNode, newVNode, replaceIndex) {
   //...@TODO
-  console.log('replaceVNode:');
+  console.log('replaceVNode:', replaceIndex, newVNode.key);
+
+  var newInstance = mountComponent(newVNode, parentVNode.instance);
+
+  parentVNode.instance.rootInstance[replaceIndex] = newInstance;
+  parentVNode.children[replaceIndex] = newVNode;
+
+  if (!newInstance.vNode) {
+    parentVNode.instance.pixiEl.removeChildAt(replaceIndex);
+    parentVNode.instance.pixiEl.addChildAt(newInstance.pixiEl, replaceIndex);
+  }
 }
 function addVNode(parentVNode, newVNode, targetIndex) {
+  console.log('addVNode:', targetIndex, newVNode.key);
   var newInstance = mountComponent(newVNode, parentVNode.instance);
 
   parentVNode.instance.rootInstance.children.splice(targetIndex, 0, newInstance);
   parentVNode.children.splice(targetIndex, 0, newVNode);
 
-  console.log(targetIndex, parentVNode.instance);
-  console.log('=== addVNode ===');
+  // console.log(targetIndex,parentVNode.instance);
+  // console.log('=== addVNode ===');
 
   if (!newInstance.vNode) {
     parentVNode.instance.pixiEl.addChildAt(newInstance.pixiEl, targetIndex);
@@ -135,8 +157,8 @@ function updateChildren(instanceParentVnode, newParentVnode) {
     while (newIndex < oldLen - 1) {
       var oldVNode = oldCh[newIndex];
       if (utils.equalVNode(oldVNode, newVNode)) {
-        console.log('equalVNode', oldVNode);
-        console.log('equalVNode', newVNode);
+        // console.log(`equalVNode`, oldVNode);
+        // console.log(`equalVNode`, newVNode);
         patchVnode(oldVNode, newVNode);
         break;
       } else {
@@ -145,30 +167,37 @@ function updateChildren(instanceParentVnode, newParentVnode) {
         while (_j < newEndIndex) {
           var newVNode2 = newCh[_j];
           if (utils.equalVNode(oldVNode, newVNode2)) {
+
+            console.log('before addVNode:', newIndex, _j, newVNode);
+
             addVNode(instanceParentVnode, newVNode, newIndex);
             findOldVNode = true;
             newIndex++;
+            _j++;
+            break;
           }
           _j++;
         }
-        if (!findOldVNode) {
-          replaceVNode(instanceParentVnode);
+        if (findOldVNode) {
+          break;
+        } else {
+          replaceVNode(instanceParentVnode, newVNode, newStartIndex);
           newIndex++;
         }
       }
     }
     newStartIndex++;
   }
-  console.log('=== updateChildren ===');
+  // console.log('=== updateChildren ===')
 }
 
 function patchVnode(oldVNode, newVNode) {
   var isEquivalentNodeWithChildren = utils.equalVNode(oldVNode, newVNode, true);
 
-  console.log('isEquivalentNodeWithChildren:', oldVNode.key, isEquivalentNodeWithChildren);
-  console.log(oldVNode);
-  console.log(newVNode);
-  console.log('== patchVnode ==');
+  // console.log(`isEquivalentNodeWithChildren:`,oldVNode.key,isEquivalentNodeWithChildren);
+  // console.log(oldVNode);
+  // console.log(newVNode);
+  // console.log('== patchVnode ==');
 
   if (isEquivalentNodeWithChildren) {
     // 完全等价的节点，不同替换。继续检查子节点
@@ -182,7 +211,7 @@ function patchVnode(oldVNode, newVNode) {
 
 function updateComponent(instance) {
   var newVNode = instance.render();
-
+  console.log('updateComponent:', newVNode);
   if (utils.isPixiObj(newVNode)) {} else if (utils.isVNode(newVNode)) {
     var isEquivalentNode = utils.equalVNode(instance.vNode, newVNode);
     if (isEquivalentNode) {
@@ -320,7 +349,7 @@ function h(componentClass, props) {
     props = {};
   }
   children = children.filter(function (child) {
-    return !!child;
+    return !!child && (typeof child === 'undefined' ? 'undefined' : _typeof(child)) === 'object';
   });
 
   // @TODO
@@ -330,7 +359,7 @@ function h(componentClass, props) {
     //暂时忽略 props.children
     children = [];
   } else {
-    console.log(componentClass);
+    console.error(componentClass);
     throw new Error('the compoennt muse be a PactComponent');
   }
 
@@ -345,6 +374,7 @@ function h(componentClass, props) {
     children: children
   };
 
+  // console.log(`node:`, node);
   return node;
 }
 
@@ -352,10 +382,10 @@ module.exports.Container = Container;
 module.exports.renderTo = renderTo;
 module.exports.PactComponent = PactComponent;
 module.exports.h = h;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 1 */
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -462,15 +492,6 @@ function compareObject(obj1, obj2) {
 }
 
 /***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Created by zyg on 16/7/15.
- */
-module.exports = __webpack_require__(3)
-
-/***/ }),
 /* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -494,6 +515,9 @@ class Container {
   addChildAt(c,i){
     this.children.splice(i,0,c);
   }
+  removeChildAt(i){
+    this.children.splice(i,1);
+  }
 }
 
 
@@ -510,12 +534,9 @@ module.exports = {
 /* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
-
-
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _pact = __webpack_require__(0);
+var _pact = __webpack_require__(1);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 

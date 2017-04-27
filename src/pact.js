@@ -4,19 +4,30 @@ import * as utils from './utils.js';
 
 const {isUndef, isDef} = utils;
 
-function replaceVNode() {
+function replaceVNode(parentVNode, newVNode, replaceIndex) {
   //...@TODO
-  console.log('replaceVNode:');
+  console.log('replaceVNode:', replaceIndex, newVNode.key);
+
+  const newInstance = mountComponent(newVNode, parentVNode.instance);
+
+  parentVNode.instance.rootInstance[replaceIndex] = newInstance;
+  parentVNode.children[replaceIndex] = newVNode;
+
+  if(!newInstance.vNode){
+    parentVNode.instance.pixiEl.removeChildAt(replaceIndex);
+    parentVNode.instance.pixiEl.addChildAt(newInstance.pixiEl, replaceIndex);
+  }
 }
 function addVNode(parentVNode, newVNode, targetIndex) {
+  console.log('addVNode:', targetIndex, newVNode.key);
   const newInstance = mountComponent(newVNode, parentVNode.instance);
 
   parentVNode.instance.rootInstance.children.splice(targetIndex, 0 , newInstance);
   parentVNode.children.splice(targetIndex,0 , newVNode);
 
-  console.log(targetIndex,parentVNode.instance);
-  console.log('=== addVNode ===');
-  
+  // console.log(targetIndex,parentVNode.instance);
+  // console.log('=== addVNode ===');
+
   if(!newInstance.vNode){
     parentVNode.instance.pixiEl.addChildAt(newInstance.pixiEl, targetIndex);
   }
@@ -47,8 +58,8 @@ function updateChildren(instanceParentVnode, newParentVnode) {
     while(newIndex < oldLen - 1){
       let oldVNode = oldCh[newIndex];
       if(utils.equalVNode(oldVNode, newVNode)){
-        console.log(`equalVNode`, oldVNode);
-        console.log(`equalVNode`, newVNode);
+        // console.log(`equalVNode`, oldVNode);
+        // console.log(`equalVNode`, newVNode);
         patchVnode(oldVNode, newVNode);
         break;
       }else{
@@ -57,30 +68,37 @@ function updateChildren(instanceParentVnode, newParentVnode) {
         while (j < newEndIndex) {
           let newVNode2 = newCh[j];
           if(utils.equalVNode(oldVNode, newVNode2)){
+
+            console.log('before addVNode:', newIndex, j, newVNode);
+
             addVNode(instanceParentVnode, newVNode, newIndex);
             findOldVNode = true;
             newIndex++;
+            j++;
+            break;
           }
           j++;
         }
-        if(!findOldVNode){
-          replaceVNode(instanceParentVnode);
+        if(findOldVNode){
+          break;
+        }else{
+          replaceVNode(instanceParentVnode, newVNode, newStartIndex);
           newIndex++;
         }
       }
     }
     newStartIndex++;
   }
-  console.log('=== updateChildren ===')
+  // console.log('=== updateChildren ===')
 }
 
 function patchVnode(oldVNode, newVNode) {
     let isEquivalentNodeWithChildren = utils.equalVNode(oldVNode, newVNode, true);
 
-    console.log(`isEquivalentNodeWithChildren:`,oldVNode.key,isEquivalentNodeWithChildren);
-    console.log(oldVNode);
-    console.log(newVNode);
-    console.log('== patchVnode ==');
+    // console.log(`isEquivalentNodeWithChildren:`,oldVNode.key,isEquivalentNodeWithChildren);
+    // console.log(oldVNode);
+    // console.log(newVNode);
+    // console.log('== patchVnode ==');
 
     if(isEquivalentNodeWithChildren){
       // 完全等价的节点，不同替换。继续检查子节点
@@ -94,7 +112,7 @@ function patchVnode(oldVNode, newVNode) {
 
 function updateComponent(instance) {
   const newVNode = instance.render();
-
+  console.log(`updateComponent:`, newVNode);
   if(utils.isPixiObj(newVNode)){
 
   } else if(utils.isVNode(newVNode)){
@@ -212,7 +230,9 @@ function h(componentClass, props, ...children) {
   if(!props){
     props = {};
   }
-  children = children.filter(child => !!child);
+  children = children.filter(child => {
+    return !!child && typeof child === 'object';
+  });
 
   // @TODO
   if(utils.isReservedType(componentClass)){
@@ -221,7 +241,7 @@ function h(componentClass, props, ...children) {
     //暂时忽略 props.children
     children = [];
   } else {
-    console.log(componentClass);
+    console.error(componentClass);
     throw new Error('the compoennt muse be a PactComponent');
   }
 
@@ -236,6 +256,7 @@ function h(componentClass, props, ...children) {
     children,
   };
 
+  // console.log(`node:`, node);
   return node;
 }
 
