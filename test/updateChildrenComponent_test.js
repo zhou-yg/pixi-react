@@ -11,6 +11,18 @@ import {
   Container
 } from '../src/react-pixi';
 
+class MyComponent extends PactComponent{
+  render(){
+    return (
+      <c key="myComponent" >
+        <c key="m0" />
+        {this.slots}
+        <c key="m3" />
+      </c>
+    )
+  }
+}
+
 class T extends PactComponent {
   constructor() {
     super({});
@@ -24,14 +36,16 @@ class T extends PactComponent {
     const {
       a,
       c2,
-      c,
       c4
     } = this.state;
 
     return (
       <c key="top">
         {a ? <c key = "a" / > : ''}
-        <c key="c1">< /c>
+        <MyComponent key="c1">
+          <c key ="m1" />
+          <c key ="m2" />
+        </MyComponent>
         {c2 ? <c key = "c2" ></c> : <c key="c3"></c>}
         {c4 ? <c key="c4" /> : ''}
       </c>
@@ -39,7 +53,7 @@ class T extends PactComponent {
   }
 }
 
-describe('基础组件', function() {
+describe('复杂嵌套的组件', function() {
 
   var initChildrenLen = 3;
 
@@ -52,7 +66,7 @@ describe('基础组件', function() {
       // body...
       equal(tInstance.vNode.type, Container, '顶层vNode的type类型');
       equal(tInstance.vNode.children.length, initChildrenLen, 'vNode的儿子们的长度');
-      equal(tInstance.vNode.children[0].type, Container, '第一个儿子类型');
+      equal(tInstance.vNode.children[0].type, MyComponent, '第一个儿子类型');
       equal(tInstance.vNode.children[0].key, 'c1', '第一个儿子key');
       equal(tInstance.vNode.children[1].type, Container, '第二个儿子类型');
       equal(tInstance.vNode.children[1].key, 'c2', '第二个儿子key');
@@ -81,7 +95,7 @@ describe('基础组件', function() {
       a: true
     });
 
-    // console.log('===============================组件更新-添加=====================================')
+    console.log('===============================Compoennt组件更新-添加=====================================')
 
     it('添加的vNode', function() {
       // body...
@@ -114,7 +128,7 @@ describe('基础组件', function() {
       a: true,
       c2: false
     });
-    console.log('==============================组建更新-替换======================================')
+    console.log('==============================Compoennt组建更新-替换======================================')
 
     // body...
     it('替换的VNode', function() {
@@ -129,6 +143,7 @@ describe('基础组件', function() {
     });
     it('替换的instance', function() {
       const newCh = tInstance.rootInstance.children.slice();
+
       equal(newCh.length, initChildrenLen + 1, '子实例们的长度');
       equal(oldCh[0], newCh[1], 'key=c1的节点没变');
     });
@@ -145,7 +160,7 @@ describe('基础组件', function() {
       c2: false,
       c4: false,
     });
-    console.log('==============================组建更新-删除======================================')
+    console.log('==============================Compoennt组建更新-删除======================================')
 
     it('删除的VNode', function() {
       // body...

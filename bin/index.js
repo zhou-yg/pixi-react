@@ -348,7 +348,7 @@ function patchVnode(oldVNode, newVNode) {
 
 function updateComponent(instance) {
   var newVNode = instance.render();
-  console.log('updateComponent:', newVNode);
+  // console.log(`updateComponent:`, newVNode);
   if (utils.isPixiObj(newVNode)) {} else if (utils.isVNode(newVNode)) {
     var isEquivalentNode = utils.equalVNode(instance.vNode, newVNode);
     if (isEquivalentNode) {
@@ -362,15 +362,18 @@ function updateComponent(instance) {
 }
 
 function mountComponent(node, parentComponent) {
-  var instance = new node.type(node.props);
+  console.log(node.type, parentComponent);
+  var instance = new node.type(node.props, node.slots);
   var vNode = instance.render();
   vNode.instance = instance;
 
   if (utils.isPixiObj(vNode)) {
     instance.pixiEl = vNode;
+    instance.isMounted = true;
   } else if (utils.isVNode(vNode)) {
     instance.vNode = vNode;
     instance.pixiEl = parentComponent.pixiEl;
+    instance.isMounted = true;
 
     var rootInstance = mountComponent(vNode, instance);
 
@@ -378,6 +381,8 @@ function mountComponent(node, parentComponent) {
       instance.pixiEl.addChild(rootInstance.pixiEl);
       instance.rootInstance = rootInstance;
     }
+  } else {
+    throw new Error('mountComponent 卧槽');
   }
 
   node.children.map(function (childNode) {
@@ -393,8 +398,7 @@ function mountComponent(node, parentComponent) {
 }
 
 function renderTo(node, pixiContainer) {
-
-  var instance = new node.type(node.props);
+  var instance = new node.type(node.props, node.slots);
   var instanceVNode = instance.render();
 
   instance.pixiEl = pixiContainer;
@@ -409,7 +413,7 @@ function renderTo(node, pixiContainer) {
 }
 
 var PactComponent = function () {
-  function PactComponent(props) {
+  function PactComponent(props, slots) {
     _classCallCheck(this, PactComponent);
 
     this.state = {};
@@ -422,6 +426,7 @@ var PactComponent = function () {
     this.pixiEl; //pixi对象
     this.rootInstance; //根实例对象
     this.children = []; //子PactComponent对象
+    this.slots = slots || []; //插槽
   }
 
   _createClass(PactComponent, [{
@@ -489,11 +494,14 @@ function h(componentClass, props) {
     return !!child && (typeof child === 'undefined' ? 'undefined' : _typeof(child)) === 'object';
   });
 
+  var slots = [];
+
   // @TODO
   if (utils.isReservedType(componentClass)) {
     componentClass = Container;
   } else if (typeof componentClass === 'function') {
     //暂时忽略 props.children
+    slots = children.slice();
     children = [];
   } else {
     console.error(componentClass);
@@ -508,7 +516,8 @@ function h(componentClass, props) {
     key: key,
     instance: null,
     props: props,
-    children: children
+    children: children,
+    slots: slots
   };
 
   // console.log(`node:`, node);

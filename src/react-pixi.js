@@ -142,7 +142,7 @@ function patchVnode(oldVNode, newVNode) {
 
 function updateComponent(instance) {
   const newVNode = instance.render();
-  console.log(`updateComponent:`, newVNode);
+  // console.log(`updateComponent:`, newVNode);
   if(utils.isPixiObj(newVNode)){
 
   } else if(utils.isVNode(newVNode)){
@@ -158,16 +158,19 @@ function updateComponent(instance) {
 }
 
 function mountComponent(node, parentComponent) {
-  const instance = new node.type(node.props);
+  console.log(node.type, parentComponent);
+  const instance = new node.type(node.props, node.slots);
   const vNode = instance.render();
   vNode.instance = instance;
 
   if(utils.isPixiObj(vNode)){
     instance.pixiEl = vNode;
+    instance.isMounted = true;
 
   } else if(utils.isVNode(vNode)){
     instance.vNode = vNode;
     instance.pixiEl = parentComponent.pixiEl;
+    instance.isMounted = true;
 
     const rootInstance = mountComponent(vNode, instance);
 
@@ -175,6 +178,8 @@ function mountComponent(node, parentComponent) {
       instance.pixiEl.addChild(rootInstance.pixiEl);
       instance.rootInstance = rootInstance;
     }
+  }else{
+    throw new Error('mountComponent 卧槽');
   }
 
   node.children.map(childNode => {
@@ -190,8 +195,7 @@ function mountComponent(node, parentComponent) {
 }
 
 function renderTo(node, pixiContainer) {
-
-  const instance = new node.type(node.props);
+  const instance = new node.type(node.props, node.slots);
   const instanceVNode = instance.render();
 
   instance.pixiEl = pixiContainer;
@@ -206,7 +210,7 @@ function renderTo(node, pixiContainer) {
 }
 
 class PactComponent {
-  constructor (props) {
+  constructor (props, slots) {
     this.state = {};
     this.props = {};
 
@@ -217,6 +221,7 @@ class PactComponent {
     this.pixiEl; //pixi对象
     this.rootInstance; //根实例对象
     this.children = []; //子PactComponent对象
+    this.slots = slots || []; //插槽
   }
   setState (obj) {
     this.state = Object.assign({}, this.state, obj);
@@ -264,11 +269,14 @@ function h(componentClass, props, ...children) {
     return !!child && typeof child === 'object';
   });
 
+  var slots = [];
+
   // @TODO
   if(utils.isReservedType(componentClass)){
     componentClass = Container;
   } else if(typeof componentClass === 'function'){
     //暂时忽略 props.children
+    slots = children.slice();
     children = [];
   } else {
     console.error(componentClass);
@@ -284,6 +292,7 @@ function h(componentClass, props, ...children) {
     instance: null,
     props,
     children,
+    slots,
   };
 
   // console.log(`node:`, node);
