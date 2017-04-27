@@ -9,31 +9,31 @@ import {
   renderTo,
   PactComponent,
   Container
-} from '../src/pact';
+} from '../src/react-pixi';
 
 class T extends PactComponent {
   constructor() {
     super({});
     this.state = {
       a: false,
-      b: true,
-      d: true,
+      c2: true,
+      c4: true,
     }
   }
   render() {
     const {
       a,
-      b,
+      c2,
       c,
-      d
+      c4
     } = this.state;
 
     return (
       <c key="top">
         {a ? <c key = "a" / > : ''}
         <c key="c1">< /c>
-        {b ? <c key = "c2" ></c> : <c key="c3"></c>}
-        {d ? <c key="c4" /> : ''}
+        {c2 ? <c key = "c2" ></c> : <c key="c3"></c>}
+        {c4 ? <c key="c4" /> : ''}
       </c>
     );
   }
@@ -76,11 +76,12 @@ describe('组件生命周期', function() {
 
     // body...
     const oldCh = tInstance2.rootInstance.children.slice();
-    console.log(tInstance2.vNode.children.slice());
+
     tInstance2.setState({
       a: true
     });
-    console.log(tInstance2.vNode.children.slice());
+
+    console.log('===============================组件更新-添加=====================================')
 
     it('添加的vNode', function() {
       // body...
@@ -111,8 +112,10 @@ describe('组件生命周期', function() {
     const oldCh = tInstance.rootInstance.children.slice();
     tInstance.setState({
       a: true,
-      b: false
+      c2: false
     });
+    console.log(tInstance.vNode.children);
+    console.log('==============================组建更新-替换======================================')
 
     // body...
     it('替换的VNode', function() {
@@ -125,7 +128,7 @@ describe('组件生命周期', function() {
       equal(tInstance.vNode.children[2].type, Container, '第三个儿子类型');
       equal(tInstance.vNode.children[2].key, 'c3', '第三个儿子key');
     });
-    it('替换的节点', function() {
+    it('替换的instance', function() {
       const newCh = tInstance.rootInstance.children.slice();
 
       equal(newCh.length, initChildrenLen + 1, '子实例们的长度');
@@ -141,13 +144,26 @@ describe('组件生命周期', function() {
     const oldCh = tInstance.rootInstance.children.slice();
     tInstance.setState({
       a: true,
-      b: false,
-      d: false,
+      c2: false,
+      c4: false,
     });
+    console.log('==============================组建更新-删除======================================')
 
     it('删除的VNode', function() {
       // body...
-      
+      equal(tInstance.vNode.type, Container, '顶层vNode的type类型');
+      equal(tInstance.vNode.children.length,3, 'vNode的儿子们长度');
+      equal(tInstance.vNode.children[0].type, Container, '第一个儿子类型');
+      equal(tInstance.vNode.children[0].key, 'a', '第一个儿子key');
+      equal(tInstance.vNode.children[1].type, Container, '第二个儿子类型');
+      equal(tInstance.vNode.children[1].key, 'c1', '第二个儿子key');
+      equal(tInstance.vNode.children[2].type, Container, '第三个儿子类型');
+      equal(tInstance.vNode.children[2].key, 'c3', '第三个儿子key');
     });
-  }
+    it('删除的instance', () => {
+      const newCh = tInstance.rootInstance.children;
+      equal(newCh.length,3,'实例的长度');
+      equal(oldCh[0],newCh[1]);
+    });
+  });
 });

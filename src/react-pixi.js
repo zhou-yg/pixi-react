@@ -6,11 +6,11 @@ const {isUndef, isDef} = utils;
 
 function replaceVNode(parentVNode, newVNode, replaceIndex) {
   //...@TODO
-  console.log('replaceVNode:', replaceIndex, newVNode.key);
+  // console.log('replaceVNode:', replaceIndex, newVNode.key);
 
   const newInstance = mountComponent(newVNode, parentVNode.instance);
 
-  parentVNode.instance.rootInstance[replaceIndex] = newInstance;
+  parentVNode.instance.rootInstance.children[replaceIndex] = newInstance;
   parentVNode.children[replaceIndex] = newVNode;
 
   if(!newInstance.vNode){
@@ -33,6 +33,12 @@ function addVNode(parentVNode, newVNode, targetIndex) {
   }
 }
 
+function removeVNode(parentVNode, oldVNode, removeFromIndex) {
+  console.log('removeVNode:', removeFromIndex, oldVNode.key);
+  parentVNode.instance.rootInstance.children.splice(removeFromIndex, 1);
+  parentVNode.children.splice(removeFromIndex, 1);
+}
+
 function updateChildren(instanceParentVnode, newParentVnode) {
   const oldCh = instanceParentVnode.children.slice();
   const newCh = newParentVnode.children.slice();
@@ -50,45 +56,69 @@ function updateChildren(instanceParentVnode, newParentVnode) {
   var newStartVnode = newCh[0];
   var newEndVnode = newCh[newLen-1];
 
+  var patchedIndexArr = [];
+  var addedNum = 0;
+  //newCh [new1, new2, new3...]
   while (newStartIndex <= newEndIndex) {
+    if(patchedIndexArr.indexOf(newStartIndex) !== -1){
+      newStartIndex++;
+      continue;
+    }
     //...diff
-    //
     let newVNode = newCh[newStartIndex];
-    let newIndex = 0;
-    while(newIndex < oldLen - 1){
-      let oldVNode = oldCh[newIndex];
+    let oldChIndex = oldStartIndex;
+
+    let finalMatchOldNode = false;
+
+    console.log('newVNode:',newVNode.key, newStartIndex, oldChIndex);
+
+    //oldCh [old1, old2, old3....]
+    while(oldChIndex <= oldLen - 1){
+      let oldVNode = oldCh[oldChIndex];
       if(utils.equalVNode(oldVNode, newVNode)){
-        // console.log(`equalVNode`, oldVNode);
-        // console.log(`equalVNode`, newVNode);
+        oldStartIndex = oldChIndex+1;
+        console.log('finalMatchOldNode:',oldVNode.key, oldChIndex);
         patchVnode(oldVNode, newVNode);
+        finalMatchOldNode = true;
         break;
       }else{
         let findOldVNode = false;
-        let j = newStartIndex + 1;
-        while (j < newEndIndex) {
-          let newVNode2 = newCh[j];
+        let otherNewIndex = newStartIndex + 1;
+        let newVNode2 = null;
+
+        //newCh [new2, new3...]
+        while (otherNewIndex <= newEndIndex) {
+          newVNode2 = newCh[otherNewIndex];
           if(utils.equalVNode(oldVNode, newVNode2)){
-
-            console.log('before addVNode:', newIndex, j, newVNode);
-
-            addVNode(instanceParentVnode, newVNode, newIndex);
+            patchedIndexArr.push(otherNewIndex);
             findOldVNode = true;
-            newIndex++;
-            j++;
             break;
           }
-          j++;
+          otherNewIndex++;
         }
+
         if(findOldVNode){
+          oldStartIndex = oldChIndex + 1;
+          patchVnode(oldVNode, newVNode2);
           break;
         }else{
-          replaceVNode(instanceParentVnode, newVNode, newStartIndex);
-          newIndex++;
+          console.log(newStartIndex, newVNode.key);
+          removeVNode(instanceParentVnode, oldVNode, oldChIndex + addedNum);
+          addedNum--;
+          oldChIndex++;
+          oldStartIndex++;
         }
       }
     }
+
+    if(!finalMatchOldNode){
+      addVNode(instanceParentVnode, newVNode, oldChIndex);
+      addedNum++;
+    }
     newStartIndex++;
   }
+
+
   // console.log('=== updateChildren ===')
 }
 
