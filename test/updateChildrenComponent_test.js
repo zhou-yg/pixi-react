@@ -134,10 +134,12 @@ describe('复杂嵌套的组件', function() {
       equal(tInstance2.vNode.children.length, initChildrenLen + 1, 'vNode的儿子们的长度');
       equal(tInstance2.vNode.children[0].type, Container, '第一个儿子类型');
       equal(tInstance2.vNode.children[0].key, 'a', '第一个儿子key');
-      equal(tInstance2.vNode.children[1].type, Container, '第二个儿子类型');
+      equal(tInstance2.vNode.children[1].type, MyComponent, '第二个儿子类型');
       equal(tInstance2.vNode.children[1].key, 'c1', '第二个儿子key');
       equal(tInstance2.vNode.children[2].type, Container, '第三个儿子类型');
       equal(tInstance2.vNode.children[2].key, 'c2', '第三个儿子key');
+      equal(tInstance2.vNode.children[3].type, Container, '第4个儿子类型');
+      equal(tInstance2.vNode.children[3].key, 'c4', '第4个儿子key');
     });
     it('添加的instance', function() {
       const newCh = tInstance2.rootInstance.children.slice();
@@ -167,10 +169,12 @@ describe('复杂嵌套的组件', function() {
       equal(tInstance.vNode.children.length, initChildrenLen + 1, 'vNode的儿子们的长度');
       equal(tInstance.vNode.children[0].type, Container, '第一个儿子类型');
       equal(tInstance.vNode.children[0].key, 'a', '第一个儿子key');
-      equal(tInstance.vNode.children[1].type, Container, '第二个儿子类型');
+      equal(tInstance.vNode.children[1].type, MyComponent, '第二个儿子类型');
       equal(tInstance.vNode.children[1].key, 'c1', '第二个儿子key');
       equal(tInstance.vNode.children[2].type, Container, '第三个儿子类型');
       equal(tInstance.vNode.children[2].key, 'c3', '第三个儿子key');
+      equal(tInstance.vNode.children[3].type, Container, '第4个儿子类型');
+      equal(tInstance.vNode.children[3].key, 'c4', '第4个儿子key');
     });
     it('替换的instance', function() {
       const newCh = tInstance.rootInstance.children.slice();
@@ -199,7 +203,7 @@ describe('复杂嵌套的组件', function() {
       equal(tInstance.vNode.children.length,3, 'vNode的儿子们长度');
       equal(tInstance.vNode.children[0].type, Container, '第一个儿子类型');
       equal(tInstance.vNode.children[0].key, 'a', '第一个儿子key');
-      equal(tInstance.vNode.children[1].type, Container, '第二个儿子类型');
+      equal(tInstance.vNode.children[1].type, MyComponent, '第二个儿子类型');
       equal(tInstance.vNode.children[1].key, 'c1', '第二个儿子key');
       equal(tInstance.vNode.children[2].type, Container, '第三个儿子类型');
       equal(tInstance.vNode.children[2].key, 'c3', '第三个儿子key');

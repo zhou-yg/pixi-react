@@ -1300,10 +1300,12 @@ describe('复杂嵌套的组件', function () {
       (0, _assert.equal)(tInstance2.vNode.children.length, initChildrenLen + 1, 'vNode的儿子们的长度');
       (0, _assert.equal)(tInstance2.vNode.children[0].type, _reactPixi.Container, '第一个儿子类型');
       (0, _assert.equal)(tInstance2.vNode.children[0].key, 'a', '第一个儿子key');
-      (0, _assert.equal)(tInstance2.vNode.children[1].type, _reactPixi.Container, '第二个儿子类型');
+      (0, _assert.equal)(tInstance2.vNode.children[1].type, MyComponent, '第二个儿子类型');
       (0, _assert.equal)(tInstance2.vNode.children[1].key, 'c1', '第二个儿子key');
       (0, _assert.equal)(tInstance2.vNode.children[2].type, _reactPixi.Container, '第三个儿子类型');
       (0, _assert.equal)(tInstance2.vNode.children[2].key, 'c2', '第三个儿子key');
+      (0, _assert.equal)(tInstance2.vNode.children[3].type, _reactPixi.Container, '第4个儿子类型');
+      (0, _assert.equal)(tInstance2.vNode.children[3].key, 'c4', '第4个儿子key');
     });
     it('添加的instance', function () {
       var newCh = tInstance2.rootInstance.children.slice();
@@ -1333,10 +1335,12 @@ describe('复杂嵌套的组件', function () {
       (0, _assert.equal)(tInstance.vNode.children.length, initChildrenLen + 1, 'vNode的儿子们的长度');
       (0, _assert.equal)(tInstance.vNode.children[0].type, _reactPixi.Container, '第一个儿子类型');
       (0, _assert.equal)(tInstance.vNode.children[0].key, 'a', '第一个儿子key');
-      (0, _assert.equal)(tInstance.vNode.children[1].type, _reactPixi.Container, '第二个儿子类型');
+      (0, _assert.equal)(tInstance.vNode.children[1].type, MyComponent, '第二个儿子类型');
       (0, _assert.equal)(tInstance.vNode.children[1].key, 'c1', '第二个儿子key');
       (0, _assert.equal)(tInstance.vNode.children[2].type, _reactPixi.Container, '第三个儿子类型');
       (0, _assert.equal)(tInstance.vNode.children[2].key, 'c3', '第三个儿子key');
+      (0, _assert.equal)(tInstance.vNode.children[3].type, _reactPixi.Container, '第4个儿子类型');
+      (0, _assert.equal)(tInstance.vNode.children[3].key, 'c4', '第4个儿子key');
     });
     it('替换的instance', function () {
       var newCh = tInstance.rootInstance.children.slice();
@@ -1365,7 +1369,7 @@ describe('复杂嵌套的组件', function () {
       (0, _assert.equal)(tInstance.vNode.children.length, 3, 'vNode的儿子们长度');
       (0, _assert.equal)(tInstance.vNode.children[0].type, _reactPixi.Container, '第一个儿子类型');
       (0, _assert.equal)(tInstance.vNode.children[0].key, 'a', '第一个儿子key');
-      (0, _assert.equal)(tInstance.vNode.children[1].type, _reactPixi.Container, '第二个儿子类型');
+      (0, _assert.equal)(tInstance.vNode.children[1].type, MyComponent, '第二个儿子类型');
       (0, _assert.equal)(tInstance.vNode.children[1].key, 'c1', '第二个儿子key');
       (0, _assert.equal)(tInstance.vNode.children[2].type, _reactPixi.Container, '第三个儿子类型');
       (0, _assert.equal)(tInstance.vNode.children[2].key, 'c3', '第三个儿子key');
