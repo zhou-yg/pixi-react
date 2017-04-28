@@ -29,3 +29,11 @@ class C1 extends PactComponent {
   }
 }
 ```
+
+## how to dev
+
+```
+npm run build-w
+
+npm run mocha-w
+```
