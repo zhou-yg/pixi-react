@@ -2,11 +2,11 @@
 //import PIXI from 'pixi.js'
 import * as utils from './utils.js';
 
-const {isUndef, isDef} = utils;
+const {isUndef, isDef,log} = utils;
 
 function replaceVNode(parentVNode, newVNode, replaceIndex) {
   //...@TODO
-  // console.log('replaceVNode:', replaceIndex, newVNode.key);
+  // log('replaceVNode:', replaceIndex, newVNode.key);
 
   const newInstance = mountComponent(newVNode, parentVNode.instance);
 
@@ -19,14 +19,14 @@ function replaceVNode(parentVNode, newVNode, replaceIndex) {
   }
 }
 function addVNode(parentVNode, newVNode, targetIndex) {
-  console.log('addVNode:', targetIndex, newVNode.key);
+  log('addVNode:', targetIndex, newVNode.key);
   const newInstance = mountComponent(newVNode, parentVNode.instance);
 
   parentVNode.instance.rootInstance.children.splice(targetIndex, 0 , newInstance);
   parentVNode.children.splice(targetIndex,0 , newVNode);
 
-  // console.log(targetIndex,parentVNode.instance);
-  // console.log('=== addVNode ===');
+  // log(targetIndex,parentVNode.instance);
+  // log('=== addVNode ===');
 
   if(!newInstance.vNode){
     parentVNode.instance.pixiEl.addChildAt(newInstance.pixiEl, targetIndex);
@@ -34,7 +34,7 @@ function addVNode(parentVNode, newVNode, targetIndex) {
 }
 
 function removeVNode(parentVNode, oldVNode, removeFromIndex) {
-  console.log('removeVNode:', removeFromIndex, oldVNode.key);
+  log('removeVNode:', removeFromIndex, oldVNode.key);
   parentVNode.instance.rootInstance.children.splice(removeFromIndex, 1);
   parentVNode.children.splice(removeFromIndex, 1);
 }
@@ -70,14 +70,14 @@ function updateChildren(instanceParentVnode, newParentVnode) {
 
     let finalMatchOldNode = false;
 
-    console.log('newVNode:',newVNode.key, newStartIndex, oldChIndex);
+    log('newVNode:',newVNode.key, newStartIndex, oldChIndex);
 
     //oldCh [old1, old2, old3....]
     while(oldChIndex <= oldLen - 1){
       let oldVNode = oldCh[oldChIndex];
       if(utils.equalVNode(oldVNode, newVNode)){
         oldStartIndex = oldChIndex+1;
-        console.log('finalMatchOldNode:',oldVNode.key, oldChIndex);
+        log('finalMatchOldNode:',oldVNode.key, oldChIndex);
         patchVnode(oldVNode, newVNode);
         finalMatchOldNode = true;
         break;
@@ -102,7 +102,7 @@ function updateChildren(instanceParentVnode, newParentVnode) {
           patchVnode(oldVNode, newVNode2);
           break;
         }else{
-          console.log(newStartIndex, newVNode.key);
+          log(newStartIndex, newVNode.key);
           removeVNode(instanceParentVnode, oldVNode, oldChIndex + addedNum);
           addedNum--;
           oldChIndex++;
@@ -119,16 +119,16 @@ function updateChildren(instanceParentVnode, newParentVnode) {
   }
 
 
-  // console.log('=== updateChildren ===')
+  // log('=== updateChildren ===')
 }
 
 function patchVnode(oldVNode, newVNode) {
     let isEquivalentNodeWithChildren = utils.equalVNode(oldVNode, newVNode, true);
 
-    // console.log(`isEquivalentNodeWithChildren:`,oldVNode.key,isEquivalentNodeWithChildren);
-    // console.log(oldVNode);
-    // console.log(newVNode);
-    // console.log('== patchVnode ==');
+    // log(`isEquivalentNodeWithChildren:`,oldVNode.key,isEquivalentNodeWithChildren);
+    // log(oldVNode);
+    // log(newVNode);
+    // log('== patchVnode ==');
 
     if(isEquivalentNodeWithChildren){
       // 完全等价的节点，不同替换。继续检查子节点
@@ -142,7 +142,7 @@ function patchVnode(oldVNode, newVNode) {
 
 function updateComponent(instance) {
   const newVNode = instance.render();
-  // console.log(`updateComponent:`, newVNode);
+  // log(`updateComponent:`, newVNode);
   if(utils.isPixiObj(newVNode)){
 
   } else if(utils.isVNode(newVNode)){
@@ -158,7 +158,6 @@ function updateComponent(instance) {
 }
 
 function mountComponent(node, parentComponent) {
-  console.log(node.type, parentComponent);
   const instance = new node.type(node.props, node.slots);
   const vNode = instance.render();
   vNode.instance = instance;
@@ -176,18 +175,18 @@ function mountComponent(node, parentComponent) {
 
     if(!rootInstance.vNode){
       instance.pixiEl.addChild(rootInstance.pixiEl);
-      instance.rootInstance = rootInstance;
     }
+    instance.rootInstance = rootInstance;
   }else{
     throw new Error('mountComponent 卧槽');
   }
 
   node.children.map(childNode => {
-
+    log(`childMountComponent:`,childNode.key, instance);
     const childInstance = mountComponent(childNode, instance);
+    instance.children.push(childInstance);
     if(!childInstance.vNode){
       instance.pixiEl.addChild(childInstance.pixiEl);
-      instance.children.push(childInstance);
     }
   });
 
@@ -217,7 +216,7 @@ class PactComponent {
     Object.assign(this.props, props);
 
     this.isMounted = false;
-    this.vNode; //render产生的虚拟node
+    this.vNode = null; //render产生的虚拟node
     this.pixiEl; //pixi对象
     this.rootInstance; //根实例对象
     this.children = []; //子PactComponent对象
@@ -267,7 +266,10 @@ function h(componentClass, props, ...children) {
   }
   children = children.filter(child => {
     return !!child && typeof child === 'object';
-  });
+  }).reduce((prev, next) => {
+    // 带slots情况下,children是个二维数组
+    return prev.concat(next);
+  },[]);
 
   var slots = [];
 
@@ -295,7 +297,7 @@ function h(componentClass, props, ...children) {
     slots,
   };
 
-  // console.log(`node:`, node);
+  // log(`node:`, node);
   return node;
 }
 

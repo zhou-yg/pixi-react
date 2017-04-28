@@ -87,3 +87,8 @@ export function compareObject(obj1, obj2) {
   }
   return false;
 }
+
+
+export function log(){
+  //console.log.apply(console,arguments);
+}

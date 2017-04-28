@@ -62,23 +62,54 @@ describe('复杂嵌套的组件', function() {
     const topContainer = new PIXI.Container();
     const tInstance = renderTo(tVNode, topContainer);
 
+    console.log('===============================Compoennt组件更新-初始化=====================================')
+
     it('vNode', function() {
       // body...
       equal(tInstance.vNode.type, Container, '顶层vNode的type类型');
       equal(tInstance.vNode.children.length, initChildrenLen, 'vNode的儿子们的长度');
       equal(tInstance.vNode.children[0].type, MyComponent, '第一个儿子类型');
+
       equal(tInstance.vNode.children[0].key, 'c1', '第一个儿子key');
+      // equal(tInstance.vNode.children[0].children[0], 'm0', '第一个儿子key');
+      // equal(tInstance.vNode.children[0].children[1], 'm3', '第一个儿子key');
+      equal(tInstance.vNode.children[0].slots[0].type, Container, '组件的第一个slot类型');
+      equal(tInstance.vNode.children[0].slots[0].key, 'm1', '组件的第一个key');
+      equal(tInstance.vNode.children[0].slots[1].type, Container, '组件的第二个slot类型');
+      equal(tInstance.vNode.children[0].slots[1].key, 'm2', '组件的第二个key');
+
       equal(tInstance.vNode.children[1].type, Container, '第二个儿子类型');
       equal(tInstance.vNode.children[1].key, 'c2', '第二个儿子key');
+      equal(tInstance.vNode.children[2].type, Container, '第3个儿子类型');
+      equal(tInstance.vNode.children[2].key, 'c4', '第3个儿子key');
     });
-    it('子节点', function() {
+    it('根的子节点', function() {
       // body...
       equal(tInstance.children.length, 0, '子节点们的长度');
       equal(tInstance.rootInstance.children.length, initChildrenLen, '子节点们的长度');
-      ifError(tInstance.rootInstance.children[0].vNode, '1. pixi对象不存在vnode');
-      ok(tInstance.rootInstance.children[0].pixiEl, '1. pixi对象有pixiEl');
-      ifError(tInstance.rootInstance.children[1].vNode, '2. pixi对象不存在vnode');
-      ok(tInstance.rootInstance.children[1].pixiEl, '2. pixi对象有pixiEl');
+      ok(tInstance.rootInstance.children[0].vNode, 'MyComponent对象存在vnode');
+      ok(tInstance.rootInstance.children[0].pixiEl, 'MyComponent对象有pixiEl');
+      equal(tInstance.rootInstance.children[0].pixiEl, tInstance.rootInstance.pixiEl, 'MyComponent对象的pixiEl等于父亲的pixiEl');
+
+      ok(!tInstance.rootInstance.children[1].vNode, '2 pixi对象不存在vnode');
+      ok(tInstance.rootInstance.children[1].pixiEl, '2 pixi对象有pixiEl');
+      ok(!tInstance.rootInstance.children[2].vNode, '3 pixi对象不存在vnode');
+      ok(tInstance.rootInstance.children[2].pixiEl, '3 pixi对象有pixiEl');
+    });
+
+    it('MyComponent的子节点', function() {
+      // body...
+      const myComponent = tInstance.rootInstance.children[0];
+
+      ok(myComponent instanceof MyComponent, 'MyComponent的类型');
+      equal(myComponent.slots.length, 2 , 'MyComponent的slots长度');
+      equal(myComponent.slots[0].key, 'm1', 'slots[0]的key');
+      equal(myComponent.slots[1].key, 'm2', 'slots[1]的key');
+      equal(myComponent.rootInstance.children.length, 4, 'MyComponent的根下的子节点');
+      equal(myComponent.vNode.children[0].key, 'm0', 'MyComponent的根下的子VNode 1');
+      equal(myComponent.vNode.children[1].key, 'm1', 'MyComponent的根下的子VNode 2');
+      equal(myComponent.vNode.children[2].key, 'm2', 'MyComponent的根下的子VNode 3');
+      equal(myComponent.vNode.children[3].key, 'm3', 'MyComponent的根下的子VNode 4');
     });
   });
 
