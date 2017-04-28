@@ -63,11 +63,21 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 5);
+/******/ 	return __webpack_require__(__webpack_require__.s = 8);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Created by zyg on 16/7/15.
+ */
+module.exports = __webpack_require__(3)
+
+/***/ }),
+/* 1 */,
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -174,17 +184,151 @@ function compareObject(obj1, obj2) {
 }
 
 /***/ }),
-/* 1 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
+"use strict";
 /**
  * Created by zyg on 16/7/15.
  */
-module.exports = __webpack_require__(7)
+
+
+var n=0;
+
+class Container {
+  constructor(props) {
+    this.name = n++;
+    this.props = props;
+    this.children = [];
+  }
+  addChild(c){
+    this.children.push(c)
+  }
+  addChildAt(c,i){
+    this.children.splice(i,0,c);
+  }
+  removeChildAt(i){
+    this.children.splice(i,1);
+  }
+}
+
+
+module.exports = {
+  Container,
+}
+
 
 /***/ }),
-/* 2 */,
-/* 3 */
+/* 4 */,
+/* 5 */,
+/* 6 */,
+/* 7 */,
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _reactPixi = __webpack_require__(14);
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var i = 0;
+function show(obj) {
+  if (obj.children.length > 0) {
+    console.log(i++ + ":", obj.children);
+    obj.children.forEach(show);
+  }
+}
+
+var T2 = function (_PactComponent) {
+  _inherits(T2, _PactComponent);
+
+  function T2() {
+    _classCallCheck(this, T2);
+
+    return _possibleConstructorReturn(this, (T2.__proto__ || Object.getPrototypeOf(T2)).apply(this, arguments));
+  }
+
+  _createClass(T2, [{
+    key: "click",
+    value: function click() {
+      return 1;
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      return (0, _reactPixi.h)(
+        "c",
+        { key: "t2root" },
+        (0, _reactPixi.h)("c", { key: "t2C1" }),
+        (0, _reactPixi.h)("c", { key: "t2c2" })
+      );
+    }
+  }]);
+
+  return T2;
+}(_reactPixi.PactComponent);
+
+var T = function (_PactComponent2) {
+  _inherits(T, _PactComponent2);
+
+  function T() {
+    _classCallCheck(this, T);
+
+    return _possibleConstructorReturn(this, (T.__proto__ || Object.getPrototypeOf(T)).apply(this, arguments));
+  }
+
+  _createClass(T, [{
+    key: "click",
+    value: function click() {
+      return 1;
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      return (0, _reactPixi.h)(
+        T2,
+        null,
+        (0, _reactPixi.h)("c", { key: "c1", onClick: this.click }),
+        (0, _reactPixi.h)("c", null)
+      );
+    }
+  }]);
+
+  return T;
+}(_reactPixi.PactComponent);
+
+var ele = (0, _reactPixi.h)(T);
+
+var topContainer = {
+  children: [],
+  addChild: function addChild(c) {
+    this.children.push(c);
+  }
+};
+var instance = (0, _reactPixi.renderTo)(ele, topContainer);
+
+console.log('=== show ===');
+//show(topContainer);
+show(instance);
+
+console.log('=== setState ===');
+
+instance.setState({
+  name: 1
+});
+
+/***/ }),
+/* 9 */,
+/* 10 */,
+/* 11 */,
+/* 12 */,
+/* 13 */,
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -195,7 +339,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _utils = __webpack_require__(0);
+var _utils = __webpack_require__(2);
 
 var utils = _interopRequireWildcard(_utils);
 
@@ -528,144 +672,7 @@ module.exports.Container = Container;
 module.exports.renderTo = renderTo;
 module.exports.PactComponent = PactComponent;
 module.exports.h = h;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
-
-/***/ }),
-/* 4 */,
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _reactPixi = __webpack_require__(3);
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var i = 0;
-function show(obj) {
-  if (obj.children.length > 0) {
-    console.log(i++ + ":", obj.children);
-    obj.children.forEach(show);
-  }
-}
-
-var T2 = function (_PactComponent) {
-  _inherits(T2, _PactComponent);
-
-  function T2() {
-    _classCallCheck(this, T2);
-
-    return _possibleConstructorReturn(this, (T2.__proto__ || Object.getPrototypeOf(T2)).apply(this, arguments));
-  }
-
-  _createClass(T2, [{
-    key: "click",
-    value: function click() {
-      return 1;
-    }
-  }, {
-    key: "render",
-    value: function render() {
-      return (0, _reactPixi.h)(
-        "c",
-        { key: "t2root" },
-        (0, _reactPixi.h)("c", { key: "t2C1" }),
-        (0, _reactPixi.h)("c", { key: "t2c2" })
-      );
-    }
-  }]);
-
-  return T2;
-}(_reactPixi.PactComponent);
-
-var T = function (_PactComponent2) {
-  _inherits(T, _PactComponent2);
-
-  function T() {
-    _classCallCheck(this, T);
-
-    return _possibleConstructorReturn(this, (T.__proto__ || Object.getPrototypeOf(T)).apply(this, arguments));
-  }
-
-  _createClass(T, [{
-    key: "click",
-    value: function click() {
-      return 1;
-    }
-  }, {
-    key: "render",
-    value: function render() {
-      return (0, _reactPixi.h)(
-        T2,
-        null,
-        (0, _reactPixi.h)("c", { key: "c1", onClick: this.click }),
-        (0, _reactPixi.h)("c", null)
-      );
-    }
-  }]);
-
-  return T;
-}(_reactPixi.PactComponent);
-
-var ele = (0, _reactPixi.h)(T);
-
-var topContainer = {
-  children: [],
-  addChild: function addChild(c) {
-    this.children.push(c);
-  }
-};
-var instance = (0, _reactPixi.renderTo)(ele, topContainer);
-
-console.log('=== show ===');
-//show(topContainer);
-show(instance);
-
-console.log('=== setState ===');
-
-instance.setState({
-  name: 1
-});
-
-/***/ }),
-/* 6 */,
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * Created by zyg on 16/7/15.
- */
-
-
-var n=0;
-
-class Container {
-  constructor(props) {
-    this.name = n++;
-    this.props = props;
-    this.children = [];
-  }
-  addChild(c){
-    this.children.push(c)
-  }
-  addChildAt(c,i){
-    this.children.splice(i,0,c);
-  }
-  removeChildAt(i){
-    this.children.splice(i,1);
-  }
-}
-
-
-module.exports = {
-  Container,
-}
-
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ })
 /******/ ]);

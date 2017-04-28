@@ -63,11 +63,21 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 4);
+/******/ 	return __webpack_require__(__webpack_require__.s = 7);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Created by zyg on 16/7/15.
+ */
+module.exports = __webpack_require__(3)
+
+/***/ }),
+/* 1 */,
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -174,584 +184,7 @@ function compareObject(obj1, obj2) {
 }
 
 /***/ }),
-/* 1 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Created by zyg on 16/7/15.
- */
-module.exports = __webpack_require__(7)
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var map = {
-	"./updateChildrenComponent_test.js": 15,
-	"./updateChildren_test.js": 6
-};
-function webpackContext(req) {
-	return __webpack_require__(webpackContextResolve(req));
-};
-function webpackContextResolve(req) {
-	var id = map[req];
-	if(!(id + 1)) // check for number or string
-		throw new Error("Cannot find module '" + req + "'.");
-	return id;
-};
-webpackContext.keys = function webpackContextKeys() {
-	return Object.keys(map);
-};
-webpackContext.resolve = webpackContextResolve;
-module.exports = webpackContext;
-webpackContext.id = 2;
-
-/***/ }),
 /* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(PIXI) {
-//import PIXI from 'pixi.js'
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _utils = __webpack_require__(0);
-
-var utils = _interopRequireWildcard(_utils);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var isUndef = utils.isUndef,
-    isDef = utils.isDef;
-
-
-function replaceVNode(parentVNode, newVNode, replaceIndex) {
-  //...@TODO
-  // console.log('replaceVNode:', replaceIndex, newVNode.key);
-
-  var newInstance = mountComponent(newVNode, parentVNode.instance);
-
-  parentVNode.instance.rootInstance.children[replaceIndex] = newInstance;
-  parentVNode.children[replaceIndex] = newVNode;
-
-  if (!newInstance.vNode) {
-    parentVNode.instance.pixiEl.removeChildAt(replaceIndex);
-    parentVNode.instance.pixiEl.addChildAt(newInstance.pixiEl, replaceIndex);
-  }
-}
-function addVNode(parentVNode, newVNode, targetIndex) {
-  console.log('addVNode:', targetIndex, newVNode.key);
-  var newInstance = mountComponent(newVNode, parentVNode.instance);
-
-  parentVNode.instance.rootInstance.children.splice(targetIndex, 0, newInstance);
-  parentVNode.children.splice(targetIndex, 0, newVNode);
-
-  // console.log(targetIndex,parentVNode.instance);
-  // console.log('=== addVNode ===');
-
-  if (!newInstance.vNode) {
-    parentVNode.instance.pixiEl.addChildAt(newInstance.pixiEl, targetIndex);
-  }
-}
-
-function removeVNode(parentVNode, oldVNode, removeFromIndex) {
-  console.log('removeVNode:', removeFromIndex, oldVNode.key);
-  parentVNode.instance.rootInstance.children.splice(removeFromIndex, 1);
-  parentVNode.children.splice(removeFromIndex, 1);
-}
-
-function updateChildren(instanceParentVnode, newParentVnode) {
-  var oldCh = instanceParentVnode.children.slice();
-  var newCh = newParentVnode.children.slice();
-
-  var oldLen = oldCh.length;
-  var newLen = newCh.length;
-
-  var oldStartIndex = 0;
-  var oldEndIndex = 0;
-  var oldStartVnode = oldCh[0];
-  var oldEndVnode = oldCh[oldLen - 1];
-
-  var newStartIndex = 0;
-  var newEndIndex = newLen - 1;
-  var newStartVnode = newCh[0];
-  var newEndVnode = newCh[newLen - 1];
-
-  var patchedIndexArr = [];
-  var addedNum = 0;
-  //newCh [new1, new2, new3...]
-  while (newStartIndex <= newEndIndex) {
-    if (patchedIndexArr.indexOf(newStartIndex) !== -1) {
-      newStartIndex++;
-      continue;
-    }
-    //...diff
-    var newVNode = newCh[newStartIndex];
-    var oldChIndex = oldStartIndex;
-
-    var finalMatchOldNode = false;
-
-    console.log('newVNode:', newVNode.key, newStartIndex, oldChIndex);
-
-    //oldCh [old1, old2, old3....]
-    while (oldChIndex <= oldLen - 1) {
-      var oldVNode = oldCh[oldChIndex];
-      if (utils.equalVNode(oldVNode, newVNode)) {
-        oldStartIndex = oldChIndex + 1;
-        console.log('finalMatchOldNode:', oldVNode.key, oldChIndex);
-        patchVnode(oldVNode, newVNode);
-        finalMatchOldNode = true;
-        break;
-      } else {
-        var findOldVNode = false;
-        var otherNewIndex = newStartIndex + 1;
-        var newVNode2 = null;
-
-        //newCh [new2, new3...]
-        while (otherNewIndex <= newEndIndex) {
-          newVNode2 = newCh[otherNewIndex];
-          if (utils.equalVNode(oldVNode, newVNode2)) {
-            patchedIndexArr.push(otherNewIndex);
-            findOldVNode = true;
-            break;
-          }
-          otherNewIndex++;
-        }
-
-        if (findOldVNode) {
-          oldStartIndex = oldChIndex + 1;
-          patchVnode(oldVNode, newVNode2);
-          break;
-        } else {
-          console.log(newStartIndex, newVNode.key);
-          removeVNode(instanceParentVnode, oldVNode, oldChIndex + addedNum);
-          addedNum--;
-          oldChIndex++;
-          oldStartIndex++;
-        }
-      }
-    }
-
-    if (!finalMatchOldNode) {
-      addVNode(instanceParentVnode, newVNode, oldChIndex);
-      addedNum++;
-    }
-    newStartIndex++;
-  }
-
-  // console.log('=== updateChildren ===')
-}
-
-function patchVnode(oldVNode, newVNode) {
-  var isEquivalentNodeWithChildren = utils.equalVNode(oldVNode, newVNode, true);
-
-  // console.log(`isEquivalentNodeWithChildren:`,oldVNode.key,isEquivalentNodeWithChildren);
-  // console.log(oldVNode);
-  // console.log(newVNode);
-  // console.log('== patchVnode ==');
-
-  if (isEquivalentNodeWithChildren) {
-    // 完全等价的节点，不同替换。继续检查子节点
-    oldVNode.children.slice().forEach(function (oldChildVNode, i) {
-      patchVnode(oldChildVNode, newVNode.children[i]);
-    });
-  } else {
-    updateChildren(oldVNode, newVNode);
-  }
-}
-
-function updateComponent(instance) {
-  var newVNode = instance.render();
-  // console.log(`updateComponent:`, newVNode);
-  if (utils.isPixiObj(newVNode)) {} else if (utils.isVNode(newVNode)) {
-    var isEquivalentNode = utils.equalVNode(instance.vNode, newVNode);
-    if (isEquivalentNode) {
-      patchVnode(instance.vNode, newVNode);
-    }
-  }
-
-  instance.children.forEach(function (childInstance) {
-    updateComponent(childInstance);
-  });
-}
-
-function mountComponent(node, parentComponent) {
-  console.log(node.type, parentComponent);
-  var instance = new node.type(node.props, node.slots);
-  var vNode = instance.render();
-  vNode.instance = instance;
-
-  if (utils.isPixiObj(vNode)) {
-    instance.pixiEl = vNode;
-    instance.isMounted = true;
-  } else if (utils.isVNode(vNode)) {
-    instance.vNode = vNode;
-    instance.pixiEl = parentComponent.pixiEl;
-    instance.isMounted = true;
-
-    var rootInstance = mountComponent(vNode, instance);
-
-    if (!rootInstance.vNode) {
-      instance.pixiEl.addChild(rootInstance.pixiEl);
-      instance.rootInstance = rootInstance;
-    }
-  } else {
-    throw new Error('mountComponent 卧槽');
-  }
-
-  node.children.map(function (childNode) {
-
-    var childInstance = mountComponent(childNode, instance);
-    if (!childInstance.vNode) {
-      instance.pixiEl.addChild(childInstance.pixiEl);
-      instance.children.push(childInstance);
-    }
-  });
-
-  return instance;
-}
-
-function renderTo(node, pixiContainer) {
-  var instance = new node.type(node.props, node.slots);
-  var instanceVNode = instance.render();
-
-  instance.pixiEl = pixiContainer;
-  instance.vNode = instanceVNode;
-  instanceVNode.instance = instance;
-
-  var rootInstance = mountComponent(instanceVNode, instance);
-
-  instance.rootInstance = rootInstance;
-
-  return instance;
-}
-
-var PactComponent = function () {
-  function PactComponent(props, slots) {
-    _classCallCheck(this, PactComponent);
-
-    this.state = {};
-    this.props = {};
-
-    Object.assign(this.props, props);
-
-    this.isMounted = false;
-    this.vNode; //render产生的虚拟node
-    this.pixiEl; //pixi对象
-    this.rootInstance; //根实例对象
-    this.children = []; //子PactComponent对象
-    this.slots = slots || []; //插槽
-  }
-
-  _createClass(PactComponent, [{
-    key: 'setState',
-    value: function setState(obj) {
-      this.state = Object.assign({}, this.state, obj);
-      //@TODO 同步更新组件
-      updateComponent(this);
-    }
-  }, {
-    key: 'update',
-    value: function update() {
-      // @TODO
-    }
-  }, {
-    key: 'addChild',
-    value: function addChild(pactObj, i) {}
-  }, {
-    key: 'removeChild',
-    value: function removeChild(pactObj) {}
-  }, {
-    key: 'didMount',
-    value: function didMount() {}
-  }, {
-    key: 'unmount',
-    value: function unmount() {}
-  }, {
-    key: 'render',
-    value: function render() {}
-  }]);
-
-  return PactComponent;
-}();
-
-var j = 0;
-
-var Container = function (_PactComponent) {
-  _inherits(Container, _PactComponent);
-
-  function Container(props) {
-    _classCallCheck(this, Container);
-
-    return _possibleConstructorReturn(this, (Container.__proto__ || Object.getPrototypeOf(Container)).call(this, props));
-  }
-
-  _createClass(Container, [{
-    key: 'render',
-    value: function render() {
-      return new PIXI.Container(this.props);
-    }
-  }]);
-
-  return Container;
-}(PactComponent);
-
-function h(componentClass, props) {
-  for (var _len = arguments.length, children = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
-    children[_key - 2] = arguments[_key];
-  }
-
-  if (!props) {
-    props = {};
-  }
-  children = children.filter(function (child) {
-    return !!child && (typeof child === 'undefined' ? 'undefined' : _typeof(child)) === 'object';
-  });
-
-  var slots = [];
-
-  // @TODO
-  if (utils.isReservedType(componentClass)) {
-    componentClass = Container;
-  } else if (typeof componentClass === 'function') {
-    //暂时忽略 props.children
-    slots = children.slice();
-    children = [];
-  } else {
-    console.error(componentClass);
-    throw new Error('the compoennt muse be a PactComponent');
-  }
-
-  var key = props.key;
-  delete props.key;
-
-  var node = {
-    type: componentClass,
-    key: key,
-    instance: null,
-    props: props,
-    children: children,
-    slots: slots
-  };
-
-  // console.log(`node:`, node);
-  return node;
-}
-
-module.exports.Container = Container;
-module.exports.renderTo = renderTo;
-module.exports.PactComponent = PactComponent;
-module.exports.h = h;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var testsContext = __webpack_require__(2);
-testsContext.keys().forEach(function (k) {
-  testsContext(k);
-});
-
-/***/ }),
-/* 5 */,
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(PIXI) {
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _assert = __webpack_require__(9);
-
-var _reactPixi = __webpack_require__(3);
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var T = function (_PactComponent) {
-  _inherits(T, _PactComponent);
-
-  function T() {
-    _classCallCheck(this, T);
-
-    var _this = _possibleConstructorReturn(this, (T.__proto__ || Object.getPrototypeOf(T)).call(this, {}));
-
-    _this.state = {
-      a: false,
-      c2: true,
-      c4: true
-    };
-    return _this;
-  }
-
-  _createClass(T, [{
-    key: 'render',
-    value: function render() {
-      var _state = this.state,
-          a = _state.a,
-          c2 = _state.c2,
-          c = _state.c,
-          c4 = _state.c4;
-
-
-      return (0, _reactPixi.h)(
-        'c',
-        { key: 'top' },
-        a ? (0, _reactPixi.h)('c', { key: 'a' }) : '',
-        (0, _reactPixi.h)('c', { key: 'c1' }),
-        c2 ? (0, _reactPixi.h)('c', { key: 'c2' }) : (0, _reactPixi.h)('c', { key: 'c3' }),
-        c4 ? (0, _reactPixi.h)('c', { key: 'c4' }) : ''
-      );
-    }
-  }]);
-
-  return T;
-}(_reactPixi.PactComponent);
-
-describe('基础组件', function () {
-
-  var initChildrenLen = 3;
-
-  describe('初始化', function () {
-    var tVNode = (0, _reactPixi.h)(T);
-    var topContainer = new PIXI.Container();
-    var tInstance = (0, _reactPixi.renderTo)(tVNode, topContainer);
-
-    it('vNode', function () {
-      // body...
-      (0, _assert.equal)(tInstance.vNode.type, _reactPixi.Container, '顶层vNode的type类型');
-      (0, _assert.equal)(tInstance.vNode.children.length, initChildrenLen, 'vNode的儿子们的长度');
-      (0, _assert.equal)(tInstance.vNode.children[0].type, _reactPixi.Container, '第一个儿子类型');
-      (0, _assert.equal)(tInstance.vNode.children[0].key, 'c1', '第一个儿子key');
-      (0, _assert.equal)(tInstance.vNode.children[1].type, _reactPixi.Container, '第二个儿子类型');
-      (0, _assert.equal)(tInstance.vNode.children[1].key, 'c2', '第二个儿子key');
-    });
-    it('子节点', function () {
-      // body...
-      (0, _assert.equal)(tInstance.children.length, 0, '子节点们的长度');
-      (0, _assert.equal)(tInstance.rootInstance.children.length, initChildrenLen, '子节点们的长度');
-      (0, _assert.ifError)(tInstance.rootInstance.children[0].vNode, '1. pixi对象不存在vnode');
-      (0, _assert.ok)(tInstance.rootInstance.children[0].pixiEl, '1. pixi对象有pixiEl');
-      (0, _assert.ifError)(tInstance.rootInstance.children[1].vNode, '2. pixi对象不存在vnode');
-      (0, _assert.ok)(tInstance.rootInstance.children[1].pixiEl, '2. pixi对象有pixiEl');
-    });
-  });
-
-  describe('组件更新-添加', function () {
-    var tVNode = (0, _reactPixi.h)(T);
-
-    var topContainer2 = new PIXI.Container();
-    var tInstance2 = (0, _reactPixi.renderTo)(tVNode, topContainer2);
-
-    // body...
-    var oldCh = tInstance2.rootInstance.children.slice();
-
-    tInstance2.setState({
-      a: true
-    });
-
-    // console.log('===============================组件更新-添加=====================================')
-
-    it('添加的vNode', function () {
-      // body...
-      (0, _assert.equal)(tInstance2.vNode.type, _reactPixi.Container, '顶层vNode的type类型');
-      (0, _assert.equal)(tInstance2.vNode.children.length, initChildrenLen + 1, 'vNode的儿子们的长度');
-      (0, _assert.equal)(tInstance2.vNode.children[0].type, _reactPixi.Container, '第一个儿子类型');
-      (0, _assert.equal)(tInstance2.vNode.children[0].key, 'a', '第一个儿子key');
-      (0, _assert.equal)(tInstance2.vNode.children[1].type, _reactPixi.Container, '第二个儿子类型');
-      (0, _assert.equal)(tInstance2.vNode.children[1].key, 'c1', '第二个儿子key');
-      (0, _assert.equal)(tInstance2.vNode.children[2].type, _reactPixi.Container, '第三个儿子类型');
-      (0, _assert.equal)(tInstance2.vNode.children[2].key, 'c2', '第三个儿子key');
-    });
-    it('添加的instance', function () {
-      var newCh = tInstance2.rootInstance.children.slice();
-      // body...
-      (0, _assert.equal)(tInstance2.rootInstance.children.length, initChildrenLen + 1, '子节点长度');
-      (0, _assert.equal)(oldCh[0], newCh[1], '第一个节点不变');
-      (0, _assert.equal)(oldCh[1], newCh[2], '第二个节点不变');
-    });
-  });
-
-  describe('组建更新-替换', function () {
-    var tVNode = (0, _reactPixi.h)(T);
-
-    var topContainer3 = new PIXI.Container();
-    var tInstance = (0, _reactPixi.renderTo)(tVNode, topContainer3);
-
-    var oldCh = tInstance.rootInstance.children.slice();
-    tInstance.setState({
-      a: true,
-      c2: false
-    });
-    console.log('==============================组建更新-替换======================================');
-
-    // body...
-    it('替换的VNode', function () {
-      (0, _assert.equal)(tInstance.vNode.type, _reactPixi.Container, '顶层vNode的type类型');
-      (0, _assert.equal)(tInstance.vNode.children.length, initChildrenLen + 1, 'vNode的儿子们的长度');
-      (0, _assert.equal)(tInstance.vNode.children[0].type, _reactPixi.Container, '第一个儿子类型');
-      (0, _assert.equal)(tInstance.vNode.children[0].key, 'a', '第一个儿子key');
-      (0, _assert.equal)(tInstance.vNode.children[1].type, _reactPixi.Container, '第二个儿子类型');
-      (0, _assert.equal)(tInstance.vNode.children[1].key, 'c1', '第二个儿子key');
-      (0, _assert.equal)(tInstance.vNode.children[2].type, _reactPixi.Container, '第三个儿子类型');
-      (0, _assert.equal)(tInstance.vNode.children[2].key, 'c3', '第三个儿子key');
-    });
-    it('替换的instance', function () {
-      var newCh = tInstance.rootInstance.children.slice();
-      (0, _assert.equal)(newCh.length, initChildrenLen + 1, '子实例们的长度');
-      (0, _assert.equal)(oldCh[0], newCh[1], 'key=c1的节点没变');
-    });
-  });
-  describe('组建更新-删除', function () {
-    var tVNode = (0, _reactPixi.h)(T);
-
-    var topContainer3 = new PIXI.Container();
-    var tInstance = (0, _reactPixi.renderTo)(tVNode, topContainer3);
-
-    var oldCh = tInstance.rootInstance.children.slice();
-    tInstance.setState({
-      a: true,
-      c2: false,
-      c4: false
-    });
-    console.log('==============================组建更新-删除======================================');
-
-    it('删除的VNode', function () {
-      // body...
-      (0, _assert.equal)(tInstance.vNode.type, _reactPixi.Container, '顶层vNode的type类型');
-      (0, _assert.equal)(tInstance.vNode.children.length, 3, 'vNode的儿子们长度');
-      (0, _assert.equal)(tInstance.vNode.children[0].type, _reactPixi.Container, '第一个儿子类型');
-      (0, _assert.equal)(tInstance.vNode.children[0].key, 'a', '第一个儿子key');
-      (0, _assert.equal)(tInstance.vNode.children[1].type, _reactPixi.Container, '第二个儿子类型');
-      (0, _assert.equal)(tInstance.vNode.children[1].key, 'c1', '第二个儿子key');
-      (0, _assert.equal)(tInstance.vNode.children[2].type, _reactPixi.Container, '第三个儿子类型');
-      (0, _assert.equal)(tInstance.vNode.children[2].key, 'c3', '第三个儿子key');
-    });
-    it('删除的instance', function () {
-      var newCh = tInstance.rootInstance.children;
-      (0, _assert.equal)(newCh.length, 3, '实例的长度');
-      (0, _assert.equal)(oldCh[0], newCh[1]);
-    });
-  });
-});
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
-
-/***/ }),
-/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -786,7 +219,7 @@ module.exports = {
 
 
 /***/ }),
-/* 8 */
+/* 4 */
 /***/ (function(module, exports) {
 
 var g;
@@ -813,7 +246,31 @@ module.exports = g;
 
 
 /***/ }),
-/* 9 */
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var map = {
+	"./updateChildrenComponent_test.js": 15,
+	"./updateChildren_test.js": 9
+};
+function webpackContext(req) {
+	return __webpack_require__(webpackContextResolve(req));
+};
+function webpackContextResolve(req) {
+	var id = map[req];
+	if(!(id + 1)) // check for number or string
+		throw new Error("Cannot find module '" + req + "'.");
+	return id;
+};
+webpackContext.keys = function webpackContextKeys() {
+	return Object.keys(map);
+};
+webpackContext.resolve = webpackContextResolve;
+module.exports = webpackContext;
+webpackContext.id = 5;
+
+/***/ }),
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1308,7 +765,204 @@ var objectKeys = Object.keys || function (obj) {
   return keys;
 };
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var testsContext = __webpack_require__(5);
+testsContext.keys().forEach(function (k) {
+  testsContext(k);
+});
+
+/***/ }),
+/* 8 */,
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(PIXI) {
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _assert = __webpack_require__(6);
+
+var _reactPixi = __webpack_require__(14);
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var T = function (_PactComponent) {
+  _inherits(T, _PactComponent);
+
+  function T() {
+    _classCallCheck(this, T);
+
+    var _this = _possibleConstructorReturn(this, (T.__proto__ || Object.getPrototypeOf(T)).call(this, {}));
+
+    _this.state = {
+      a: false,
+      c2: true,
+      c4: true
+    };
+    return _this;
+  }
+
+  _createClass(T, [{
+    key: 'render',
+    value: function render() {
+      var _state = this.state,
+          a = _state.a,
+          c2 = _state.c2,
+          c = _state.c,
+          c4 = _state.c4;
+
+
+      return (0, _reactPixi.h)(
+        'c',
+        { key: 'top' },
+        a ? (0, _reactPixi.h)('c', { key: 'a' }) : '',
+        (0, _reactPixi.h)('c', { key: 'c1' }),
+        c2 ? (0, _reactPixi.h)('c', { key: 'c2' }) : (0, _reactPixi.h)('c', { key: 'c3' }),
+        c4 ? (0, _reactPixi.h)('c', { key: 'c4' }) : ''
+      );
+    }
+  }]);
+
+  return T;
+}(_reactPixi.PactComponent);
+
+describe('基础组件', function () {
+
+  var initChildrenLen = 3;
+
+  describe('初始化', function () {
+    var tVNode = (0, _reactPixi.h)(T);
+    var topContainer = new PIXI.Container();
+    var tInstance = (0, _reactPixi.renderTo)(tVNode, topContainer);
+
+    it('vNode', function () {
+      // body...
+      (0, _assert.equal)(tInstance.vNode.type, _reactPixi.Container, '顶层vNode的type类型');
+      (0, _assert.equal)(tInstance.vNode.children.length, initChildrenLen, 'vNode的儿子们的长度');
+      (0, _assert.equal)(tInstance.vNode.children[0].type, _reactPixi.Container, '第一个儿子类型');
+      (0, _assert.equal)(tInstance.vNode.children[0].key, 'c1', '第一个儿子key');
+      (0, _assert.equal)(tInstance.vNode.children[1].type, _reactPixi.Container, '第二个儿子类型');
+      (0, _assert.equal)(tInstance.vNode.children[1].key, 'c2', '第二个儿子key');
+    });
+    it('子节点', function () {
+      // body...
+      (0, _assert.equal)(tInstance.children.length, 0, '子节点们的长度');
+      (0, _assert.equal)(tInstance.rootInstance.children.length, initChildrenLen, '子节点们的长度');
+      (0, _assert.ifError)(tInstance.rootInstance.children[0].vNode, '1. pixi对象不存在vnode');
+      (0, _assert.ok)(tInstance.rootInstance.children[0].pixiEl, '1. pixi对象有pixiEl');
+      (0, _assert.ifError)(tInstance.rootInstance.children[1].vNode, '2. pixi对象不存在vnode');
+      (0, _assert.ok)(tInstance.rootInstance.children[1].pixiEl, '2. pixi对象有pixiEl');
+    });
+  });
+
+  describe('组件更新-添加', function () {
+    var tVNode = (0, _reactPixi.h)(T);
+
+    var topContainer2 = new PIXI.Container();
+    var tInstance2 = (0, _reactPixi.renderTo)(tVNode, topContainer2);
+
+    // body...
+    var oldCh = tInstance2.rootInstance.children.slice();
+
+    tInstance2.setState({
+      a: true
+    });
+
+    // console.log('===============================组件更新-添加=====================================')
+
+    it('添加的vNode', function () {
+      // body...
+      (0, _assert.equal)(tInstance2.vNode.type, _reactPixi.Container, '顶层vNode的type类型');
+      (0, _assert.equal)(tInstance2.vNode.children.length, initChildrenLen + 1, 'vNode的儿子们的长度');
+      (0, _assert.equal)(tInstance2.vNode.children[0].type, _reactPixi.Container, '第一个儿子类型');
+      (0, _assert.equal)(tInstance2.vNode.children[0].key, 'a', '第一个儿子key');
+      (0, _assert.equal)(tInstance2.vNode.children[1].type, _reactPixi.Container, '第二个儿子类型');
+      (0, _assert.equal)(tInstance2.vNode.children[1].key, 'c1', '第二个儿子key');
+      (0, _assert.equal)(tInstance2.vNode.children[2].type, _reactPixi.Container, '第三个儿子类型');
+      (0, _assert.equal)(tInstance2.vNode.children[2].key, 'c2', '第三个儿子key');
+    });
+    it('添加的instance', function () {
+      var newCh = tInstance2.rootInstance.children.slice();
+      // body...
+      (0, _assert.equal)(tInstance2.rootInstance.children.length, initChildrenLen + 1, '子节点长度');
+      (0, _assert.equal)(oldCh[0], newCh[1], '第一个节点不变');
+      (0, _assert.equal)(oldCh[1], newCh[2], '第二个节点不变');
+    });
+  });
+
+  describe('组建更新-替换', function () {
+    var tVNode = (0, _reactPixi.h)(T);
+
+    var topContainer3 = new PIXI.Container();
+    var tInstance = (0, _reactPixi.renderTo)(tVNode, topContainer3);
+
+    var oldCh = tInstance.rootInstance.children.slice();
+    tInstance.setState({
+      a: true,
+      c2: false
+    });
+    console.log('==============================组建更新-替换======================================');
+
+    // body...
+    it('替换的VNode', function () {
+      (0, _assert.equal)(tInstance.vNode.type, _reactPixi.Container, '顶层vNode的type类型');
+      (0, _assert.equal)(tInstance.vNode.children.length, initChildrenLen + 1, 'vNode的儿子们的长度');
+      (0, _assert.equal)(tInstance.vNode.children[0].type, _reactPixi.Container, '第一个儿子类型');
+      (0, _assert.equal)(tInstance.vNode.children[0].key, 'a', '第一个儿子key');
+      (0, _assert.equal)(tInstance.vNode.children[1].type, _reactPixi.Container, '第二个儿子类型');
+      (0, _assert.equal)(tInstance.vNode.children[1].key, 'c1', '第二个儿子key');
+      (0, _assert.equal)(tInstance.vNode.children[2].type, _reactPixi.Container, '第三个儿子类型');
+      (0, _assert.equal)(tInstance.vNode.children[2].key, 'c3', '第三个儿子key');
+    });
+    it('替换的instance', function () {
+      var newCh = tInstance.rootInstance.children.slice();
+      (0, _assert.equal)(newCh.length, initChildrenLen + 1, '子实例们的长度');
+      (0, _assert.equal)(oldCh[0], newCh[1], 'key=c1的节点没变');
+    });
+  });
+  describe('组建更新-删除', function () {
+    var tVNode = (0, _reactPixi.h)(T);
+
+    var topContainer3 = new PIXI.Container();
+    var tInstance = (0, _reactPixi.renderTo)(tVNode, topContainer3);
+
+    var oldCh = tInstance.rootInstance.children.slice();
+    tInstance.setState({
+      a: true,
+      c2: false,
+      c4: false
+    });
+    console.log('==============================组建更新-删除======================================');
+
+    it('删除的VNode', function () {
+      // body...
+      (0, _assert.equal)(tInstance.vNode.type, _reactPixi.Container, '顶层vNode的type类型');
+      (0, _assert.equal)(tInstance.vNode.children.length, 3, 'vNode的儿子们长度');
+      (0, _assert.equal)(tInstance.vNode.children[0].type, _reactPixi.Container, '第一个儿子类型');
+      (0, _assert.equal)(tInstance.vNode.children[0].key, 'a', '第一个儿子key');
+      (0, _assert.equal)(tInstance.vNode.children[1].type, _reactPixi.Container, '第二个儿子类型');
+      (0, _assert.equal)(tInstance.vNode.children[1].key, 'c1', '第二个儿子key');
+      (0, _assert.equal)(tInstance.vNode.children[2].type, _reactPixi.Container, '第三个儿子类型');
+      (0, _assert.equal)(tInstance.vNode.children[2].key, 'c3', '第三个儿子key');
+    });
+    it('删除的instance', function () {
+      var newCh = tInstance.rootInstance.children;
+      (0, _assert.equal)(newCh.length, 3, '实例的长度');
+      (0, _assert.equal)(oldCh[0], newCh[1]);
+    });
+  });
+});
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
 /* 10 */
@@ -2127,10 +1781,356 @@ function hasOwnProperty(obj, prop) {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8), __webpack_require__(10)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4), __webpack_require__(10)))
 
 /***/ }),
-/* 14 */,
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(PIXI) {
+//import PIXI from 'pixi.js'
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _utils = __webpack_require__(2);
+
+var utils = _interopRequireWildcard(_utils);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var isUndef = utils.isUndef,
+    isDef = utils.isDef;
+
+
+function replaceVNode(parentVNode, newVNode, replaceIndex) {
+  //...@TODO
+  // console.log('replaceVNode:', replaceIndex, newVNode.key);
+
+  var newInstance = mountComponent(newVNode, parentVNode.instance);
+
+  parentVNode.instance.rootInstance.children[replaceIndex] = newInstance;
+  parentVNode.children[replaceIndex] = newVNode;
+
+  if (!newInstance.vNode) {
+    parentVNode.instance.pixiEl.removeChildAt(replaceIndex);
+    parentVNode.instance.pixiEl.addChildAt(newInstance.pixiEl, replaceIndex);
+  }
+}
+function addVNode(parentVNode, newVNode, targetIndex) {
+  console.log('addVNode:', targetIndex, newVNode.key);
+  var newInstance = mountComponent(newVNode, parentVNode.instance);
+
+  parentVNode.instance.rootInstance.children.splice(targetIndex, 0, newInstance);
+  parentVNode.children.splice(targetIndex, 0, newVNode);
+
+  // console.log(targetIndex,parentVNode.instance);
+  // console.log('=== addVNode ===');
+
+  if (!newInstance.vNode) {
+    parentVNode.instance.pixiEl.addChildAt(newInstance.pixiEl, targetIndex);
+  }
+}
+
+function removeVNode(parentVNode, oldVNode, removeFromIndex) {
+  console.log('removeVNode:', removeFromIndex, oldVNode.key);
+  parentVNode.instance.rootInstance.children.splice(removeFromIndex, 1);
+  parentVNode.children.splice(removeFromIndex, 1);
+}
+
+function updateChildren(instanceParentVnode, newParentVnode) {
+  var oldCh = instanceParentVnode.children.slice();
+  var newCh = newParentVnode.children.slice();
+
+  var oldLen = oldCh.length;
+  var newLen = newCh.length;
+
+  var oldStartIndex = 0;
+  var oldEndIndex = 0;
+  var oldStartVnode = oldCh[0];
+  var oldEndVnode = oldCh[oldLen - 1];
+
+  var newStartIndex = 0;
+  var newEndIndex = newLen - 1;
+  var newStartVnode = newCh[0];
+  var newEndVnode = newCh[newLen - 1];
+
+  var patchedIndexArr = [];
+  var addedNum = 0;
+  //newCh [new1, new2, new3...]
+  while (newStartIndex <= newEndIndex) {
+    if (patchedIndexArr.indexOf(newStartIndex) !== -1) {
+      newStartIndex++;
+      continue;
+    }
+    //...diff
+    var newVNode = newCh[newStartIndex];
+    var oldChIndex = oldStartIndex;
+
+    var finalMatchOldNode = false;
+
+    console.log('newVNode:', newVNode.key, newStartIndex, oldChIndex);
+
+    //oldCh [old1, old2, old3....]
+    while (oldChIndex <= oldLen - 1) {
+      var oldVNode = oldCh[oldChIndex];
+      if (utils.equalVNode(oldVNode, newVNode)) {
+        oldStartIndex = oldChIndex + 1;
+        console.log('finalMatchOldNode:', oldVNode.key, oldChIndex);
+        patchVnode(oldVNode, newVNode);
+        finalMatchOldNode = true;
+        break;
+      } else {
+        var findOldVNode = false;
+        var otherNewIndex = newStartIndex + 1;
+        var newVNode2 = null;
+
+        //newCh [new2, new3...]
+        while (otherNewIndex <= newEndIndex) {
+          newVNode2 = newCh[otherNewIndex];
+          if (utils.equalVNode(oldVNode, newVNode2)) {
+            patchedIndexArr.push(otherNewIndex);
+            findOldVNode = true;
+            break;
+          }
+          otherNewIndex++;
+        }
+
+        if (findOldVNode) {
+          oldStartIndex = oldChIndex + 1;
+          patchVnode(oldVNode, newVNode2);
+          break;
+        } else {
+          console.log(newStartIndex, newVNode.key);
+          removeVNode(instanceParentVnode, oldVNode, oldChIndex + addedNum);
+          addedNum--;
+          oldChIndex++;
+          oldStartIndex++;
+        }
+      }
+    }
+
+    if (!finalMatchOldNode) {
+      addVNode(instanceParentVnode, newVNode, oldChIndex);
+      addedNum++;
+    }
+    newStartIndex++;
+  }
+
+  // console.log('=== updateChildren ===')
+}
+
+function patchVnode(oldVNode, newVNode) {
+  var isEquivalentNodeWithChildren = utils.equalVNode(oldVNode, newVNode, true);
+
+  // console.log(`isEquivalentNodeWithChildren:`,oldVNode.key,isEquivalentNodeWithChildren);
+  // console.log(oldVNode);
+  // console.log(newVNode);
+  // console.log('== patchVnode ==');
+
+  if (isEquivalentNodeWithChildren) {
+    // 完全等价的节点，不同替换。继续检查子节点
+    oldVNode.children.slice().forEach(function (oldChildVNode, i) {
+      patchVnode(oldChildVNode, newVNode.children[i]);
+    });
+  } else {
+    updateChildren(oldVNode, newVNode);
+  }
+}
+
+function updateComponent(instance) {
+  var newVNode = instance.render();
+  // console.log(`updateComponent:`, newVNode);
+  if (utils.isPixiObj(newVNode)) {} else if (utils.isVNode(newVNode)) {
+    var isEquivalentNode = utils.equalVNode(instance.vNode, newVNode);
+    if (isEquivalentNode) {
+      patchVnode(instance.vNode, newVNode);
+    }
+  }
+
+  instance.children.forEach(function (childInstance) {
+    updateComponent(childInstance);
+  });
+}
+
+function mountComponent(node, parentComponent) {
+  console.log(node.type, parentComponent);
+  var instance = new node.type(node.props, node.slots);
+  var vNode = instance.render();
+  vNode.instance = instance;
+
+  if (utils.isPixiObj(vNode)) {
+    instance.pixiEl = vNode;
+    instance.isMounted = true;
+  } else if (utils.isVNode(vNode)) {
+    instance.vNode = vNode;
+    instance.pixiEl = parentComponent.pixiEl;
+    instance.isMounted = true;
+
+    var rootInstance = mountComponent(vNode, instance);
+
+    if (!rootInstance.vNode) {
+      instance.pixiEl.addChild(rootInstance.pixiEl);
+      instance.rootInstance = rootInstance;
+    }
+  } else {
+    throw new Error('mountComponent 卧槽');
+  }
+
+  node.children.map(function (childNode) {
+
+    var childInstance = mountComponent(childNode, instance);
+    if (!childInstance.vNode) {
+      instance.pixiEl.addChild(childInstance.pixiEl);
+      instance.children.push(childInstance);
+    }
+  });
+
+  return instance;
+}
+
+function renderTo(node, pixiContainer) {
+  var instance = new node.type(node.props, node.slots);
+  var instanceVNode = instance.render();
+
+  instance.pixiEl = pixiContainer;
+  instance.vNode = instanceVNode;
+  instanceVNode.instance = instance;
+
+  var rootInstance = mountComponent(instanceVNode, instance);
+
+  instance.rootInstance = rootInstance;
+
+  return instance;
+}
+
+var PactComponent = function () {
+  function PactComponent(props, slots) {
+    _classCallCheck(this, PactComponent);
+
+    this.state = {};
+    this.props = {};
+
+    Object.assign(this.props, props);
+
+    this.isMounted = false;
+    this.vNode; //render产生的虚拟node
+    this.pixiEl; //pixi对象
+    this.rootInstance; //根实例对象
+    this.children = []; //子PactComponent对象
+    this.slots = slots || []; //插槽
+  }
+
+  _createClass(PactComponent, [{
+    key: 'setState',
+    value: function setState(obj) {
+      this.state = Object.assign({}, this.state, obj);
+      //@TODO 同步更新组件
+      updateComponent(this);
+    }
+  }, {
+    key: 'update',
+    value: function update() {
+      // @TODO
+    }
+  }, {
+    key: 'addChild',
+    value: function addChild(pactObj, i) {}
+  }, {
+    key: 'removeChild',
+    value: function removeChild(pactObj) {}
+  }, {
+    key: 'didMount',
+    value: function didMount() {}
+  }, {
+    key: 'unmount',
+    value: function unmount() {}
+  }, {
+    key: 'render',
+    value: function render() {}
+  }]);
+
+  return PactComponent;
+}();
+
+var j = 0;
+
+var Container = function (_PactComponent) {
+  _inherits(Container, _PactComponent);
+
+  function Container(props) {
+    _classCallCheck(this, Container);
+
+    return _possibleConstructorReturn(this, (Container.__proto__ || Object.getPrototypeOf(Container)).call(this, props));
+  }
+
+  _createClass(Container, [{
+    key: 'render',
+    value: function render() {
+      return new PIXI.Container(this.props);
+    }
+  }]);
+
+  return Container;
+}(PactComponent);
+
+function h(componentClass, props) {
+  for (var _len = arguments.length, children = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+    children[_key - 2] = arguments[_key];
+  }
+
+  if (!props) {
+    props = {};
+  }
+  children = children.filter(function (child) {
+    return !!child && (typeof child === 'undefined' ? 'undefined' : _typeof(child)) === 'object';
+  });
+
+  var slots = [];
+
+  // @TODO
+  if (utils.isReservedType(componentClass)) {
+    componentClass = Container;
+  } else if (typeof componentClass === 'function') {
+    //暂时忽略 props.children
+    slots = children.slice();
+    children = [];
+  } else {
+    console.error(componentClass);
+    throw new Error('the compoennt muse be a PactComponent');
+  }
+
+  var key = props.key;
+  delete props.key;
+
+  var node = {
+    type: componentClass,
+    key: key,
+    instance: null,
+    props: props,
+    children: children,
+    slots: slots
+  };
+
+  // console.log(`node:`, node);
+  return node;
+}
+
+module.exports.Container = Container;
+module.exports.renderTo = renderTo;
+module.exports.PactComponent = PactComponent;
+module.exports.h = h;
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
 /* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -2139,9 +2139,9 @@ function hasOwnProperty(obj, prop) {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _assert = __webpack_require__(9);
+var _assert = __webpack_require__(6);
 
-var _reactPixi = __webpack_require__(3);
+var _reactPixi = __webpack_require__(14);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -2345,7 +2345,7 @@ describe('复杂嵌套的组件', function () {
     });
   });
 });
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ })
 /******/ ]);
