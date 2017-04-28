@@ -1,6 +1,6 @@
 {
-  "name": "piact",
-  "version": "0.0.1",
+  "name": "pixi-react",
+  "version": "0.0.2",
   "description": "set/get data structure",
   "main": "./dist/index.js",
   "scripts": {

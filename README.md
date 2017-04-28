@@ -1,7 +1,10 @@
-# pact
+# pixi-react
 
 organize pixi object group like react style
 
+## installation
+
+npm i --save-dev pixi-react
 
 ## in the past
 
