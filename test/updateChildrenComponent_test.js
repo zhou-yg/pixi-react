@@ -71,6 +71,7 @@ describe('复杂嵌套的组件', function() {
       equal(tInstance.vNode.children[0].type, MyComponent, '第一个儿子类型');
 
       equal(tInstance.vNode.children[0].key, 'c1', '第一个儿子key');
+      // !还没mount
       // equal(tInstance.vNode.children[0].children[0], 'm0', '第一个儿子key');
       // equal(tInstance.vNode.children[0].children[1], 'm3', '第一个儿子key');
       equal(tInstance.vNode.children[0].slots[0].type, Container, '组件的第一个slot类型');
