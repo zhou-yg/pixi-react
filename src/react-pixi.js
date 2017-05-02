@@ -190,9 +190,6 @@ function updateChildren(instanceParentVnode, newParentVnode) {
 }
 
 function patchVnode(oldVNode, newVNode) {
-  if(oldVNode.isTop){
-    return;
-  }
 
   let isEquivalentNodeWithChildren = utils.equalVNode(oldVNode, newVNode, true);
 
@@ -201,23 +198,24 @@ function patchVnode(oldVNode, newVNode) {
   // log(newVNode);
   // log('== patchVnode ==');
 
-  if(oldVNode.instance.vNode){
-    log(3,'patch inst',oldVNode.key,oldVNode.type, oldVNode.instance.props, newVNode.props);
-  }else {
-    // log(3,'patch3 inst',oldVNode.key, oldVNode.instance.props);
-  }
 
   if(isEquivalentNodeWithChildren){
     // 完全等价的节点，不同替换。但props可能变化
     // 非顶级
-    if(oldVNode.instance.vNode){
-      if(isReservedType(oldVNode.type)){
-        // oldVNode.instance.rootInstance.props = Object.assign({}, newVNode.props);
+    if(!oldVNode.isTop){
+      if(oldVNode.instance.vNode){
+        log(3,'patch inst',oldVNode.key,oldVNode.type, oldVNode.instance.props, newVNode.key,newVNode.props);
+        if(!utils.compareObject(oldVNode.props, newVNode.props)){
+          oldVNode.props = Object.assign({}, oldVNode.props, newVNode.props);
+          oldVNode.instance.props = Object.assign({}, oldVNode.props);
+          updateComponent(oldVNode.instance);
+        }
 
-      }else{
-
+      }else {
+        // log(3,'patch3 inst',oldVNode.key, oldVNode.instance.props);
       }
     }
+
 
     // 继续检查子节点
     oldVNode.children.slice().forEach((oldChildVNode, i) => {
@@ -297,7 +295,6 @@ function renderTo(node, pixiContainer) {
   const instance = new node.type(node.props, node.slots);
   const instanceVNode = instance.render();
 
-  log(3,`top node`,instanceVNode.key);
   instanceVNode.isTop = true;
   instance.isTop = true;
   instance.pixiEl = pixiContainer;

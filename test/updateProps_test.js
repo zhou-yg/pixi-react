@@ -14,7 +14,7 @@ import {
 class SecondComponent extends PactComponent {
   render(){
     return (
-      <c>
+      <c> 
       </c>
     );
   }
