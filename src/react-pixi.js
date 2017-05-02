@@ -4,6 +4,10 @@ import * as utils from './utils.js';
 
 const {isUndef, isDef,log} = utils;
 
+function syncProps(oldVNode, newVNode) {
+
+}
+
 function replaceVNode(parentVNode, newVNode, replaceIndex) {
   //...@TODO
   // log('replaceVNode:', replaceIndex, newVNode.key);
@@ -67,7 +71,6 @@ function updateChildren(instanceParentVnode, newParentVnode) {
     //...diff
     let newVNode = newCh[newStartIndex];
     let oldChIndex = oldStartIndex;
-
     let finalMatchOldNode = false;
 
     log('newVNode:',newVNode.key, newStartIndex, oldChIndex);
@@ -77,7 +80,9 @@ function updateChildren(instanceParentVnode, newParentVnode) {
       let oldVNode = oldCh[oldChIndex];
       if(utils.equalVNode(oldVNode, newVNode)){
         oldStartIndex = oldChIndex+1;
+
         log('finalMatchOldNode:',oldVNode.key, oldChIndex);
+
         patchVnode(oldVNode, newVNode);
         finalMatchOldNode = true;
         break;
