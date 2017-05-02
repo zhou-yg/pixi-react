@@ -89,8 +89,21 @@ describe('更新props', function() {
     const childrenLen = 3;
 
     tInstance.setState({
-      name1: 'newName',
-      name2: 'newName',
+      name1: 'newName1',
+      name2: 'newName2',
+    });
+
+    it('vNode', function() {
+      // body...
+      equal(tInstance.vNode.children.length , 3 , 'length of vNode children');
+      equal(tInstance.vNode.props.name, 'newName1' , 'name in vNode');
+      equal(tInstance.vNode.children[0].props.name, 'newName2' , 'name of first child');
+    });
+    it('instance', function() {
+      // body...
+      equal(tInstance.rootInstance.props.name, 'c', 'root instance name');
+      equal(tInstance.rootInstance.children[0].props.name, 'newName1', 'first child instance name');
+      equal(tInstance.rootInstance.children[0].rootInstance.children[3].props.name, 'm3-newName2', 'first child instance name');
     });
   })
 });

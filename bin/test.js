@@ -104,7 +104,9 @@ var isUndef = utils.isUndef,
     log = utils.log;
 
 
-function syncProps(oldVNode, newVNode) {}
+function syncProps(oldVNode, newVNode) {
+  oldVNode.props = Object.assign({}, newVNode.props);
+}
 
 function replaceVNode(parentVNode, newVNode, replaceIndex) {
   //...@TODO
@@ -180,7 +182,6 @@ function updateChildren(instanceParentVnode, newParentVnode) {
         oldStartIndex = oldChIndex + 1;
 
         log('finalMatchOldNode:', oldVNode.key, oldChIndex);
-
         patchVnode(oldVNode, newVNode);
         finalMatchOldNode = true;
         break;
@@ -233,7 +234,10 @@ function patchVnode(oldVNode, newVNode) {
   // log('== patchVnode ==');
 
   if (isEquivalentNodeWithChildren) {
-    // 完全等价的节点，不同替换。继续检查子节点
+    // 完全等价的节点，不同替换。但props可能变化
+    // oldVNode.instance.props = Object.assign({}, newVNode.props);
+
+    // 继续检查子节点
     oldVNode.children.slice().forEach(function (oldChildVNode, i) {
       patchVnode(oldChildVNode, newVNode.children[i]);
     });
@@ -284,6 +288,9 @@ function mountComponent(node, parentComponent) {
     log('childMountComponent:', childNode.key, instance);
     var childInstance = mountComponent(childNode, instance);
     instance.children.push(childInstance);
+    // 这里的childNode木有instance
+    childNode.instance = childInstance;
+
     if (!childInstance.vNode) {
       instance.pixiEl.addChild(childInstance.pixiEl);
     }
@@ -1700,8 +1707,21 @@ describe('更新props', function () {
     var childrenLen = 3;
 
     tInstance.setState({
-      name1: 'newName',
-      name2: 'newName'
+      name1: 'newName1',
+      name2: 'newName2'
+    });
+
+    it('vNode', function () {
+      // body...
+      (0, _assert.equal)(tInstance.vNode.children.length, 3, 'length of vNode children');
+      (0, _assert.equal)(tInstance.vNode.props.name, 'newName1', 'name in vNode');
+      (0, _assert.equal)(tInstance.vNode.children[0].props.name, 'newName2', 'name of first child');
+    });
+    it('instance', function () {
+      // body...
+      (0, _assert.equal)(tInstance.rootInstance.props.name, 'c', 'root instance name');
+      (0, _assert.equal)(tInstance.rootInstance.children[0].props.name, 'newName1', 'first child instance name');
+      (0, _assert.equal)(tInstance.rootInstance.children[0].rootInstance.children[3].props.name, 'm3-newName2', 'first child instance name');
     });
   });
 });

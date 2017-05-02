@@ -5,7 +5,7 @@ import * as utils from './utils.js';
 const {isUndef, isDef,log} = utils;
 
 function syncProps(oldVNode, newVNode) {
-
+  oldVNode.props = Object.assign({}, newVNode.props);
 }
 
 function replaceVNode(parentVNode, newVNode, replaceIndex) {
@@ -82,7 +82,6 @@ function updateChildren(instanceParentVnode, newParentVnode) {
         oldStartIndex = oldChIndex+1;
 
         log('finalMatchOldNode:',oldVNode.key, oldChIndex);
-
         patchVnode(oldVNode, newVNode);
         finalMatchOldNode = true;
         break;
@@ -136,7 +135,10 @@ function patchVnode(oldVNode, newVNode) {
     // log('== patchVnode ==');
 
     if(isEquivalentNodeWithChildren){
-      // 完全等价的节点，不同替换。继续检查子节点
+      // 完全等价的节点，不同替换。但props可能变化
+      // oldVNode.instance.props = Object.assign({}, newVNode.props);
+
+      // 继续检查子节点
       oldVNode.children.slice().forEach((oldChildVNode, i) => {
         patchVnode(oldChildVNode, newVNode.children[i]);
       });
@@ -190,6 +192,9 @@ function mountComponent(node, parentComponent) {
     log(`childMountComponent:`,childNode.key, instance);
     const childInstance = mountComponent(childNode, instance);
     instance.children.push(childInstance);
+    // 这里的childNode木有instance
+    childNode.instance = childInstance;
+
     if(!childInstance.vNode){
       instance.pixiEl.addChild(childInstance.pixiEl);
     }
