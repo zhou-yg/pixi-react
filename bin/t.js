@@ -63,20 +63,133 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 8);
+/******/ 	return __webpack_require__(__webpack_require__.s = 5);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/**
- * Created by zyg on 16/7/15.
- */
-module.exports = __webpack_require__(3)
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+exports.isDef = isDef;
+exports.isUndef = isUndef;
+exports.isReservedType = isReservedType;
+exports.isVNode = isVNode;
+exports.isPixiObj = isPixiObj;
+exports.isEqualObj = isEqualObj;
+exports.equalVNode = equalVNode;
+exports.compareObject = compareObject;
+exports.log = log;
+function isDef(v) {
+  return !!v || v === 0;
+}
+function isUndef(v) {
+  return v === undefined;
+}
+
+function isReservedType(name) {
+  return name === 'c' || name === 'container';
+}
+
+function isVNode(obj) {
+  var keys = Object.keys(obj);
+
+  return ['props', 'type', 'children'].every(function (k) {
+    return keys.indexOf(k) !== -1;
+  });
+}
+
+function isPixiObj(obj) {
+  return obj && obj.addChild;
+}
+
+function isEqualObj(obj1, obj2) {}
+
+function equalVNode(obj1, obj2, checkChildren) {
+  var isSameNode;
+
+  if (isDef(obj1.key) || isDef(obj2.key)) {
+    isSameNode = obj1.key === obj2.key;
+  } else {
+    if (obj1.type === obj2.type) {
+      isSameNode = compareObject(obj1.props, obj2.props);
+    }
+  }
+
+  if (isSameNode && checkChildren) {
+    var len = obj1.children.length;
+    isSameNode = len === obj2.children.length;
+    if (isSameNode) {
+      var i = 0;
+      var isSameChild = true;
+
+      while (i < len) {
+        var childObj1 = obj1.children[i];
+        var childObj2 = obj2.children[i];
+
+        isSameChild = equalVNode(childObj1, childObj2);
+        if (!isSameChild) {
+          break;
+        }
+        i++;
+      }
+      isSameNode = isSameChild;
+    }
+  }
+
+  return isSameNode;
+}
+
+function compareObject(obj1, obj2) {
+  if (obj1 === obj2) {
+    return true;
+  }
+
+  var keys1 = Object.keys(obj1);
+  var keys2 = Object.keys(obj2);
+
+  if (keys1.join('') === keys2.join('')) {
+    return keys1.every(function (k) {
+      var type1 = _typeof(obj1[k]);
+      var type2 = _typeof(obj2[k]);
+      if (type1 !== type2) {
+        return false;
+      } else if (type1 === 'object') {
+        return compareObject(obj1[k], obj2[k]);
+      } else if (type1 === 'function') {
+        var r = obj1[k].toString() === obj2[k].toString();
+        return r;
+      }
+      return obj1[k] === obj2[k];
+    });
+  }
+  return false;
+}
+
+function log() {
+  //console.log.apply(console,arguments);
+}
 
 /***/ }),
 /* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Created by zyg on 16/7/15.
+ */
+module.exports = __webpack_require__(7)
+
+/***/ }),
+/* 2 */,
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -87,7 +200,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _utils = __webpack_require__(2);
+var _utils = __webpack_require__(0);
 
 var utils = _interopRequireWildcard(_utils);
 
@@ -423,166 +536,16 @@ module.exports.Container = Container;
 module.exports.renderTo = renderTo;
 module.exports.PactComponent = PactComponent;
 module.exports.h = h;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-exports.isDef = isDef;
-exports.isUndef = isUndef;
-exports.isReservedType = isReservedType;
-exports.isVNode = isVNode;
-exports.isPixiObj = isPixiObj;
-exports.isEqualObj = isEqualObj;
-exports.equalVNode = equalVNode;
-exports.compareObject = compareObject;
-exports.log = log;
-function isDef(v) {
-  return !!v || v === 0;
-}
-function isUndef(v) {
-  return v === undefined;
-}
-
-function isReservedType(name) {
-  return name === 'c' || name === 'container';
-}
-
-function isVNode(obj) {
-  var keys = Object.keys(obj);
-
-  return ['props', 'type', 'children'].every(function (k) {
-    return keys.indexOf(k) !== -1;
-  });
-}
-
-function isPixiObj(obj) {
-  return obj && obj.addChild;
-}
-
-function isEqualObj(obj1, obj2) {}
-
-function equalVNode(obj1, obj2, checkChildren) {
-  var isSameNode;
-
-  if (isDef(obj1.key) || isDef(obj2.key)) {
-    isSameNode = obj1.key === obj2.key;
-  } else {
-    if (obj1.type === obj2.type) {
-      isSameNode = compareObject(obj1.props, obj2.props);
-    }
-  }
-
-  if (isSameNode && checkChildren) {
-    var len = obj1.children.length;
-    isSameNode = len === obj2.children.length;
-    if (isSameNode) {
-      var i = 0;
-      var isSameChild = true;
-
-      while (i < len) {
-        var childObj1 = obj1.children[i];
-        var childObj2 = obj2.children[i];
-
-        isSameChild = equalVNode(childObj1, childObj2);
-        if (!isSameChild) {
-          break;
-        }
-        i++;
-      }
-      isSameNode = isSameChild;
-    }
-  }
-
-  return isSameNode;
-}
-
-function compareObject(obj1, obj2) {
-  if (obj1 === obj2) {
-    return true;
-  }
-
-  var keys1 = Object.keys(obj1);
-  var keys2 = Object.keys(obj2);
-
-  if (keys1.join('') === keys2.join('')) {
-    return keys1.every(function (k) {
-      var type1 = _typeof(obj1[k]);
-      var type2 = _typeof(obj2[k]);
-      if (type1 !== type2) {
-        return false;
-      } else if (type1 === 'object') {
-        return compareObject(obj1[k], obj2[k]);
-      } else if (type1 === 'function') {
-        var r = obj1[k].toString() === obj2[k].toString();
-        return r;
-      }
-      return obj1[k] === obj2[k];
-    });
-  }
-  return false;
-}
-
-function log() {
-  //console.log.apply(console,arguments);
-}
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * Created by zyg on 16/7/15.
- */
-
-
-var n=0;
-
-class Container {
-  constructor(props) {
-    this.name = n++;
-    this.props = props;
-    this.children = [];
-  }
-  addChild(c){
-    this.children.push(c)
-  }
-  addChildAt(c,i){
-    this.children.splice(i,0,c);
-  }
-  removeChildAt(i){
-    this.children.splice(i,1);
-  }
-}
-
-
-module.exports = {
-  Container,
-}
-
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
 
 /***/ }),
 /* 4 */,
-/* 5 */,
-/* 6 */,
-/* 7 */,
-/* 8 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _reactPixi = __webpack_require__(1);
+var _reactPixi = __webpack_require__(3);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -675,6 +638,42 @@ console.log('=== setState ===');
 instance.setState({
   name: 1
 });
+
+/***/ }),
+/* 6 */,
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/**
+ * Created by zyg on 16/7/15.
+ */
+
+
+var n=0;
+
+class Container {
+  constructor(props) {
+    this.name = n++;
+    this.props = props;
+    this.children = [];
+  }
+  addChild(c){
+    this.children.push(c)
+  }
+  addChildAt(c,i){
+    this.children.splice(i,0,c);
+  }
+  removeChildAt(i){
+    this.children.splice(i,1);
+  }
+}
+
+
+module.exports = {
+  Container,
+}
+
 
 /***/ })
 /******/ ]);
