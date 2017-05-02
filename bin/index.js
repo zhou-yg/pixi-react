@@ -63,133 +63,22 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 3);
+/******/ 	return __webpack_require__(__webpack_require__.s = 1);
 /******/ })
 /************************************************************************/
-/******/ ([
-/* 0 */
-/***/ (function(module, exports, __webpack_require__) {
+/******/ ({
 
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-exports.isDef = isDef;
-exports.isUndef = isUndef;
-exports.isReservedType = isReservedType;
-exports.isVNode = isVNode;
-exports.isPixiObj = isPixiObj;
-exports.isEqualObj = isEqualObj;
-exports.equalVNode = equalVNode;
-exports.compareObject = compareObject;
-exports.log = log;
-function isDef(v) {
-  return !!v || v === 0;
-}
-function isUndef(v) {
-  return v === undefined;
-}
-
-function isReservedType(name) {
-  return name === 'c' || name === 'container';
-}
-
-function isVNode(obj) {
-  var keys = Object.keys(obj);
-
-  return ['props', 'type', 'children'].every(function (k) {
-    return keys.indexOf(k) !== -1;
-  });
-}
-
-function isPixiObj(obj) {
-  return obj && obj.addChild;
-}
-
-function isEqualObj(obj1, obj2) {}
-
-function equalVNode(obj1, obj2, checkChildren) {
-  var isSameNode;
-
-  if (isDef(obj1.key) || isDef(obj2.key)) {
-    isSameNode = obj1.key === obj2.key;
-  } else {
-    if (obj1.type === obj2.type) {
-      isSameNode = compareObject(obj1.props, obj2.props);
-    }
-  }
-
-  if (isSameNode && checkChildren) {
-    var len = obj1.children.length;
-    isSameNode = len === obj2.children.length;
-    if (isSameNode) {
-      var i = 0;
-      var isSameChild = true;
-
-      while (i < len) {
-        var childObj1 = obj1.children[i];
-        var childObj2 = obj2.children[i];
-
-        isSameChild = equalVNode(childObj1, childObj2);
-        if (!isSameChild) {
-          break;
-        }
-        i++;
-      }
-      isSameNode = isSameChild;
-    }
-  }
-
-  return isSameNode;
-}
-
-function compareObject(obj1, obj2) {
-  if (obj1 === obj2) {
-    return true;
-  }
-
-  var keys1 = Object.keys(obj1);
-  var keys2 = Object.keys(obj2);
-
-  if (keys1.join('') === keys2.join('')) {
-    return keys1.every(function (k) {
-      var type1 = _typeof(obj1[k]);
-      var type2 = _typeof(obj2[k]);
-      if (type1 !== type2) {
-        return false;
-      } else if (type1 === 'object') {
-        return compareObject(obj1[k], obj2[k]);
-      } else if (type1 === 'function') {
-        var r = obj1[k].toString() === obj2[k].toString();
-        return r;
-      }
-      return obj1[k] === obj2[k];
-    });
-  }
-  return false;
-}
-
-function log() {
-  //console.log.apply(console,arguments);
-}
-
-/***/ }),
-/* 1 */
+/***/ 0:
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
  * Created by zyg on 16/7/15.
  */
-module.exports = __webpack_require__(7)
+module.exports = __webpack_require__(3)
 
 /***/ }),
-/* 2 */,
-/* 3 */
+
+/***/ 1:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -200,7 +89,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _utils = __webpack_require__(0);
+var _utils = __webpack_require__(2);
 
 var utils = _interopRequireWildcard(_utils);
 
@@ -216,7 +105,87 @@ var isUndef = utils.isUndef,
     isDef = utils.isDef,
     log = utils.log;
 
+var PactComponent = function () {
+  function PactComponent(props, slots) {
+    _classCallCheck(this, PactComponent);
 
+    this.state = {};
+    this.props = {};
+
+    Object.assign(this.props, props);
+
+    this.isMounted = false;
+    this.vNode = null; //render产生的虚拟node
+    this.pixiEl; //pixi对象
+    this.rootInstance; //根实例对象
+    this.children = []; //子PactComponent对象
+    this.slots = slots || []; //插槽
+    this.isTop = false; //是否为顶级
+  }
+
+  _createClass(PactComponent, [{
+    key: 'setState',
+    value: function setState(obj) {
+      this.state = Object.assign({}, this.state, obj);
+      //@TODO 同步更新组件
+      updateComponent(this);
+    }
+  }, {
+    key: 'update',
+    value: function update() {
+      // @TODO
+    }
+  }, {
+    key: 'addChild',
+    value: function addChild(pactObj, i) {}
+  }, {
+    key: 'removeChild',
+    value: function removeChild(pactObj) {}
+  }, {
+    key: 'didMount',
+    value: function didMount() {}
+  }, {
+    key: 'unmount',
+    value: function unmount() {}
+  }, {
+    key: 'render',
+    value: function render() {}
+  }]);
+
+  return PactComponent;
+}();
+
+var j = 0;
+
+var Container = function (_PactComponent) {
+  _inherits(Container, _PactComponent);
+
+  function Container(props) {
+    _classCallCheck(this, Container);
+
+    return _possibleConstructorReturn(this, (Container.__proto__ || Object.getPrototypeOf(Container)).call(this, props));
+  }
+
+  _createClass(Container, [{
+    key: 'render',
+    value: function render() {
+      return new PIXI.Container(this.props);
+    }
+  }]);
+
+  return Container;
+}(PactComponent);
+
+var primitiveMap = {
+  c: Container,
+  container: Container
+};
+
+function isReservedType(name) {
+  return !!primitiveMap[name] || Object.keys(primitiveMap).some(function (k) {
+    return primitiveMap[k] === name;
+  });
+}
 function syncProps(oldVNode, newVNode) {
   oldVNode.props = Object.assign({}, newVNode.props);
 }
@@ -339,6 +308,10 @@ function updateChildren(instanceParentVnode, newParentVnode) {
 }
 
 function patchVnode(oldVNode, newVNode) {
+  if (oldVNode.isTop) {
+    return;
+  }
+
   var isEquivalentNodeWithChildren = utils.equalVNode(oldVNode, newVNode, true);
 
   // log(`isEquivalentNodeWithChildren:`,oldVNode.key,isEquivalentNodeWithChildren);
@@ -346,9 +319,21 @@ function patchVnode(oldVNode, newVNode) {
   // log(newVNode);
   // log('== patchVnode ==');
 
+  if (oldVNode.instance.vNode) {
+    log(3, 'patch inst', oldVNode.key, oldVNode.type, oldVNode.instance.props, newVNode.props);
+  } else {
+    // log(3,'patch3 inst',oldVNode.key, oldVNode.instance.props);
+  }
+
   if (isEquivalentNodeWithChildren) {
     // 完全等价的节点，不同替换。但props可能变化
-    // oldVNode.instance.props = Object.assign({}, newVNode.props);
+    // 非顶级
+    if (oldVNode.instance.vNode) {
+      if (isReservedType(oldVNode.type)) {
+        // oldVNode.instance.rootInstance.props = Object.assign({}, newVNode.props);
+
+      } else {}
+    }
 
     // 继续检查子节点
     oldVNode.children.slice().forEach(function (oldChildVNode, i) {
@@ -366,6 +351,8 @@ function updateComponent(instance) {
     var isEquivalentNode = utils.equalVNode(instance.vNode, newVNode);
     if (isEquivalentNode) {
       patchVnode(instance.vNode, newVNode);
+    } else {
+      //...
     }
   }
 
@@ -412,10 +399,21 @@ function mountComponent(node, parentComponent) {
   return instance;
 }
 
+/**
+
+node -> inst -> node2 -> inst2
+||
+node -> inst <-> node2
+node -> inst -> rootInst === inst2
+
+**/
 function renderTo(node, pixiContainer) {
   var instance = new node.type(node.props, node.slots);
   var instanceVNode = instance.render();
 
+  log(3, 'top node', instanceVNode.key);
+  instanceVNode.isTop = true;
+  instance.isTop = true;
   instance.pixiEl = pixiContainer;
   instance.vNode = instanceVNode;
   instanceVNode.instance = instance;
@@ -426,76 +424,6 @@ function renderTo(node, pixiContainer) {
 
   return instance;
 }
-
-var PactComponent = function () {
-  function PactComponent(props, slots) {
-    _classCallCheck(this, PactComponent);
-
-    this.state = {};
-    this.props = {};
-
-    Object.assign(this.props, props);
-
-    this.isMounted = false;
-    this.vNode = null; //render产生的虚拟node
-    this.pixiEl; //pixi对象
-    this.rootInstance; //根实例对象
-    this.children = []; //子PactComponent对象
-    this.slots = slots || []; //插槽
-  }
-
-  _createClass(PactComponent, [{
-    key: 'setState',
-    value: function setState(obj) {
-      this.state = Object.assign({}, this.state, obj);
-      //@TODO 同步更新组件
-      updateComponent(this);
-    }
-  }, {
-    key: 'update',
-    value: function update() {
-      // @TODO
-    }
-  }, {
-    key: 'addChild',
-    value: function addChild(pactObj, i) {}
-  }, {
-    key: 'removeChild',
-    value: function removeChild(pactObj) {}
-  }, {
-    key: 'didMount',
-    value: function didMount() {}
-  }, {
-    key: 'unmount',
-    value: function unmount() {}
-  }, {
-    key: 'render',
-    value: function render() {}
-  }]);
-
-  return PactComponent;
-}();
-
-var j = 0;
-
-var Container = function (_PactComponent) {
-  _inherits(Container, _PactComponent);
-
-  function Container(props) {
-    _classCallCheck(this, Container);
-
-    return _possibleConstructorReturn(this, (Container.__proto__ || Object.getPrototypeOf(Container)).call(this, props));
-  }
-
-  _createClass(Container, [{
-    key: 'render',
-    value: function render() {
-      return new PIXI.Container(this.props);
-    }
-  }]);
-
-  return Container;
-}(PactComponent);
 
 function h(componentClass, props) {
   for (var _len = arguments.length, children = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
@@ -515,7 +443,7 @@ function h(componentClass, props) {
   var slots = [];
 
   // @TODO
-  if (utils.isReservedType(componentClass)) {
+  if (isReservedType(componentClass)) {
     componentClass = Container;
   } else if (typeof componentClass === 'function') {
     //暂时忽略 props.children
@@ -535,7 +463,8 @@ function h(componentClass, props) {
     instance: null,
     props: props,
     children: children,
-    slots: slots
+    slots: slots,
+    isTop: false
   };
 
   // log(`node:`, node);
@@ -546,13 +475,135 @@ module.exports.Container = Container;
 module.exports.renderTo = renderTo;
 module.exports.PactComponent = PactComponent;
 module.exports.h = h;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 4 */,
-/* 5 */,
-/* 6 */,
-/* 7 */
+
+/***/ 16:
+/***/ (function(module, exports) {
+
+
+
+/***/ }),
+
+/***/ 2:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+exports.isDef = isDef;
+exports.isUndef = isUndef;
+exports.isVNode = isVNode;
+exports.isPixiObj = isPixiObj;
+exports.isEqualObj = isEqualObj;
+exports.equalVNode = equalVNode;
+exports.compareObject = compareObject;
+exports.log = log;
+
+var _primitive = __webpack_require__(16);
+
+var _primitive2 = _interopRequireDefault(_primitive);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function isDef(v) {
+  return !!v || v === 0;
+}
+function isUndef(v) {
+  return v === undefined;
+}
+
+function isVNode(obj) {
+  var keys = Object.keys(obj);
+
+  return ['props', 'type', 'children'].every(function (k) {
+    return keys.indexOf(k) !== -1;
+  });
+}
+
+function isPixiObj(obj) {
+  return obj && obj.addChild;
+}
+
+function isEqualObj(obj1, obj2) {}
+
+function equalVNode(obj1, obj2, checkChildren) {
+  var isSameNode;
+
+  if (isDef(obj1.key) || isDef(obj2.key)) {
+    isSameNode = obj1.key === obj2.key;
+  } else {
+    if (obj1.type === obj2.type) {
+      isSameNode = compareObject(obj1.props, obj2.props);
+    }
+  }
+
+  if (isSameNode && checkChildren) {
+    var len = obj1.children.length;
+    isSameNode = len === obj2.children.length;
+    if (isSameNode) {
+      var i = 0;
+      var isSameChild = true;
+
+      while (i < len) {
+        var childObj1 = obj1.children[i];
+        var childObj2 = obj2.children[i];
+
+        isSameChild = equalVNode(childObj1, childObj2);
+        if (!isSameChild) {
+          break;
+        }
+        i++;
+      }
+      isSameNode = isSameChild;
+    }
+  }
+
+  return isSameNode;
+}
+
+function compareObject(obj1, obj2) {
+  if (obj1 === obj2) {
+    return true;
+  }
+
+  var keys1 = Object.keys(obj1);
+  var keys2 = Object.keys(obj2);
+
+  if (keys1.join('') === keys2.join('')) {
+    return keys1.every(function (k) {
+      var type1 = _typeof(obj1[k]);
+      var type2 = _typeof(obj2[k]);
+      if (type1 !== type2) {
+        return false;
+      } else if (type1 === 'object') {
+        return compareObject(obj1[k], obj2[k]);
+      } else if (type1 === 'function') {
+        var r = obj1[k].toString() === obj2[k].toString();
+        return r;
+      }
+      return obj1[k] === obj2[k];
+    });
+  }
+  return false;
+}
+
+function log() {
+  if (parseInt(arguments[0]) === 3) {
+    console.log.apply(console, arguments);
+  }
+}
+
+/***/ }),
+
+/***/ 3:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -587,4 +638,5 @@ module.exports = {
 
 
 /***/ })
-/******/ ]);
+
+/******/ });

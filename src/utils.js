@@ -1,14 +1,11 @@
 'use strict';
+import primitiveMap from './primitive.js';
 
 export function isDef(v) {
   return !!v || v === 0;
 }
 export function isUndef(v) {
   return v === undefined;
-}
-
-export function isReservedType(name) {
-  return name === 'c' || name === 'container';
 }
 
 export function isVNode(obj) {
@@ -90,5 +87,7 @@ export function compareObject(obj1, obj2) {
 
 
 export function log(){
-  //console.log.apply(console,arguments);
+  if(parseInt(arguments[0]) === 3){
+    console.log.apply(console,arguments);
+  }
 }

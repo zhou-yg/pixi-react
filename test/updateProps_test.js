@@ -11,6 +11,15 @@ import {
   Container
 } from '../src/react-pixi';
 
+class SecondComponent extends PactComponent {
+  render(){
+    return (
+      <c>
+      </c>
+    );
+  }
+}
+
 class MyComponent extends PactComponent{
   render(){
     const {name} = this.props;
@@ -20,7 +29,7 @@ class MyComponent extends PactComponent{
       <c key="myComponent" >
         <c key="m0" />
         {this.slots}
-        <c key="m3" name={m3Name}/>
+        <SecondComponent key="m3" name={m3Name}/>
       </c>
     )
   }
@@ -54,7 +63,7 @@ class T extends PactComponent {
           <c key ="m2" />
         </MyComponent>
         {c2 ? <c key = "c2" ></c> : <c key="c3"></c>}
-        {c4 ? <c key="c4" /> : ''}
+        {c4 ? <c key="c4" name={name2} /> : ''}
       </c>
     );
   }

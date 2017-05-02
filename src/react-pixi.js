@@ -4,6 +4,69 @@ import * as utils from './utils.js';
 
 const {isUndef, isDef,log} = utils;
 
+
+class PactComponent {
+  constructor (props, slots) {
+    this.state = {};
+    this.props = {};
+
+    Object.assign(this.props, props);
+
+    this.isMounted = false;
+    this.vNode = null; //render产生的虚拟node
+    this.pixiEl; //pixi对象
+    this.rootInstance; //根实例对象
+    this.children = []; //子PactComponent对象
+    this.slots = slots || []; //插槽
+    this.isTop = false; //是否为顶级
+  }
+  setState (obj) {
+    this.state = Object.assign({}, this.state, obj);
+    //@TODO 同步更新组件
+    updateComponent(this);
+  }
+
+  update () {
+    // @TODO
+  }
+
+  addChild (pactObj, i) {
+  }
+  removeChild (pactObj) {
+  }
+  didMount () {
+
+  }
+  unmount () {
+
+  }
+
+  render () {
+
+  }
+}
+
+var j = 0;
+class Container extends PactComponent {
+  constructor (props) {
+    super(props);
+  }
+
+  render () {
+    return new PIXI.Container(this.props);
+  }
+}
+
+const primitiveMap = {
+  c: Container,
+  container:Container,
+}
+
+function isReservedType(name) {
+  return !!primitiveMap[name] || Object.keys(primitiveMap).some(k => {
+    return primitiveMap[k] === name;
+  })
+}
 function syncProps(oldVNode, newVNode) {
   oldVNode.props = Object.assign({}, newVNode.props);
 }
@@ -127,35 +190,54 @@ function updateChildren(instanceParentVnode, newParentVnode) {
 }
 
 function patchVnode(oldVNode, newVNode) {
-    let isEquivalentNodeWithChildren = utils.equalVNode(oldVNode, newVNode, true);
+  if(oldVNode.isTop){
+    return;
+  }
 
-    // log(`isEquivalentNodeWithChildren:`,oldVNode.key,isEquivalentNodeWithChildren);
-    // log(oldVNode);
-    // log(newVNode);
-    // log('== patchVnode ==');
+  let isEquivalentNodeWithChildren = utils.equalVNode(oldVNode, newVNode, true);
 
-    if(isEquivalentNodeWithChildren){
-      // 完全等价的节点，不同替换。但props可能变化
-      // oldVNode.instance.props = Object.assign({}, newVNode.props);
+  // log(`isEquivalentNodeWithChildren:`,oldVNode.key,isEquivalentNodeWithChildren);
+  // log(oldVNode);
+  // log(newVNode);
+  // log('== patchVnode ==');
 
-      // 继续检查子节点
-      oldVNode.children.slice().forEach((oldChildVNode, i) => {
-        patchVnode(oldChildVNode, newVNode.children[i]);
-      });
-    } else {
-      updateChildren(oldVNode, newVNode);
+  if(oldVNode.instance.vNode){
+    log(3,'patch inst',oldVNode.key,oldVNode.type, oldVNode.instance.props, newVNode.props);
+  }else {
+    // log(3,'patch3 inst',oldVNode.key, oldVNode.instance.props);
+  }
+
+  if(isEquivalentNodeWithChildren){
+    // 完全等价的节点，不同替换。但props可能变化
+    // 非顶级
+    if(oldVNode.instance.vNode){
+      if(isReservedType(oldVNode.type)){
+        // oldVNode.instance.rootInstance.props = Object.assign({}, newVNode.props);
+
+      }else{
+
+      }
     }
+
+    // 继续检查子节点
+    oldVNode.children.slice().forEach((oldChildVNode, i) => {
+      patchVnode(oldChildVNode, newVNode.children[i]);
+    });
+  } else {
+    updateChildren(oldVNode, newVNode);
+  }
 }
 
 function updateComponent(instance) {
   const newVNode = instance.render();
   // log(`updateComponent:`, newVNode);
   if(utils.isPixiObj(newVNode)){
-
   } else if(utils.isVNode(newVNode)){
     var isEquivalentNode = utils.equalVNode(instance.vNode, newVNode);
     if (isEquivalentNode){
       patchVnode(instance.vNode, newVNode)
+    } else {
+      //...
     }
   }
 
@@ -203,10 +285,21 @@ function mountComponent(node, parentComponent) {
   return instance;
 }
 
+/**
+
+node -> inst -> node2 -> inst2
+||
+node -> inst <-> node2
+node -> inst -> rootInst === inst2
+
+**/
 function renderTo(node, pixiContainer) {
   const instance = new node.type(node.props, node.slots);
   const instanceVNode = instance.render();
 
+  log(3,`top node`,instanceVNode.key);
+  instanceVNode.isTop = true;
+  instance.isTop = true;
   instance.pixiEl = pixiContainer;
   instance.vNode = instanceVNode;
   instanceVNode.instance = instance;
@@ -216,57 +309,6 @@ function renderTo(node, pixiContainer) {
   instance.rootInstance = rootInstance;
 
   return instance;
-}
-
-class PactComponent {
-  constructor (props, slots) {
-    this.state = {};
-    this.props = {};
-
-    Object.assign(this.props, props);
-
-    this.isMounted = false;
-    this.vNode = null; //render产生的虚拟node
-    this.pixiEl; //pixi对象
-    this.rootInstance; //根实例对象
-    this.children = []; //子PactComponent对象
-    this.slots = slots || []; //插槽
-  }
-  setState (obj) {
-    this.state = Object.assign({}, this.state, obj);
-    //@TODO 同步更新组件
-    updateComponent(this);
-  }
-
-  update () {
-    // @TODO
-  }
-
-  addChild (pactObj, i) {
-  }
-  removeChild (pactObj) {
-  }
-  didMount () {
-
-  }
-  unmount () {
-
-  }
-
-  render () {
-
-  }
-}
-
-var j = 0;
-class Container extends PactComponent {
-  constructor (props) {
-    super(props);
-  }
-
-  render () {
-    return new PIXI.Container(this.props);
-  }
 }
 
 
@@ -284,7 +326,7 @@ function h(componentClass, props, ...children) {
   var slots = [];
 
   // @TODO
-  if(utils.isReservedType(componentClass)){
+  if(isReservedType(componentClass)){
     componentClass = Container;
   } else if(typeof componentClass === 'function'){
     //暂时忽略 props.children
@@ -305,6 +347,7 @@ function h(componentClass, props, ...children) {
     props,
     children,
     slots,
+    isTop: false,
   };
 
   // log(`node:`, node);
