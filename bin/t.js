@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 8);
+/******/ 	return __webpack_require__(__webpack_require__.s = 9);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -73,7 +73,7 @@
 /**
  * Created by zyg on 16/7/15.
  */
-module.exports = __webpack_require__(3)
+module.exports = __webpack_require__(4)
 
 /***/ }),
 /* 1 */
@@ -194,7 +194,7 @@ function replaceVNode(parentVNode, newVNode, replaceIndex) {
 
   var newInstance = mountComponent(newVNode, parentVNode.instance);
 
-  parentVNode.instance.rootInstance.children[replaceIndex] = newInstance;
+  parentVNode.instance.children[replaceIndex] = newInstance;
   parentVNode.children[replaceIndex] = newVNode;
 
   if (!newInstance.vNode) {
@@ -206,7 +206,7 @@ function addVNode(parentVNode, newVNode, targetIndex) {
   log('addVNode:', targetIndex, newVNode.key);
   var newInstance = mountComponent(newVNode, parentVNode.instance);
 
-  parentVNode.instance.rootInstance.children.splice(targetIndex, 0, newInstance);
+  parentVNode.instance.children.splice(targetIndex, 0, newInstance);
   parentVNode.children.splice(targetIndex, 0, newVNode);
 
   // log(targetIndex,parentVNode.instance);
@@ -219,7 +219,7 @@ function addVNode(parentVNode, newVNode, targetIndex) {
 
 function removeVNode(parentVNode, oldVNode, removeFromIndex) {
   log('removeVNode:', removeFromIndex, oldVNode.key);
-  parentVNode.instance.rootInstance.children.splice(removeFromIndex, 1);
+  parentVNode.instance.children.splice(removeFromIndex, 1);
   parentVNode.children.splice(removeFromIndex, 1);
 }
 
@@ -318,17 +318,11 @@ function patchVnode(oldVNode, newVNode) {
   if (isEquivalentNodeWithChildren) {
     // 完全等价的节点，不同替换。但props可能变化
     // 非顶级
-    if (!oldVNode.isTop) {
-      if (oldVNode.instance.vNode) {
-        log(3, 'patch inst', oldVNode.key, oldVNode.type, oldVNode.instance.props, newVNode.key, newVNode.props);
-        if (!utils.compareObject(oldVNode.props, newVNode.props)) {
-          oldVNode.props = Object.assign({}, oldVNode.props, newVNode.props);
-          oldVNode.instance.props = Object.assign({}, oldVNode.props);
-          updateComponent(oldVNode.instance);
-        }
-      } else {
-        // log(3,'patch3 inst',oldVNode.key, oldVNode.instance.props);
-      }
+    log(3, 'patch inst', oldVNode.key, oldVNode.type, oldVNode.instance.props, newVNode.key, newVNode.props);
+    if (!utils.compareObject(oldVNode.props, newVNode.props)) {
+      oldVNode.props = Object.assign({}, oldVNode.props, newVNode.props);
+      oldVNode.instance.props = Object.assign({}, oldVNode.props);
+      updateComponent(oldVNode.instance);
     }
 
     // 继续检查子节点
@@ -360,7 +354,8 @@ function updateComponent(instance) {
 function mountComponent(node, parentComponent) {
   var instance = new node.type(node.props, node.slots);
   var vNode = instance.render();
-  vNode.instance = instance;
+
+  node.instance = instance;
 
   if (utils.isPixiObj(vNode)) {
     instance.pixiEl = vNode;
@@ -372,10 +367,9 @@ function mountComponent(node, parentComponent) {
 
     var rootInstance = mountComponent(vNode, instance);
 
-    if (!rootInstance.vNode) {
-      instance.pixiEl.addChild(rootInstance.pixiEl);
-    }
-    instance.rootInstance = rootInstance;
+    // if(!vNode){
+    //   instance.pixiEl.addChild(pixiEl);
+    // }
   } else {
     throw new Error('mountComponent 卧槽');
   }
@@ -387,9 +381,9 @@ function mountComponent(node, parentComponent) {
     // 这里的childNode木有instance
     childNode.instance = childInstance;
 
-    if (!childInstance.vNode) {
-      instance.pixiEl.addChild(childInstance.pixiEl);
-    }
+    // if(!childInstance.vNode){
+    //   instance.pixiEl.addChild(childInstance.pixiEl);
+    // }
   });
 
   return instance;
@@ -407,15 +401,17 @@ function renderTo(node, pixiContainer) {
   var instance = new node.type(node.props, node.slots);
   var instanceVNode = instance.render();
 
-  instanceVNode.isTop = true;
+  node.instance = instance;
+
+  node.isTop = true;
   instance.isTop = true;
+
   instance.pixiEl = pixiContainer;
   instance.vNode = instanceVNode;
-  instanceVNode.instance = instance;
 
   var rootInstance = mountComponent(instanceVNode, instance);
 
-  instance.rootInstance = rootInstance;
+  // instance.rootInstance = rootInstance;
 
   return instance;
 }
@@ -494,7 +490,7 @@ exports.equalVNode = equalVNode;
 exports.compareObject = compareObject;
 exports.log = log;
 
-var _primitive = __webpack_require__(16);
+var _primitive = __webpack_require__(3);
 
 var _primitive2 = _interopRequireDefault(_primitive);
 
@@ -590,6 +586,12 @@ function log() {
 
 /***/ }),
 /* 3 */
+/***/ (function(module, exports) {
+
+
+
+/***/ }),
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -624,11 +626,11 @@ module.exports = {
 
 
 /***/ }),
-/* 4 */,
 /* 5 */,
 /* 6 */,
 /* 7 */,
-/* 8 */
+/* 8 */,
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -726,19 +728,6 @@ console.log('=== setState ===');
 instance.setState({
   name: 1
 });
-
-/***/ }),
-/* 9 */,
-/* 10 */,
-/* 11 */,
-/* 12 */,
-/* 13 */,
-/* 14 */,
-/* 15 */,
-/* 16 */
-/***/ (function(module, exports) {
-
-
 
 /***/ })
 /******/ ]);

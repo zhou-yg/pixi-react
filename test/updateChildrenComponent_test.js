@@ -87,26 +87,26 @@ describe('复杂嵌套的组件', function() {
     it('根的子节点', function() {
       // body...
       equal(tInstance.children.length, 0, '子节点们的长度');
-      equal(tInstance.rootInstance.children.length, initChildrenLen, '子节点们的长度');
-      ok(tInstance.rootInstance.children[0].vNode, 'MyComponent对象存在vnode');
-      ok(tInstance.rootInstance.children[0].pixiEl, 'MyComponent对象有pixiEl');
-      equal(tInstance.rootInstance.children[0].pixiEl, tInstance.rootInstance.pixiEl, 'MyComponent对象的pixiEl等于父亲的pixiEl');
+      equal(tInstance.vNode.instance.children.length, initChildrenLen, '子节点们的长度');
+      ok(tInstance.vNode.instance.children[0].vNode, 'MyComponent对象存在vnode');
+      ok(tInstance.vNode.instance.children[0].pixiEl, 'MyComponent对象有pixiEl');
+      equal(tInstance.vNode.instance.children[0].pixiEl, tInstance.vNode.instance.pixiEl, 'MyComponent对象的pixiEl等于父亲的pixiEl');
 
-      ok(!tInstance.rootInstance.children[1].vNode, '2 pixi对象不存在vnode');
-      ok(tInstance.rootInstance.children[1].pixiEl, '2 pixi对象有pixiEl');
-      ok(!tInstance.rootInstance.children[2].vNode, '3 pixi对象不存在vnode');
-      ok(tInstance.rootInstance.children[2].pixiEl, '3 pixi对象有pixiEl');
+      ok(!tInstance.vNode.instance.children[1].vNode, '2 pixi对象不存在vnode');
+      ok(tInstance.vNode.instance.children[1].pixiEl, '2 pixi对象有pixiEl');
+      ok(!tInstance.vNode.instance.children[2].vNode, '3 pixi对象不存在vnode');
+      ok(tInstance.vNode.instance.children[2].pixiEl, '3 pixi对象有pixiEl');
     });
 
     it('MyComponent的子节点', function() {
       // body...
-      const myComponent = tInstance.rootInstance.children[0];
+      const myComponent = tInstance.vNode.instance.children[0];
 
       ok(myComponent instanceof MyComponent, 'MyComponent的类型');
       equal(myComponent.slots.length, 2 , 'MyComponent的slots长度');
       equal(myComponent.slots[0].key, 'm1', 'slots[0]的key');
       equal(myComponent.slots[1].key, 'm2', 'slots[1]的key');
-      equal(myComponent.rootInstance.children.length, 4, 'MyComponent的根下的子节点');
+      equal(myComponent.vNode.instance.children.length, 4, 'MyComponent的根下的子节点');
       equal(myComponent.vNode.children[0].key, 'm0', 'MyComponent的根下的子VNode 1');
       equal(myComponent.vNode.children[1].key, 'm1', 'MyComponent的根下的子VNode 2');
       equal(myComponent.vNode.children[2].key, 'm2', 'MyComponent的根下的子VNode 3');
@@ -121,7 +121,7 @@ describe('复杂嵌套的组件', function() {
     const tInstance2 = renderTo(tVNode, topContainer2);
 
     // body...
-    const oldCh = tInstance2.rootInstance.children.slice();
+    const oldCh = tInstance2.vNode.instance.children.slice();
 
     tInstance2.setState({
       a: true
@@ -143,9 +143,9 @@ describe('复杂嵌套的组件', function() {
       equal(tInstance2.vNode.children[3].key, 'c4', '第4个儿子key');
     });
     it('添加的instance', function() {
-      const newCh = tInstance2.rootInstance.children.slice();
+      const newCh = tInstance2.vNode.instance.children.slice();
       // body...
-      equal(tInstance2.rootInstance.children.length, initChildrenLen + 1, '子节点长度');
+      equal(tInstance2.vNode.instance.children.length, initChildrenLen + 1, '子节点长度');
       equal(oldCh[0], newCh[1], '第一个节点不变');
       equal(oldCh[1], newCh[2], '第二个节点不变');
     });
@@ -157,7 +157,7 @@ describe('复杂嵌套的组件', function() {
     const topContainer3 = new PIXI.Container();
     const tInstance = renderTo(tVNode, topContainer3);
 
-    const oldCh = tInstance.rootInstance.children.slice();
+    const oldCh = tInstance.vNode.instance.children.slice();
     tInstance.setState({
       a: true,
       c2: false
@@ -178,7 +178,7 @@ describe('复杂嵌套的组件', function() {
       equal(tInstance.vNode.children[3].key, 'c4', '第4个儿子key');
     });
     it('替换的instance', function() {
-      const newCh = tInstance.rootInstance.children.slice();
+      const newCh = tInstance.vNode.instance.children.slice();
 
       equal(newCh.length, initChildrenLen + 1, '子实例们的长度');
       equal(oldCh[0], newCh[1], 'key=c1的节点没变');
@@ -190,7 +190,7 @@ describe('复杂嵌套的组件', function() {
     const topContainer3 = new PIXI.Container();
     const tInstance = renderTo(tVNode, topContainer3);
 
-    const oldCh = tInstance.rootInstance.children.slice();
+    const oldCh = tInstance.vNode.instance.children.slice();
     tInstance.setState({
       a: true,
       c2: false,
@@ -210,7 +210,7 @@ describe('复杂嵌套的组件', function() {
       equal(tInstance.vNode.children[2].key, 'c3', '第三个儿子key');
     });
     it('删除的instance', () => {
-      const newCh = tInstance.rootInstance.children;
+      const newCh = tInstance.vNode.instance.children;
       equal(newCh.length,3,'实例的长度');
       equal(oldCh[0],newCh[1]);
     });

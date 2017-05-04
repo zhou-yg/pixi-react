@@ -77,7 +77,7 @@ function replaceVNode(parentVNode, newVNode, replaceIndex) {
 
   const newInstance = mountComponent(newVNode, parentVNode.instance);
 
-  parentVNode.instance.rootInstance.children[replaceIndex] = newInstance;
+  parentVNode.instance.children[replaceIndex] = newInstance;
   parentVNode.children[replaceIndex] = newVNode;
 
   if(!newInstance.vNode){
@@ -89,7 +89,7 @@ function addVNode(parentVNode, newVNode, targetIndex) {
   log('addVNode:', targetIndex, newVNode.key);
   const newInstance = mountComponent(newVNode, parentVNode.instance);
 
-  parentVNode.instance.rootInstance.children.splice(targetIndex, 0 , newInstance);
+  parentVNode.instance.children.splice(targetIndex, 0 , newInstance);
   parentVNode.children.splice(targetIndex,0 , newVNode);
 
   // log(targetIndex,parentVNode.instance);
@@ -102,7 +102,7 @@ function addVNode(parentVNode, newVNode, targetIndex) {
 
 function removeVNode(parentVNode, oldVNode, removeFromIndex) {
   log('removeVNode:', removeFromIndex, oldVNode.key);
-  parentVNode.instance.rootInstance.children.splice(removeFromIndex, 1);
+  parentVNode.instance.children.splice(removeFromIndex, 1);
   parentVNode.children.splice(removeFromIndex, 1);
 }
 
@@ -202,18 +202,11 @@ function patchVnode(oldVNode, newVNode) {
   if(isEquivalentNodeWithChildren){
     // 完全等价的节点，不同替换。但props可能变化
     // 非顶级
-    if(!oldVNode.isTop){
-      if(oldVNode.instance.vNode){
-        log(3,'patch inst',oldVNode.key,oldVNode.type, oldVNode.instance.props, newVNode.key,newVNode.props);
-        if(!utils.compareObject(oldVNode.props, newVNode.props)){
-          oldVNode.props = Object.assign({}, oldVNode.props, newVNode.props);
-          oldVNode.instance.props = Object.assign({}, oldVNode.props);
-          updateComponent(oldVNode.instance);
-        }
-
-      }else {
-        // log(3,'patch3 inst',oldVNode.key, oldVNode.instance.props);
-      }
+    log(3,'patch inst',oldVNode.key,oldVNode.type, oldVNode.instance.props, newVNode.key,newVNode.props);
+    if(!utils.compareObject(oldVNode.props, newVNode.props)){
+      oldVNode.props = Object.assign({}, oldVNode.props, newVNode.props);
+      oldVNode.instance.props = Object.assign({}, oldVNode.props);
+      updateComponent(oldVNode.instance);
     }
 
 
@@ -247,7 +240,8 @@ function updateComponent(instance) {
 function mountComponent(node, parentComponent) {
   const instance = new node.type(node.props, node.slots);
   const vNode = instance.render();
-  vNode.instance = instance;
+
+  node.instance = instance;
 
   if(utils.isPixiObj(vNode)){
     instance.pixiEl = vNode;
@@ -260,10 +254,10 @@ function mountComponent(node, parentComponent) {
 
     const rootInstance = mountComponent(vNode, instance);
 
-    if(!rootInstance.vNode){
-      instance.pixiEl.addChild(rootInstance.pixiEl);
-    }
-    instance.rootInstance = rootInstance;
+    // if(!vNode){
+    //   instance.pixiEl.addChild(pixiEl);
+    // }
+
   }else{
     throw new Error('mountComponent 卧槽');
   }
@@ -275,9 +269,9 @@ function mountComponent(node, parentComponent) {
     // 这里的childNode木有instance
     childNode.instance = childInstance;
 
-    if(!childInstance.vNode){
-      instance.pixiEl.addChild(childInstance.pixiEl);
-    }
+    // if(!childInstance.vNode){
+    //   instance.pixiEl.addChild(childInstance.pixiEl);
+    // }
   });
 
   return instance;
@@ -295,15 +289,17 @@ function renderTo(node, pixiContainer) {
   const instance = new node.type(node.props, node.slots);
   const instanceVNode = instance.render();
 
-  instanceVNode.isTop = true;
+  node.instance = instance;
+
+  node.isTop = true;
   instance.isTop = true;
+
   instance.pixiEl = pixiContainer;
   instance.vNode = instanceVNode;
-  instanceVNode.instance = instance;
 
   const rootInstance = mountComponent(instanceVNode, instance);
 
-  instance.rootInstance = rootInstance;
+  // instance.rootInstance = rootInstance;
 
   return instance;
 }
