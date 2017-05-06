@@ -1,10 +1,12 @@
 'use strict';
 //import PIXI from 'pixi.js'
+import pixiLib from 'pixi-lib';
 import * as utils from './utils.js';
+import _ from 'lodash'
 
 const {isUndef, isDef,log} = utils;
 
-
+var PactComponentI = 0;
 class PactComponent {
   constructor (props, slots) {
     this.state = {};
@@ -12,6 +14,7 @@ class PactComponent {
 
     Object.assign(this.props, props);
 
+    this.displayName = 'PactComponent.' + (PactComponentI++);
     this.isMounted = false;
     this.vNode = null; //render产生的虚拟node
     this.pixiEl; //pixi对象
@@ -21,9 +24,22 @@ class PactComponent {
     this.isTop = false; //是否为顶级
   }
   setState (obj) {
-    this.state = Object.assign({}, this.state, obj);
+
+    this.state = Object.assign({},_.merge(this.state, obj));
+    // this.state = Object.assign({},this.state, obj);
+
     //@TODO 同步更新组件
     updateComponent(this);
+  }
+
+  setProps (newProps) {
+
+    this.props = Object.assign({},_.merge(this.props, newProps));
+    // this.props = Object.assign({},this.props, newProps);
+
+    if(this.pixiEl){
+      pixiLib.setConfig(this.pixiEl, newProps.member);
+    }
   }
 
   update () {
@@ -46,20 +62,40 @@ class PactComponent {
   }
 }
 
+class PixiComponent extends PactComponent{
+  constructor(props) {
+    super(props)
+
+    this.texture = props.texture;
+  }
+}
+
 var j = 0;
-class Container extends PactComponent {
+class Container extends PixiComponent {
   constructor (props) {
     super(props);
   }
-
   render () {
-    return new PIXI.Container(this.props);
+    const c = new PIXI.Container(this.texture);
+    pixiLib.setConfig(c,this.props.member);
+    return c;
+  }
+}
+class Sprite extends PixiComponent {
+  constructor(props) {
+    super(props);
+  }
+  render () {
+    const sp = new PIXI.Sprite(this.texture);
+    pixiLib.setConfig(sp,this.props.member);
+    return sp;
   }
 }
 
 const primitiveMap = {
   c: Container,
   container:Container,
+  sprite: Sprite,
 }
 
 function isReservedType(name) {
@@ -68,7 +104,8 @@ function isReservedType(name) {
   })
 }
 function syncProps(oldVNode, newVNode) {
-  oldVNode.props = Object.assign({}, newVNode.props);
+  oldVNode.props = Object.assign({}, oldVNode.props, newVNode.props);
+  oldVNode.instance.setProps(Object.assign({}, oldVNode.props));
 }
 
 function replaceVNode(parentVNode, newVNode, replaceIndex) {
@@ -204,8 +241,7 @@ function patchVnode(oldVNode, newVNode) {
     // 非顶级
     log(3,'patch inst',oldVNode.key,oldVNode.type, oldVNode.instance.props, newVNode.key,newVNode.props);
     if(!utils.compareObject(oldVNode.props, newVNode.props)){
-      oldVNode.props = Object.assign({}, oldVNode.props, newVNode.props);
-      oldVNode.instance.props = Object.assign({}, oldVNode.props);
+      syncProps(oldVNode, newVNode);
       updateComponent(oldVNode.instance);
     }
 
@@ -246,6 +282,7 @@ function mountComponent(node, parentComponent) {
   if(utils.isPixiObj(vNode)){
     instance.pixiEl = vNode;
     instance.isMounted = true;
+    parentComponent.pixiEl.addChild(vNode);
 
   } else if(utils.isVNode(vNode)){
     instance.vNode = vNode;
@@ -269,6 +306,9 @@ function mountComponent(node, parentComponent) {
     // 这里的childNode木有instance
     childNode.instance = childInstance;
 
+    if(childInstance.pixiEl){
+      instance.pixiEl.addChild(childInstance.pixiEl);
+    }
     // if(!childInstance.vNode){
     //   instance.pixiEl.addChild(childInstance.pixiEl);
     // }
@@ -280,9 +320,6 @@ function mountComponent(node, parentComponent) {
 /**
 
 node -> inst -> node2 -> inst2
-||
-node -> inst <-> node2
-node -> inst -> rootInst === inst2
 
 **/
 function renderTo(node, pixiContainer) {
@@ -298,8 +335,6 @@ function renderTo(node, pixiContainer) {
   instance.vNode = instanceVNode;
 
   const rootInstance = mountComponent(instanceVNode, instance);
-
-  // instance.rootInstance = rootInstance;
 
   return instance;
 }
@@ -320,7 +355,7 @@ function h(componentClass, props, ...children) {
 
   // @TODO
   if(isReservedType(componentClass)){
-    componentClass = Container;
+    componentClass = primitiveMap[componentClass];
   } else if(typeof componentClass === 'function'){
     //暂时忽略 props.children
     slots = children.slice();

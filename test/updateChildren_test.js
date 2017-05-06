@@ -9,7 +9,7 @@ import {
   renderTo,
   PactComponent,
   Container
-} from '../src/react-pixi';
+} from '../src/pixi-react';
 
 class T extends PactComponent {
   constructor() {

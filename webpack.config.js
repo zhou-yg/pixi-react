@@ -4,7 +4,7 @@ const webpack = require('webpack');
 module.exports = {
 
   entry: {
-    index: path.join(__dirname, './src/react-pixi.js'),
+    index: path.join(__dirname, './src/pixi-react.js'),
     t: path.join(__dirname, './test/test.js'),
     test: path.join(__dirname, './test/index.js'),
   },

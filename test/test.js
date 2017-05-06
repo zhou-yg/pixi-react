@@ -1,4 +1,4 @@
-import {h, renderTo,PactComponent} from '../src/react-pixi';
+import {h, renderTo,PactComponent} from '../src/pixi-react';
 
 var i=0;
 function show(obj) {
