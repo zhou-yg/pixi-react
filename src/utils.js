@@ -71,6 +71,7 @@ export function compareObject(obj1, obj2) {
     return keys1.every(k=>{
       const type1 = typeof obj1[k];
       const type2 = typeof obj2[k];
+
       if(type1 !== type2){
         return false;
       } else if(type1 === 'object'){
@@ -87,7 +88,7 @@ export function compareObject(obj1, obj2) {
 
 
 export function log(){
-  if(parseInt(arguments[0]) === 3){
+  if([3].indexOf(parseInt(arguments[0])) !== -1){
     console.log.apply(console,arguments);
   }
 }

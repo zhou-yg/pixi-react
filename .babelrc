@@ -2,6 +2,7 @@
   "presets":["es2015-without-strict"],
   "plugins":[
 //    "transform-runtime",
+    "transform-object-rest-spread",
     ["transform-react-jsx", {
         "pragma" : "h"
     }]

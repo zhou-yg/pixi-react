@@ -3,6 +3,7 @@
 import pixiLib from 'pixi-lib';
 import * as utils from './utils.js';
 import _ from 'lodash'
+window._ = _;
 
 const {isUndef, isDef,log} = utils;
 
@@ -12,7 +13,7 @@ class PactComponent {
     this.state = {};
     this.props = {};
 
-    Object.assign(this.props, props);
+    this.props = _.cloneDeep(props);
 
     this.displayName = 'PactComponent.' + (PactComponentI++);
     this.isMounted = false;
@@ -25,8 +26,7 @@ class PactComponent {
   }
   setState (obj) {
 
-    this.state = Object.assign({},_.merge(this.state, obj));
-    // this.state = Object.assign({},this.state, obj);
+    this.state = _.merge(_.cloneDeep(this.state), obj);
 
     //@TODO 同步更新组件
     updateComponent(this);
@@ -34,8 +34,7 @@ class PactComponent {
 
   setProps (newProps) {
 
-    this.props = Object.assign({},_.merge(this.props, newProps));
-    // this.props = Object.assign({},this.props, newProps);
+    this.props = _.merge(_.cloneDeep(this.props),newProps);
 
     if(this.pixiEl){
       pixiLib.setConfig(this.pixiEl, newProps.member);
@@ -104,26 +103,26 @@ function isReservedType(name) {
   })
 }
 function syncProps(oldVNode, newVNode) {
-  oldVNode.props = Object.assign({}, oldVNode.props, newVNode.props);
-  oldVNode.instance.setProps(Object.assign({}, oldVNode.props));
+  oldVNode.props = _.merge(_.cloneDeep(oldVNode.props), newVNode.props);
+  oldVNode.instance.setProps(oldVNode.props);
 }
 
-function replaceVNode(parentVNode, newVNode, replaceIndex) {
-  //...@TODO
-  // log('replaceVNode:', replaceIndex, newVNode.key);
-
-  const newInstance = mountComponent(newVNode, parentVNode.instance);
-
-  parentVNode.instance.children[replaceIndex] = newInstance;
-  parentVNode.children[replaceIndex] = newVNode;
-
-  if(!newInstance.vNode){
-    parentVNode.instance.pixiEl.removeChildAt(replaceIndex);
-    parentVNode.instance.pixiEl.addChildAt(newInstance.pixiEl, replaceIndex);
-  }
-}
+// function replaceVNode(parentVNode, newVNode, replaceIndex) {
+//   //...@TODO
+//   // log('replaceVNode:', replaceIndex, newVNode.key);
+//
+//   const newInstance = mountComponent(newVNode, parentVNode.instance);
+//
+//   parentVNode.instance.children[replaceIndex] = newInstance;
+//   parentVNode.children[replaceIndex] = newVNode;
+//
+//   if(!newInstance.vNode){
+//     parentVNode.instance.pixiEl.removeChildAt(replaceIndex);
+//     parentVNode.instance.pixiEl.addChildAt(newInstance.pixiEl, replaceIndex);
+//   }
+// }
 function addVNode(parentVNode, newVNode, targetIndex) {
-  log('addVNode:', targetIndex, newVNode.key);
+  log(3,'addVNode', targetIndex, newVNode.key);
   const newInstance = mountComponent(newVNode, parentVNode.instance);
 
   parentVNode.instance.children.splice(targetIndex, 0 , newInstance);
@@ -138,9 +137,14 @@ function addVNode(parentVNode, newVNode, targetIndex) {
 }
 
 function removeVNode(parentVNode, oldVNode, removeFromIndex) {
-  log('removeVNode:', removeFromIndex, oldVNode.key);
+  log(3,'removeVNode', removeFromIndex, oldVNode.key);
+
   parentVNode.instance.children.splice(removeFromIndex, 1);
   parentVNode.children.splice(removeFromIndex, 1);
+
+  if(parentVNode.instance.pixiEl){
+    parentVNode.instance.pixiEl.removeChildAt(removeFromIndex);
+  }
 }
 
 function updateChildren(instanceParentVnode, newParentVnode) {
@@ -239,8 +243,9 @@ function patchVnode(oldVNode, newVNode) {
   if(isEquivalentNodeWithChildren){
     // 完全等价的节点，不同替换。但props可能变化
     // 非顶级
-    log(3,'patch inst',oldVNode.key,oldVNode.type, oldVNode.instance.props, newVNode.key,newVNode.props);
+    log(3,'patch node', oldVNode.key, oldVNode.props, newVNode.props);
     if(!utils.compareObject(oldVNode.props, newVNode.props)){
+      log(3,'compare', 1);
       syncProps(oldVNode, newVNode);
       updateComponent(oldVNode.instance);
     }
@@ -259,6 +264,7 @@ function updateComponent(instance) {
   const newVNode = instance.render();
   // log(`updateComponent:`, newVNode);
   if(utils.isPixiObj(newVNode)){
+
   } else if(utils.isVNode(newVNode)){
     var isEquivalentNode = utils.equalVNode(instance.vNode, newVNode);
     if (isEquivalentNode){

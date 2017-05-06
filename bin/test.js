@@ -17797,6 +17797,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+window._ = _lodash2.default;
+
 var isUndef = utils.isUndef,
     isDef = utils.isDef,
     log = utils.log;
@@ -17811,7 +17813,7 @@ var PactComponent = function () {
     this.state = {};
     this.props = {};
 
-    Object.assign(this.props, props);
+    this.props = _lodash2.default.cloneDeep(props);
 
     this.displayName = 'PactComponent.' + PactComponentI++;
     this.isMounted = false;
@@ -17827,8 +17829,7 @@ var PactComponent = function () {
     key: 'setState',
     value: function setState(obj) {
 
-      this.state = Object.assign({}, _lodash2.default.merge(this.state, obj));
-      // this.state = Object.assign({},this.state, obj);
+      this.state = _lodash2.default.merge(_lodash2.default.cloneDeep(this.state), obj);
 
       //@TODO 同步更新组件
       updateComponent(this);
@@ -17837,8 +17838,7 @@ var PactComponent = function () {
     key: 'setProps',
     value: function setProps(newProps) {
 
-      this.props = Object.assign({}, _lodash2.default.merge(this.props, newProps));
-      // this.props = Object.assign({},this.props, newProps);
+      this.props = _lodash2.default.merge(_lodash2.default.cloneDeep(this.props), newProps);
 
       if (this.pixiEl) {
         _pixiLib2.default.setConfig(this.pixiEl, newProps.member);
@@ -17940,26 +17940,26 @@ function isReservedType(name) {
   });
 }
 function syncProps(oldVNode, newVNode) {
-  oldVNode.props = Object.assign({}, oldVNode.props, newVNode.props);
-  oldVNode.instance.setProps(Object.assign({}, oldVNode.props));
+  oldVNode.props = _lodash2.default.merge(_lodash2.default.cloneDeep(oldVNode.props), newVNode.props);
+  oldVNode.instance.setProps(oldVNode.props);
 }
 
-function replaceVNode(parentVNode, newVNode, replaceIndex) {
-  //...@TODO
-  // log('replaceVNode:', replaceIndex, newVNode.key);
-
-  var newInstance = mountComponent(newVNode, parentVNode.instance);
-
-  parentVNode.instance.children[replaceIndex] = newInstance;
-  parentVNode.children[replaceIndex] = newVNode;
-
-  if (!newInstance.vNode) {
-    parentVNode.instance.pixiEl.removeChildAt(replaceIndex);
-    parentVNode.instance.pixiEl.addChildAt(newInstance.pixiEl, replaceIndex);
-  }
-}
+// function replaceVNode(parentVNode, newVNode, replaceIndex) {
+//   //...@TODO
+//   // log('replaceVNode:', replaceIndex, newVNode.key);
+//
+//   const newInstance = mountComponent(newVNode, parentVNode.instance);
+//
+//   parentVNode.instance.children[replaceIndex] = newInstance;
+//   parentVNode.children[replaceIndex] = newVNode;
+//
+//   if(!newInstance.vNode){
+//     parentVNode.instance.pixiEl.removeChildAt(replaceIndex);
+//     parentVNode.instance.pixiEl.addChildAt(newInstance.pixiEl, replaceIndex);
+//   }
+// }
 function addVNode(parentVNode, newVNode, targetIndex) {
-  log('addVNode:', targetIndex, newVNode.key);
+  log(3, 'addVNode', targetIndex, newVNode.key);
   var newInstance = mountComponent(newVNode, parentVNode.instance);
 
   parentVNode.instance.children.splice(targetIndex, 0, newInstance);
@@ -17974,9 +17974,14 @@ function addVNode(parentVNode, newVNode, targetIndex) {
 }
 
 function removeVNode(parentVNode, oldVNode, removeFromIndex) {
-  log('removeVNode:', removeFromIndex, oldVNode.key);
+  log(3, 'removeVNode', removeFromIndex, oldVNode.key);
+
   parentVNode.instance.children.splice(removeFromIndex, 1);
   parentVNode.children.splice(removeFromIndex, 1);
+
+  if (parentVNode.instance.pixiEl) {
+    parentVNode.instance.pixiEl.removeChildAt(removeFromIndex);
+  }
 }
 
 function updateChildren(instanceParentVnode, newParentVnode) {
@@ -18074,8 +18079,9 @@ function patchVnode(oldVNode, newVNode) {
   if (isEquivalentNodeWithChildren) {
     // 完全等价的节点，不同替换。但props可能变化
     // 非顶级
-    log(3, 'patch inst', oldVNode.key, oldVNode.type, oldVNode.instance.props, newVNode.key, newVNode.props);
+    log(3, 'patch node', oldVNode.key, oldVNode.props, newVNode.props);
     if (!utils.compareObject(oldVNode.props, newVNode.props)) {
+      log(3, 'compare', 1);
       syncProps(oldVNode, newVNode);
       updateComponent(oldVNode.instance);
     }
@@ -18345,6 +18351,7 @@ function compareObject(obj1, obj2) {
     return keys1.every(function (k) {
       var type1 = _typeof(obj1[k]);
       var type2 = _typeof(obj2[k]);
+
       if (type1 !== type2) {
         return false;
       } else if (type1 === 'object') {
@@ -18360,7 +18367,7 @@ function compareObject(obj1, obj2) {
 }
 
 function log() {
-  if (parseInt(arguments[0]) === 3) {
+  if ([3].indexOf(parseInt(arguments[0])) !== -1) {
     console.log.apply(console, arguments);
   }
 }
