@@ -278,7 +278,7 @@ function updateComponent(instance) {
     updateComponent(childInstance);
   });
 }
-
+var i = 0;
 function mountComponent(node, parentComponent) {
   const instance = new node.type(node.props, node.slots);
   const vNode = instance.render();
@@ -291,33 +291,21 @@ function mountComponent(node, parentComponent) {
     parentComponent.pixiEl.addChild(vNode);
 
   } else if(utils.isVNode(vNode)){
+
     instance.vNode = vNode;
     instance.pixiEl = parentComponent.pixiEl;
     instance.isMounted = true;
 
     const rootInstance = mountComponent(vNode, instance);
 
-    // if(!vNode){
-    //   instance.pixiEl.addChild(pixiEl);
-    // }
-
   }else{
     throw new Error('mountComponent 卧槽');
   }
 
   node.children.map(childNode => {
-    log(`childMountComponent:`,childNode.key, instance);
+
     const childInstance = mountComponent(childNode, instance);
     instance.children.push(childInstance);
-    // 这里的childNode木有instance
-    childNode.instance = childInstance;
-
-    if(childInstance.pixiEl){
-      instance.pixiEl.addChild(childInstance.pixiEl);
-    }
-    // if(!childInstance.vNode){
-    //   instance.pixiEl.addChild(childInstance.pixiEl);
-    // }
   });
 
   return instance;

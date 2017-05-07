@@ -18111,7 +18111,7 @@ function updateComponent(instance) {
     updateComponent(childInstance);
   });
 }
-
+var i = 0;
 function mountComponent(node, parentComponent) {
   var instance = new node.type(node.props, node.slots);
   var vNode = instance.render();
@@ -18123,32 +18123,20 @@ function mountComponent(node, parentComponent) {
     instance.isMounted = true;
     parentComponent.pixiEl.addChild(vNode);
   } else if (utils.isVNode(vNode)) {
+
     instance.vNode = vNode;
     instance.pixiEl = parentComponent.pixiEl;
     instance.isMounted = true;
 
     var rootInstance = mountComponent(vNode, instance);
-
-    // if(!vNode){
-    //   instance.pixiEl.addChild(pixiEl);
-    // }
   } else {
     throw new Error('mountComponent 卧槽');
   }
 
   node.children.map(function (childNode) {
-    log('childMountComponent:', childNode.key, instance);
+
     var childInstance = mountComponent(childNode, instance);
     instance.children.push(childInstance);
-    // 这里的childNode木有instance
-    childNode.instance = childInstance;
-
-    if (childInstance.pixiEl) {
-      instance.pixiEl.addChild(childInstance.pixiEl);
-    }
-    // if(!childInstance.vNode){
-    //   instance.pixiEl.addChild(childInstance.pixiEl);
-    // }
   });
 
   return instance;
