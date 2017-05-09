@@ -27,7 +27,6 @@ class PactComponent {
   setState (obj) {
 
     this.state = _.merge(_.cloneDeep(this.state), obj);
-
     //@TODO 同步更新组件
     updateComponent(this);
   }
@@ -38,6 +37,14 @@ class PactComponent {
 
     if(this.pixiEl){
       pixiLib.setConfig(this.pixiEl, newProps.member);
+
+      if(newProps.member){
+        if(newProps.member.play === false){
+          this.pixiEl.stop();
+        }else{
+          this.pixiEl.play();
+        }
+      }
     }
   }
 
@@ -90,11 +97,33 @@ class Sprite extends PixiComponent {
     return sp;
   }
 }
+class AnimatedSprite extends PixiComponent {
+  constructor(props){
+    super(props)
+  }
+  render(){
+    const props = this.props;
+    const ani = new PIXI.extras.AnimatedSprite(props.textures);
+    pixiLib.setConfig(ani,props.member);
+
+    if(props.member){
+      if(props.member.play === false){
+        ani.stop();
+      }else{
+        ani.play();
+      }
+    }
+
+    return ani;
+  }
+}
 
 const primitiveMap = {
   c: Container,
   container:Container,
   sprite: Sprite,
+  'animated-sprite': AnimatedSprite,
+  ani: AnimatedSprite,
 }
 
 function isReservedType(name) {
@@ -239,7 +268,6 @@ function patchVnode(oldVNode, newVNode) {
   // log(newVNode);
   // log('== patchVnode ==');
 
-
   if(isEquivalentNodeWithChildren){
     // 完全等价的节点，不同替换。但props可能变化
     // 非顶级
@@ -271,9 +299,10 @@ function updateComponent(instance) {
       patchVnode(instance.vNode, newVNode)
     } else {
       //...
+      syncProps(instance.vNode, newVNode);
     }
   }
-
+  // debugger;
   instance.children.forEach(childInstance => {
     updateComponent(childInstance);
   });

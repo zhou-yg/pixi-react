@@ -17830,7 +17830,6 @@ var PactComponent = function () {
     value: function setState(obj) {
 
       this.state = _lodash2.default.merge(_lodash2.default.cloneDeep(this.state), obj);
-
       //@TODO 同步更新组件
       updateComponent(this);
     }
@@ -17842,6 +17841,14 @@ var PactComponent = function () {
 
       if (this.pixiEl) {
         _pixiLib2.default.setConfig(this.pixiEl, newProps.member);
+
+        if (newProps.member) {
+          if (newProps.member.play === false) {
+            this.pixiEl.stop();
+          } else {
+            this.pixiEl.play();
+          }
+        }
       }
     }
   }, {
@@ -17928,10 +17935,43 @@ var Sprite = function (_PixiComponent2) {
   return Sprite;
 }(PixiComponent);
 
+var AnimatedSprite = function (_PixiComponent3) {
+  _inherits(AnimatedSprite, _PixiComponent3);
+
+  function AnimatedSprite(props) {
+    _classCallCheck(this, AnimatedSprite);
+
+    return _possibleConstructorReturn(this, (AnimatedSprite.__proto__ || Object.getPrototypeOf(AnimatedSprite)).call(this, props));
+  }
+
+  _createClass(AnimatedSprite, [{
+    key: 'render',
+    value: function render() {
+      var props = this.props;
+      var ani = new PIXI.extras.AnimatedSprite(props.textures);
+      _pixiLib2.default.setConfig(ani, props.member);
+
+      if (props.member) {
+        if (props.member.play === false) {
+          ani.stop();
+        } else {
+          ani.play();
+        }
+      }
+
+      return ani;
+    }
+  }]);
+
+  return AnimatedSprite;
+}(PixiComponent);
+
 var primitiveMap = {
   c: Container,
   container: Container,
-  sprite: Sprite
+  sprite: Sprite,
+  'animated-sprite': AnimatedSprite,
+  ani: AnimatedSprite
 };
 
 function isReservedType(name) {
@@ -18075,7 +18115,6 @@ function patchVnode(oldVNode, newVNode) {
   // log(newVNode);
   // log('== patchVnode ==');
 
-
   if (isEquivalentNodeWithChildren) {
     // 完全等价的节点，不同替换。但props可能变化
     // 非顶级
@@ -18104,9 +18143,10 @@ function updateComponent(instance) {
       patchVnode(instance.vNode, newVNode);
     } else {
       //...
+      syncProps(instance.vNode, newVNode);
     }
   }
-
+  // debugger;
   instance.children.forEach(function (childInstance) {
     updateComponent(childInstance);
   });
