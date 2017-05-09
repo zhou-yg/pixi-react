@@ -2,7 +2,7 @@
   "name": "pixi-react",
   "version": "0.0.2",
   "description": "set/get data structure",
-  "main": "./dist/index.js",
+  "main": "./bin/index.js",
   "scripts": {
     "build": "webpack --progress --display-error-details",
     "build-w": "webpack --progress --display-error-details --watch",
@@ -33,6 +33,7 @@
     "lodash": "^4.17.4",
     "mocha": "^3.3.0",
     "pixi-fake.js": "^1.0.1",
+    "raf": "^3.3.2",
     "webpack": "^2.2.1"
   },
   "dependencies": {

@@ -13,7 +13,7 @@ module.exports = {
     filename: '[name].js'
   },
   resolve: {
-    extensions: ['.js']
+    extensions: ['.js'],
   },
   module: {
     rules: [
@@ -29,7 +29,8 @@ module.exports = {
       '__ENV__': 'dev',
     }),
     new webpack.ProvidePlugin({
-      PIXI: 'pixi-fake.js'
+      PIXI: 'pixi-fake.js',
+      requestAnimationFrame: 'raf',
     })
   ]
 }
