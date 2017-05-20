@@ -5,7 +5,6 @@ module.exports = {
 
   entry: {
     index: path.join(__dirname, './src/pixi-react.js'),
-    t: path.join(__dirname, './test/test.js'),
     test: path.join(__dirname, './test/index.js'),
   },
   output: {

@@ -3,7 +3,6 @@
 import pixiLib from 'pixi-lib';
 import * as utils from './utils.js';
 import _ from 'lodash'
-window._ = _;
 
 const {isUndef, isDef,log} = utils;
 
@@ -68,11 +67,40 @@ class PactComponent {
   }
 }
 
+// 支持的事件
+const eventsArr = ['onMouseDown', 'onTouch'];
+
 class PixiComponent extends PactComponent{
   constructor(props) {
     super(props)
 
+    this.eventFnMap = new Map();
+
     this.texture = props.texture;
+  }
+  setMember (pixiObj) {
+    pixiLib.setConfig(pixiObj,this.props.member);
+
+    eventsArr.forEach(eventName => {
+      const fn = this.props[eventName];
+
+      if(fn){
+        pixiObj.interactive = true;
+
+        eventName = eventName.replace(/^on/, '').toLowerCase();
+
+        const oldFn = this.eventFnMap.get(pixiObj);
+
+        if(oldFn){
+          if(oldFn !== fn){
+            pixiObj.off(eventName, oldFn);
+            pixiObj.on(eventName, fn);
+          }
+        }else{
+          pixiObj.on(eventName, fn);
+        }
+      }
+    })
   }
 }
 
@@ -83,7 +111,7 @@ class Container extends PixiComponent {
   }
   render () {
     const c = new PIXI.Container(this.texture);
-    pixiLib.setConfig(c,this.props.member);
+    this.setMember(c);
     return c;
   }
 }
@@ -93,7 +121,7 @@ class Sprite extends PixiComponent {
   }
   render () {
     const sp = new PIXI.Sprite(this.texture);
-    pixiLib.setConfig(sp,this.props.member);
+    this.setMember(sp);
     return sp;
   }
 }
@@ -104,7 +132,8 @@ class AnimatedSprite extends PixiComponent {
   render(){
     const props = this.props;
     const ani = new PIXI.extras.AnimatedSprite(props.textures);
-    pixiLib.setConfig(ani,props.member);
+
+    this.setMember(ani);
 
     if(props.member){
       if(props.member.play === false){

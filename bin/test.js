@@ -73,7 +73,7 @@
 /**
  * Created by zyg on 16/7/15.
  */
-module.exports = __webpack_require__(20)
+module.exports = __webpack_require__(21)
 
 /***/ }),
 /* 1 */
@@ -17165,7 +17165,7 @@ module.exports = __webpack_require__(20)
   }
 }.call(this));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(16), __webpack_require__(38)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(16), __webpack_require__(39)(module)))
 
 /***/ }),
 /* 2 */
@@ -17383,388 +17383,6 @@ module.exports = function(dataArr){
 
 /***/ }),
 /* 7 */
-/***/ (function(module, exports) {
-
-var canvases = {}
-
-var getCanvas = function(key) {
-  return canvases[key]
-}
-
-var setCanvas = function(key, canvas) {
-  canvases[key] = canvas
-}
-module.exports = {
-  getCanvas: getCanvas,
-  setCanvas: setCanvas
-}
-
-
-/***/ }),
-/* 8 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(PIXI) {var _ = __webpack_require__(1)
-
-var loadedResourceCache = {};
-/**
- *
- * @param config
- *
- * publicPath:'资源加载路径',以/结尾
- *
- * @returns {{load: Function}}
- */
-function createLoader(config) {
-
-  var mySpriteNames = [];
-
-  return {
-
-    load: function load(cb) {
-
-      mySpriteNames.forEach(function (spriteResourceOne) {
-        PIXI.loader.add(
-          spriteResourceOne.key,
-          spriteResourceOne.value
-        );
-      });
-
-      if(mySpriteNames.length > 0){
-
-        mySpriteNames = [];
-
-        PIXI.loader.load(function (loader,loadedResources) {
-
-          loadedResourceCache = _.assign(loadedResourceCache,loadedResources);
-
-          cb(loader,loadedResourceCache);
-        });
-      }else{
-        cb(PIXI.loader,loadedResourceCache);
-      }
-
-      return this;
-    },
-    add: function add(spriteNames,postFix,dir) {
-      if (!postFix) {
-        postFix = 'json'
-      }
-      if(!dir){
-        dir = '';
-      }
-      spriteNames = [].concat(spriteNames).filter(function (spriteNameOne) {
-
-        return !loadedResourceCache[spriteNameOne]
-
-      }).map(function (spriteNameOne) {
-
-        var spriteDir = config.publicPath;
-
-        if(dir){
-          spriteDir += dir + '/';
-        }
-
-        return {
-          key: spriteNameOne,
-          value: spriteDir + spriteNameOne + '/' + spriteNameOne + '.' + postFix
-        }
-      });
-
-      mySpriteNames = mySpriteNames.concat(spriteNames);
-
-      return this;
-    },
-    addMulti : function addMulti(spriteName,nameFormats,postFix){
-      if (!postFix) {
-        postFix = 'json'
-      }
-
-
-      if(typeof nameFormats === 'number'){
-        nameFormats = _.range(nameFormats);
-      }
-
-      mySpriteNames = mySpriteNames.concat(nameFormats.map(function (i) {
-
-        var spriteNameOne = spriteName + i;
-
-        return {
-          key:spriteNameOne,
-          value: config.publicPath + spriteName + '/' + spriteNameOne + '.' + postFix
-        }
-      }).filter(function (spriteObjOne) {
-        return !loadedResourceCache[spriteObjOne.key]
-      }));
-
-      return this;
-    }
-  }
-}
-
-createLoader.getResources = function getResources() {
-  return loadedResourceCache;
-};
-
-module.exports = createLoader;
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(PIXI) {var _ = __webpack_require__(1)
-var canvasManager = __webpack_require__(7)
-var DEFAULT_WIDTH = 640;
-
-var DEFAULT_HEIGHT = 1004;
-/**
- * 创建一个渲染器
- * @param container
- * @param config
- * @returns {Function}
- */
-
-function createRender(container,config) {
-
-  if(!config){
-    config = {};
-  }
-
-  config.w = config.w || DEFAULT_WIDTH;
-  config.h = config.h || DEFAULT_HEIGHT;
-  config.bg = config.bg || '#fff';
-  config.transparent = config.transparent || true
-
-  var renderer = new PIXI.autoDetectRenderer(config.w, config.h, config);
-  if (!renderer.view.parentElement) {
-    container.appendChild(renderer.view);
-  }
-  if (config.canvasKey) {
-    canvasManager.setCanvas(config.canvasKey, renderer.view)
-  }
-  var raf = null;
-
-  return function animate(stage) {
-
-    if(_.isFunction(stage)){
-      stage = stage()
-    }
-
-    cancelAnimationFrame(raf);
-
-    var animate = function (s,cb) {
-
-      raf = requestAnimationFrame(function(){
-        animate(s,cb);
-      });
-
-      if(s.render){
-        s.render();
-      }
-
-      s.children.forEach((function(child){
-        if(child.render){
-          child.render();
-        }
-      }));
-      renderer.render(s);
-
-      cb && cb();
-    };
-
-    animate(stage);
-
-    return {
-      cancel:function animateCancel(){
-        cancelAnimationFrame(raf);
-      },
-      startDuration:function start(duration){
-        animate(stage);
-        if(duration>0){
-          setTimeout(function () {
-            cancelAnimationFrame(raf);
-          },duration)
-        }
-      },
-      startCount:function start(count){
-        var i = 0;
-        animate(stage,function(){
-          i++;
-          if(i > count){
-            cancelAnimationFrame(raf);
-          }
-        });
-      }
-    }
-  }
-}
-
-createRender.DEFAULT_WIDTH = DEFAULT_WIDTH;
-createRender.DEFAULT_HEIGHT = DEFAULT_HEIGHT;
-
-module.exports = createRender;
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports) {
-
-/**
- * 计算两点间距
- * @param x1
- * @param y1
- * @param x2
- * @param y2
- * @returns {number}
- */
-module.exports = function(x1, y1, x2, y2) {
-  console.log('deprecated:use .math.distance')
-  return Math.pow((Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2)), 0.5);
-}
-
-/***/ }),
-/* 11 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(PIXI) {/**
- * Created by zyg on 16/1/31.
- */
-
-var setConfig = __webpack_require__(5);
-
-module.exports = function getIm(config) {
-  config = Object.assign({},config);
-
-  var textures = config.textures;
-
-  delete config.textures;
-
-  var sp = new PIXI.Sprite(textures);
-
-  sp.renderCount = 0;
-
-  return setConfig(sp,config);
-};
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Created by zyg on 16/2/29.
- */
-var getMc = __webpack_require__(4);
-
-/**
- *
- * @param config
- * @param actions 截止frame帧数
- *  [4,7,10]
- * @returns {*}
- */
-module.exports = function getSp(config,actions) {
-  if(!actions){
-    actions = []
-  }
-
-  var obj = getMc(config);
-
-  var _render = function(){};
-
-  var onAction = false;
-  /**
-   * 0~4-0
-   * 0-5~7-0
-   * 0-8~10-0
-   * 
-   * isKeepEnd 是否停在最后
-   */
-  obj.playAction = function playAction(index,loop,isKeepEnd) {
-    if(!index){
-      index = 0;
-    }
-
-    if(index < 0 || index > actions.length){
-      return false;
-    }
-
-    var min = (actions[index - 1]+1) || 0;
-    var max = actions[index];
-
-    var backTo = isKeepEnd ? max : 0
-    
-    this.gotoAndPlay(min);
-
-    _render = onAction ? _render : this.render;
-
-    onAction = true;
-
-    this.render = function copyRender() {
-      var cf = this.currentFrame;
-
-      if(cf >= max){
-
-        if(loop){
-          this.gotoAndPlay(min);
-        }else{
-          this.gotoAndStop(backTo);
-          this.render = _render;
-          onAction = false;
-        }
-      }
-
-      _render.call(this);
-    }
-  };
-
-  actions.map(function (ele, i) {
-    obj['playAction'+i] = obj.playAction.bind(obj,i);
-  });
-
-
-  return obj;
-};
-
-/***/ }),
-/* 13 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(PIXI) {/**
- * 加载对应的资源链接，png或json
- * @param resourceUrl
- * @param cb resourceObject
- */
-var count = 0;
-
-module.exports = function loadResource(resourceUrl, cb) {
-  var resourceKey = 'img' + Date.now() + '' + (count++);
-
-  PIXI.loader.add(resourceKey, resourceUrl)
-    .load(function (loader, resources) {
-
-      cb(resources[resourceKey]);
-    });
-};
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 14 */
-/***/ (function(module, exports) {
-
-module.exports = {
-  SPRITE_MC:'mc',
-  SPRITE_MC_ALIAS:'movieClip',
-  SPRITE_IM:'im',
-  SPRITE_IM_ALIAS:'image',
-  SPRITE_SP:'sp',
-};
-
-/***/ }),
-/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17796,8 +17414,6 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-window._ = _lodash2.default;
 
 var isUndef = utils.isUndef,
     isDef = utils.isDef,
@@ -17876,6 +17492,11 @@ var PactComponent = function () {
   return PactComponent;
 }();
 
+// 支持的事件
+
+
+var eventsArr = ['onMouseDown', 'onTouch'];
+
 var PixiComponent = function (_PactComponent) {
   _inherits(PixiComponent, _PactComponent);
 
@@ -17884,9 +17505,41 @@ var PixiComponent = function (_PactComponent) {
 
     var _this = _possibleConstructorReturn(this, (PixiComponent.__proto__ || Object.getPrototypeOf(PixiComponent)).call(this, props));
 
+    _this.eventFnMap = new Map();
+
     _this.texture = props.texture;
     return _this;
   }
+
+  _createClass(PixiComponent, [{
+    key: 'setMember',
+    value: function setMember(pixiObj) {
+      var _this2 = this;
+
+      _pixiLib2.default.setConfig(pixiObj, this.props.member);
+
+      eventsArr.forEach(function (eventName) {
+        var fn = _this2.props[eventName];
+
+        if (fn) {
+          pixiObj.interactive = true;
+
+          eventName = eventName.replace(/^on/, '').toLowerCase();
+
+          var oldFn = _this2.eventFnMap.get(pixiObj);
+
+          if (oldFn) {
+            if (oldFn !== fn) {
+              pixiObj.off(eventName, oldFn);
+              pixiObj.on(eventName, fn);
+            }
+          } else {
+            pixiObj.on(eventName, fn);
+          }
+        }
+      });
+    }
+  }]);
 
   return PixiComponent;
 }(PactComponent);
@@ -17906,7 +17559,7 @@ var Container = function (_PixiComponent) {
     key: 'render',
     value: function render() {
       var c = new PIXI.Container(this.texture);
-      _pixiLib2.default.setConfig(c, this.props.member);
+      this.setMember(c);
       return c;
     }
   }]);
@@ -17927,7 +17580,7 @@ var Sprite = function (_PixiComponent2) {
     key: 'render',
     value: function render() {
       var sp = new PIXI.Sprite(this.texture);
-      _pixiLib2.default.setConfig(sp, this.props.member);
+      this.setMember(sp);
       return sp;
     }
   }]);
@@ -17949,7 +17602,8 @@ var AnimatedSprite = function (_PixiComponent3) {
     value: function render() {
       var props = this.props;
       var ani = new PIXI.extras.AnimatedSprite(props.textures);
-      _pixiLib2.default.setConfig(ani, props.member);
+
+      this.setMember(ani);
 
       if (props.member) {
         if (props.member.play === false) {
@@ -18257,6 +17911,388 @@ module.exports.h = h;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
+/* 8 */
+/***/ (function(module, exports) {
+
+var canvases = {}
+
+var getCanvas = function(key) {
+  return canvases[key]
+}
+
+var setCanvas = function(key, canvas) {
+  canvases[key] = canvas
+}
+module.exports = {
+  getCanvas: getCanvas,
+  setCanvas: setCanvas
+}
+
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(PIXI) {var _ = __webpack_require__(1)
+
+var loadedResourceCache = {};
+/**
+ *
+ * @param config
+ *
+ * publicPath:'资源加载路径',以/结尾
+ *
+ * @returns {{load: Function}}
+ */
+function createLoader(config) {
+
+  var mySpriteNames = [];
+
+  return {
+
+    load: function load(cb) {
+
+      mySpriteNames.forEach(function (spriteResourceOne) {
+        PIXI.loader.add(
+          spriteResourceOne.key,
+          spriteResourceOne.value
+        );
+      });
+
+      if(mySpriteNames.length > 0){
+
+        mySpriteNames = [];
+
+        PIXI.loader.load(function (loader,loadedResources) {
+
+          loadedResourceCache = _.assign(loadedResourceCache,loadedResources);
+
+          cb(loader,loadedResourceCache);
+        });
+      }else{
+        cb(PIXI.loader,loadedResourceCache);
+      }
+
+      return this;
+    },
+    add: function add(spriteNames,postFix,dir) {
+      if (!postFix) {
+        postFix = 'json'
+      }
+      if(!dir){
+        dir = '';
+      }
+      spriteNames = [].concat(spriteNames).filter(function (spriteNameOne) {
+
+        return !loadedResourceCache[spriteNameOne]
+
+      }).map(function (spriteNameOne) {
+
+        var spriteDir = config.publicPath;
+
+        if(dir){
+          spriteDir += dir + '/';
+        }
+
+        return {
+          key: spriteNameOne,
+          value: spriteDir + spriteNameOne + '/' + spriteNameOne + '.' + postFix
+        }
+      });
+
+      mySpriteNames = mySpriteNames.concat(spriteNames);
+
+      return this;
+    },
+    addMulti : function addMulti(spriteName,nameFormats,postFix){
+      if (!postFix) {
+        postFix = 'json'
+      }
+
+
+      if(typeof nameFormats === 'number'){
+        nameFormats = _.range(nameFormats);
+      }
+
+      mySpriteNames = mySpriteNames.concat(nameFormats.map(function (i) {
+
+        var spriteNameOne = spriteName + i;
+
+        return {
+          key:spriteNameOne,
+          value: config.publicPath + spriteName + '/' + spriteNameOne + '.' + postFix
+        }
+      }).filter(function (spriteObjOne) {
+        return !loadedResourceCache[spriteObjOne.key]
+      }));
+
+      return this;
+    }
+  }
+}
+
+createLoader.getResources = function getResources() {
+  return loadedResourceCache;
+};
+
+module.exports = createLoader;
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(PIXI) {var _ = __webpack_require__(1)
+var canvasManager = __webpack_require__(8)
+var DEFAULT_WIDTH = 640;
+
+var DEFAULT_HEIGHT = 1004;
+/**
+ * 创建一个渲染器
+ * @param container
+ * @param config
+ * @returns {Function}
+ */
+
+function createRender(container,config) {
+
+  if(!config){
+    config = {};
+  }
+
+  config.w = config.w || DEFAULT_WIDTH;
+  config.h = config.h || DEFAULT_HEIGHT;
+  config.bg = config.bg || '#fff';
+  config.transparent = config.transparent || true
+
+  var renderer = new PIXI.autoDetectRenderer(config.w, config.h, config);
+  if (!renderer.view.parentElement) {
+    container.appendChild(renderer.view);
+  }
+  if (config.canvasKey) {
+    canvasManager.setCanvas(config.canvasKey, renderer.view)
+  }
+  var raf = null;
+
+  return function animate(stage) {
+
+    if(_.isFunction(stage)){
+      stage = stage()
+    }
+
+    cancelAnimationFrame(raf);
+
+    var animate = function (s,cb) {
+
+      raf = requestAnimationFrame(function(){
+        animate(s,cb);
+      });
+
+      if(s.render){
+        s.render();
+      }
+
+      s.children.forEach((function(child){
+        if(child.render){
+          child.render();
+        }
+      }));
+      renderer.render(s);
+
+      cb && cb();
+    };
+
+    animate(stage);
+
+    return {
+      cancel:function animateCancel(){
+        cancelAnimationFrame(raf);
+      },
+      startDuration:function start(duration){
+        animate(stage);
+        if(duration>0){
+          setTimeout(function () {
+            cancelAnimationFrame(raf);
+          },duration)
+        }
+      },
+      startCount:function start(count){
+        var i = 0;
+        animate(stage,function(){
+          i++;
+          if(i > count){
+            cancelAnimationFrame(raf);
+          }
+        });
+      }
+    }
+  }
+}
+
+createRender.DEFAULT_WIDTH = DEFAULT_WIDTH;
+createRender.DEFAULT_HEIGHT = DEFAULT_HEIGHT;
+
+module.exports = createRender;
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports) {
+
+/**
+ * 计算两点间距
+ * @param x1
+ * @param y1
+ * @param x2
+ * @param y2
+ * @returns {number}
+ */
+module.exports = function(x1, y1, x2, y2) {
+  console.log('deprecated:use .math.distance')
+  return Math.pow((Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2)), 0.5);
+}
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(PIXI) {/**
+ * Created by zyg on 16/1/31.
+ */
+
+var setConfig = __webpack_require__(5);
+
+module.exports = function getIm(config) {
+  config = Object.assign({},config);
+
+  var textures = config.textures;
+
+  delete config.textures;
+
+  var sp = new PIXI.Sprite(textures);
+
+  sp.renderCount = 0;
+
+  return setConfig(sp,config);
+};
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Created by zyg on 16/2/29.
+ */
+var getMc = __webpack_require__(4);
+
+/**
+ *
+ * @param config
+ * @param actions 截止frame帧数
+ *  [4,7,10]
+ * @returns {*}
+ */
+module.exports = function getSp(config,actions) {
+  if(!actions){
+    actions = []
+  }
+
+  var obj = getMc(config);
+
+  var _render = function(){};
+
+  var onAction = false;
+  /**
+   * 0~4-0
+   * 0-5~7-0
+   * 0-8~10-0
+   * 
+   * isKeepEnd 是否停在最后
+   */
+  obj.playAction = function playAction(index,loop,isKeepEnd) {
+    if(!index){
+      index = 0;
+    }
+
+    if(index < 0 || index > actions.length){
+      return false;
+    }
+
+    var min = (actions[index - 1]+1) || 0;
+    var max = actions[index];
+
+    var backTo = isKeepEnd ? max : 0
+    
+    this.gotoAndPlay(min);
+
+    _render = onAction ? _render : this.render;
+
+    onAction = true;
+
+    this.render = function copyRender() {
+      var cf = this.currentFrame;
+
+      if(cf >= max){
+
+        if(loop){
+          this.gotoAndPlay(min);
+        }else{
+          this.gotoAndStop(backTo);
+          this.render = _render;
+          onAction = false;
+        }
+      }
+
+      _render.call(this);
+    }
+  };
+
+  actions.map(function (ele, i) {
+    obj['playAction'+i] = obj.playAction.bind(obj,i);
+  });
+
+
+  return obj;
+};
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(PIXI) {/**
+ * 加载对应的资源链接，png或json
+ * @param resourceUrl
+ * @param cb resourceObject
+ */
+var count = 0;
+
+module.exports = function loadResource(resourceUrl, cb) {
+  var resourceKey = 'img' + Date.now() + '' + (count++);
+
+  PIXI.loader.add(resourceKey, resourceUrl)
+    .load(function (loader, resources) {
+
+      cb(resources[resourceKey]);
+    });
+};
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports) {
+
+module.exports = {
+  SPRITE_MC:'mc',
+  SPRITE_MC_ALIAS:'movieClip',
+  SPRITE_IM:'im',
+  SPRITE_IM_ALIAS:'image',
+  SPRITE_SP:'sp',
+};
+
+/***/ }),
 /* 16 */
 /***/ (function(module, exports) {
 
@@ -18305,7 +18341,7 @@ exports.equalVNode = equalVNode;
 exports.compareObject = compareObject;
 exports.log = log;
 
-var _primitive = __webpack_require__(19);
+var _primitive = __webpack_require__(20);
 
 var _primitive2 = _interopRequireDefault(_primitive);
 
@@ -18404,7 +18440,7 @@ function log() {
 /* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var pixiLib = {appendStage:__webpack_require__(21),audioControl:__webpack_require__(23),canvasManager:__webpack_require__(7),createAction:__webpack_require__(24),createLoader:__webpack_require__(8),createRender:__webpack_require__(9),distance:__webpack_require__(10),fixSpriteProperties:__webpack_require__(25),getIm:__webpack_require__(11),getMc:__webpack_require__(4),getSp:__webpack_require__(12),getTextures:__webpack_require__(26),loadResource:__webpack_require__(13),loadSprite:__webpack_require__(27),makeIdentity:__webpack_require__(30),math:__webpack_require__(31),setConfig:__webpack_require__(5),types:__webpack_require__(14),audio:{loadAudio:__webpack_require__(22),}, loading:{basicLoading:__webpack_require__(28),mpLoading:__webpack_require__(29),}, utils:{addStyle:__webpack_require__(2),basicLoading:__webpack_require__(32),matrixManager:__webpack_require__(6),mpLoading:__webpack_require__(33),repeat:__webpack_require__(3),resizeImageData:__webpack_require__(34),shareGuide:__webpack_require__(35),unfoldArray:__webpack_require__(36),},};if( typeof window !== "undefined" ){ 
+var pixiLib = {appendStage:__webpack_require__(22),audioControl:__webpack_require__(24),canvasManager:__webpack_require__(8),createAction:__webpack_require__(25),createLoader:__webpack_require__(9),createRender:__webpack_require__(10),distance:__webpack_require__(11),fixSpriteProperties:__webpack_require__(26),getIm:__webpack_require__(12),getMc:__webpack_require__(4),getSp:__webpack_require__(13),getTextures:__webpack_require__(27),loadResource:__webpack_require__(14),loadSprite:__webpack_require__(28),makeIdentity:__webpack_require__(31),math:__webpack_require__(32),setConfig:__webpack_require__(5),types:__webpack_require__(15),audio:{loadAudio:__webpack_require__(23),}, loading:{basicLoading:__webpack_require__(29),mpLoading:__webpack_require__(30),}, utils:{addStyle:__webpack_require__(2),basicLoading:__webpack_require__(33),matrixManager:__webpack_require__(6),mpLoading:__webpack_require__(34),repeat:__webpack_require__(3),resizeImageData:__webpack_require__(35),shareGuide:__webpack_require__(36),unfoldArray:__webpack_require__(37),},};if( typeof window !== "undefined" ){ 
 window.pixiLib=pixiLib; 
 } 
 if(true ){  
@@ -18413,1314 +18449,6 @@ module.exports= pixiLib;
 
 /***/ }),
 /* 19 */
-/***/ (function(module, exports) {
-
-
-
-/***/ }),
-/* 20 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * Created by zyg on 16/7/15.
- */
-
-
-var n=0;
-
-class Container {
-  constructor(props) {
-    this.name = n++;
-    this.props = props;
-    this.children = [];
-  }
-  addChild(c){
-    this.children.push(c)
-  }
-  addChildAt(c,i){
-    this.children.splice(i,0,c);
-  }
-  removeChildAt(i){
-    this.children.splice(i,1);
-  }
-}
-
-
-module.exports = {
-  Container,
-}
-
-
-/***/ }),
-/* 21 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(PIXI) {/**
- * 快速生成一个stage，并插入到容器种
- * @param container
- * @param config
- * @returns {module.exports.Container}
- */
-var createRender = __webpack_require__(9);
-
-module.exports = function (container, config) {
-
-  var render = createRender.apply(this,arguments);
-
-  var stage = new PIXI.Container();
-
-  var cancelAnimate = render(stage);
-
-  stage.clearRender = cancelAnimate.cancel;
-
-  return stage;
-};
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 22 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Created by zyg on 16/8/17.
- */
-
-var _ = __webpack_require__(1);
-
-
-function AudioPlayer(src) {
-  this.el = document.createElement('audio');
-  this.el.src = src;
-  this.playing = false;
-
-  var self = this;
-
-  this.el.addEventListener('pause',function () {
-    self.playing = false;
-  });
-  this.el.addEventListener('ended',function () {
-    self.playing = false;
-  })
-  
-}
-AudioPlayer.prototype.play = function (beginHead) {
-  if(beginHead){
-    this.el.currentTime=0;
-  }
-  this.el.play();
-  this.playing = true;
-};
-AudioPlayer.prototype.stop = function () {
-  this.el.stop();
-  this.playing = false;
-};
-/**
- * 音频加载和播放相关的库
- * @param Object config {
- *    key:<url>
- * }
- */
-module.exports = function (config) {
-
-  var cache = [];
-
-  var playObj = Object.keys(config).map(function(key){
-
-    var playObj = {};
-    playObj[key] = function () {
-
-      var  idleAp = cache.filter(function (ap) {
-        return !ap.playing;
-      })[0];
-
-      if(!idleAp){
-        idleAp = new AudioPlayer(config[key]);
-        cache.push(idleAp);
-      }
-
-      idleAp.play(true);
-
-      return idleAp;
-    };
-    return playObj;
-  }).reduce(function (i,next) {
-    return _.assign(i,next);
-  },{});
-
-
-  return playObj;
-};
-
-/***/ }),
-/* 23 */
-/***/ (function(module, exports) {
-
-/**
- * Created by zyg on 16/6/5.
- */
-
-module.exports = function (mp3Url,config) {
-  var body = document.querySelector('body')
-
-  var audioEle = document.createElement('audio')
-
-
-
-  audioEle.src = mp3Url
-
-
-
-  return {
-    play: function () {
-      audioEle.play()
-    },
-    stop: function () {
-      audioEle.stop()
-    },
-    remove: function () {
-      audioEle.stop()
-      audioEle.remove();
-    }
-  }
-}
-
-/***/ }),
-/* 24 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Created by zyg on 16/2/4.
- */
-var PubSub = __webpack_require__(37);
-
-function createAction(name,action) {
-
-  var isStart = false;
-  var isEnd = false;
-
-  var actionStates = {
-    start: function (data) {
-      isEnd = false;
-      PubSub.publish(name+'Start',data)
-    },
-    progress: function (data) {
-      PubSub.publish(name+'Progress',data);
-    },
-    end: function (data) {
-      if(!isEnd){
-        isEnd= true;
-        PubSub.publish(name+'End',data)
-      }
-    },
-    on: function (name,callback,extra) {
-      PubSub.subscribe(name,function(topic,data){
-        callback(data)
-      });
-    }
-  };
-
-  return function () {
-    action.apply(actionStates,arguments);
-  }
-}
-
-createAction.dispatch = PubSub.publish.bind(PubSub);
-
-module.exports = createAction;
-
-/***/ }),
-/* 25 */
-/***/ (function(module, exports) {
-
-/**
- * 修正精灵属性，比如play和stop不能同时存在，容易毫无意思。
- * @param settingProperties
- * @param finalProperties
- * @returns {*}
- */
-
-module.exports = function fixProperties(settingProperties,finalProperties){
-
-  if(settingProperties.play !== undefined){
-    delete finalProperties.stop;
-  }
-  if(settingProperties.stop !== undefined){
-    delete finalProperties.play;
-  }
-
-  var finalKeys = Object.keys(finalProperties).filter(function(key){
-    return /playAction/.test(key)
-  });
-
-  var settingKeys = Object.keys(settingProperties).filter(function(key){
-    return /playAction/.test(key)
-  });
-
-  finalKeys.map(function(key){
-    if(settingKeys.indexOf(key) === -1){
-      delete finalProperties[key];
-    }
-  });
-
-  if(settingKeys.length > 0){
-    delete finalProperties.stop;
-  }
-
-  return finalProperties;
-};
-
-/***/ }),
-/* 26 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var createLoader = __webpack_require__(8);
-
-/**
- * 设定资源或取出资源
- *
- * @param spriteName
- * @returns {*}
- */
-module.exports = function(spriteName){
-  var resources = createLoader.getResources();
-
-  var textures = false;
-
-  if (resources[spriteName]) {
-
-    textures = resources[spriteName].texture || resources[spriteName].textures;
-  }
-
-  return textures;
-};
-
-/***/ }),
-/* 27 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var _ = __webpack_require__(1)
-var loadResource = __webpack_require__(13);
-var types = __webpack_require__(14);
-var getMc = __webpack_require__(4);
-var getIm = __webpack_require__(11);
-var getSp = __webpack_require__(12);
-
-var spriteFnMap = {};
-
-spriteFnMap[types.SPRITE_IM] = getIm;
-spriteFnMap[types.SPRITE_MC] = getMc;
-spriteFnMap[types.SPRITE_SP] = getSp;
-//为了兼容
-spriteFnMap['image'] = getIm;
-spriteFnMap['movieClip'] = getMc;
-/**
- * 加载资源，生成精灵
- *
- * @param resourceUrl  资源
- * @param spriteType  类型
- * @param properties 属性
- * @param actionFrames 帧 仅用于sp类型
- * @param cb
- */
-module.exports = function (resourceUrl,spriteType,properties,actionFrames,cb) {
-
-  if(typeof actionFrames === 'function'){
-    cb = actionFrames;
-    actionFrames = [];
-  }
-  properties = _.assign({},properties);
-
-  loadResource(resourceUrl, function (resource) {
-    //同时兼容到im和mc
-    properties.textures = resource.texture || resource.textures;
-
-    var spriteDisplayObj = spriteFnMap[spriteType](properties,actionFrames);
-
-    cb(spriteDisplayObj);
-  });
-};
-
-/***/ }),
-/* 28 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Created by zyg on 16/7/5.
- */
-
-var addStyle = __webpack_require__(2)
-
-var cw = 100;
-var ch = 100;
-
-var containerStyle=  {
-  backgroundColor:'#f0f0f0',
-  width:'100%',
-  height:'100%',
-  position:'fixed',
-  top:0,
-  left:0,
-}
-
-var blackBgStyle = {
-  backgroundColor:'#000',
-  opacity:0.7,
-  width:'100%',
-  height:'100%',
-  position:'absolute',
-  top:0,
-  left:0,
-}
-
-
-var iconContainerStyle = {
-  backgroundColor:'#fff',
-  width:cw+'px',
-  height:ch+'px',
-  position:'absolute',
-  top:'50%',
-  left:'50%',
-  transform:'translate(-50%,-50%)',
-  overflow:'hidden',
-}
-
-
-var topCoverStyleFn = function () {
-
-  var topW = 50
-  var topH = 40
-
-  var c = containerStyle.backgroundColor
-
-  return {
-    width:0,
-    height:0,
-    border:'solid',
-    borderWidth:topH + 'px ' + topW + 'px ' + topH + 'px ' + topW + 'px ',
-    borderColor:c + ' transparent transparent transparent',
-    position:'absolute',
-    top:0,
-    left:0,
-    zIndex:1,
-  }
-}
-
-var bottomCoverStyleFn = function(lOrR){
-
-  var bh = 32
-  var bw = 50
-
-  var l = 15
-
-  var c = containerStyle.backgroundColor
-
-  return {
-    width:0,
-    height:0,
-    border:'50px solid',
-    borderWidth:bh + 'px ' + bw + 'px ' + bh + 'px ' + bw + 'px ',
-    borderColor: lOrR ? 'transparent transparent ' + c + ' '  + c:  'transparent '+c+' ' +c+' transparent',
-    position:'absolute',
-    bottom:0,
-    left: (lOrR ? l : cw - l - bw*2)+'px',
-    zIndex:1,
-  }
-}
-
-var fillStyleFn = function(){
-
-  return {
-    backgroundColor:'#000',
-    width:'100%',
-    height:'100%',
-    position:'absolute',
-    left:'-100%',
-    top:0,
-  }
-}
-
-
-
-module.exports = function(){
-
-  var containerBox = document.createElement('div')
-
-  var container = document.createElement('div')
-  var containerBg = document.createElement('div')
-
-  var topCover = document.createElement('div')
-
-  var blCover = document.createElement('div')
-
-  var brCover = document.createElement('div')
-
-  var fill = document.createElement('div')
-
-  addStyle(containerBox,containerStyle)
-  addStyle(containerBg,blackBgStyle)
-
-  addStyle(container,iconContainerStyle)
-
-  addStyle(fill,fillStyleFn())
-
-  addStyle(topCover,topCoverStyleFn())
-  addStyle(blCover,bottomCoverStyleFn(true))
-  addStyle(brCover,bottomCoverStyleFn())
-
-//  containerBox.appendChild(containerBg)
-  containerBox.appendChild(container)
-
-  container.appendChild(topCover)
-  container.appendChild(blCover)
-  container.appendChild(brCover)
-  container.appendChild(fill)
-  
-  var allProgress = 0;
-  
-  return {
-    el:function(){
-      
-      return containerBox
-    },
-    load:function(progress){
-      if(progress < 100){
-        allProgress = progress
-        fill.style.transform = 'translate('+allProgress+'%,0%)'
-      }
-    },
-    autoLoad:function(cb){
-      
-      var si=setInterval(function(){
-        
-        allProgress++;
-        
-        fill.style.transform = 'translate('+allProgress+'%,0%)'
-
-        cb && cb(allProgress)
-        
-      },200)
-      
-      return function(){
-        clearInterval(si)
-      }
-    }
-  }
-}
-
-/***/ }),
-/* 29 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Created by zyg on 16/7/20.
- */
-
-var matrixManager = __webpack_require__(6)
-var repeate = __webpack_require__(3)
-
-var cgrey = 'rgb(169,197,202)',
-  cyellow = 'rgb(245,207,56)',
-  cred = 'rgb(234, 108, 95)',
-  cgreen = 'rgb(49, 210, 76)',
-  cblack = 'rgb(66,91,112)',
-  corange = 'rgb(208,127,52)',
-  cpurple = 'rgb(95,100,136)',
-  cblue = 'rgb(34,189,250)';
-
-var colorArr = []
-  .concat(repeate('transparent',3)).concat(repeate('#000',5)).concat(repeate('transparent',3))
-  .concat(repeate('transparent',1)).concat(repeate('#000',9)).concat(repeate('transparent',1))
-  .concat(['transparent','#000',cgrey,cyellow]).concat(repeate('#000',3)).concat(['transparent','#000',cred,cyellow].reverse())
-  .concat(repeate('#000',2)).concat([cgreen,cred]).concat(repeate('#000',3)).concat([cblack,corange]).concat(repeate('#000',2))
-  .concat(repeate('#000',2)).concat([cpurple,cblack,cyellow,'#000',cgreen,cyellow,cblack]).concat(repeate('#000',2))
-  .concat(repeate('#000',2)).concat([corange,cred,cblack,cgreen,corange,cblack,cgreen]).concat(repeate('#000',2))
-  .concat(repeate('#000',2)).concat([cblack,cgreen,'#000',cred,'#000',corange,cred]).concat(repeate('#000',2))
-  .concat(repeate('#000',2)).concat([cred,cblack]).concat(repeate('#000',3)).concat([cyellow,cblack]).concat(repeate('#000',2))
-  .concat(['transparent','#000']).concat([cblue,cgreen]).concat(repeate('#000',3)).concat([cred,cgreen]).concat(['#000','transparent'])
-  .concat(repeate('transparent',1)).concat(repeate('#000',9)).concat(repeate('transparent',1))
-  .concat(repeate('transparent',3)).concat(repeate('#000',5)).concat(repeate('transparent',3))
-
-function containerStyle(){
-  return {
-    border:'1px solid #ccc',
-    borderRadius:'50%',
-    padding:'15px',
-  }
-}
-
-module.exports = function(){
-
-  var m = matrixManager(colorArr)
-
-  var s = containerStyle()
-
-  return {
-    el:function () {
-      return m.el(s)
-    },
-    progress:function(){
-      return m.progress(1)
-    },
-    startLoading:function (cb) {
-      var si = setInterval(function () {
-        if(!this.progress()){
-          clearInterval(si);
-          cb && cb();
-        }
-      }.bind(this),100);
-    }
-  }
-}
-
-/***/ }),
-/* 30 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * 计算单位向量
- * @param [a,b]
- * @returns [c,d]
- */
-var distance = __webpack_require__(10);
-
-module.exports = function(a) {
-  console.log('deprecated:use .math.makeIdentity')
-
-  if(!a || a[0] === 0 && a[1] === 0) {
-    return [0, 0]
-  }
-  var b = distance(0,0,a[0],a[1]);
-  //Math.pow((Math.pow(a[0], 2) + Math.pow(a[1], 2)), 0.5);
-  return [a[0] / b , a[1] / b]
-};
-
-/***/ }),
-/* 31 */
-/***/ (function(module, exports) {
-
-/**
- * Created by zyg on 16/5/24.
- */
-module.exports = {
-
-  rotateWithCentral: function (x,y,radians) {
-
-    var targetX = x*Math.cos(radians) - y*Math.sin(radians);
-    var targetY = x*Math.sin(radians) + y*Math.cos(radians);
-
-    return [
-      targetX - x,
-      targetY - y,
-    ]
-  },
-  distance: function (x1, y1, x2, y2) {
-    return Math.pow((Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2)), 0.5);
-  },
-  makeIdentity : function (a) {
-    if(!a || a[0] === 0 && a[1] === 0) {
-      return [0, 0]
-    }
-    var b = this.distance(0,0,a[0],a[1]);
-    //Math.pow((Math.pow(a[0], 2) + Math.pow(a[1], 2)), 0.5);
-    return [a[0] / b , a[1] / b]
-  },
-  //从0开始
-  boomerangTrace:function(x,maxValue){
-    var doubleV = maxValue * 2
-
-    x = x%doubleV
-    
-    if(x > maxValue){
-      x = doubleV - x
-    }
-    
-    return x
-  },
-  boomrangeTraceThunk:function (maxValue) {
-    var doubleV = maxValue * 2
-
-    return function () {
-      x = x%doubleV
-
-      if(x > maxValue){
-        x = doubleV - x
-      }
-
-      return x
-    }
-  },
-  circleTrace:function (r, x) {
-    if(x>r){
-      return 0
-    }
-    return Math.sqrt(Math.pow(r,2) - Math.pow(x,2));
-  },
-  circleTraceThunk:function (r) {
-    var rr = Math.pow(r,2)
-    return function(x){
-      if(x>r){
-        return 0
-      }
-      return Math.sqrt(rr - Math.pow(x,2))
-    }
-  },
-}
-
-/***/ }),
-/* 32 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Created by zyg on 16/7/5.
- */
-
-var addStyle = __webpack_require__(2)
-
-var cw = 100;
-var ch = 100;
-
-var containerStyle=  {
-  backgroundColor:'#f0f0f0',
-  width:'100%',
-  height:'100%',
-  position:'fixed',
-  top:0,
-  left:0,
-}
-
-var blackBgStyle = {
-  backgroundColor:'#000',
-  opacity:0.7,
-  width:'100%',
-  height:'100%',
-  position:'absolute',
-  top:0,
-  left:0,
-}
-
-
-var iconContainerStyle = {
-  backgroundColor:'#fff',
-  width:cw+'px',
-  height:ch+'px',
-  position:'absolute',
-  top:'50%',
-  left:'50%',
-  transform:'translate(-50%,-50%)',
-  overflow:'hidden',
-}
-
-
-var topCoverStyleFn = function () {
-
-  var topW = 50
-  var topH = 40
-
-  var c = containerStyle.backgroundColor
-
-  return {
-    width:0,
-    height:0,
-    border:'solid',
-    borderWidth:topH + 'px ' + topW + 'px ' + topH + 'px ' + topW + 'px ',
-    borderColor:c + ' transparent transparent transparent',
-    position:'absolute',
-    top:0,
-    left:0,
-    zIndex:1,
-  }
-}
-
-var bottomCoverStyleFn = function(lOrR){
-
-  var bh = 32
-  var bw = 50
-
-  var l = 15
-
-  var c = containerStyle.backgroundColor
-
-  return {
-    width:0,
-    height:0,
-    border:'50px solid',
-    borderWidth:bh + 'px ' + bw + 'px ' + bh + 'px ' + bw + 'px ',
-    borderColor: lOrR ? 'transparent transparent ' + c + ' '  + c:  'transparent '+c+' ' +c+' transparent',
-    position:'absolute',
-    bottom:0,
-    left: (lOrR ? l : cw - l - bw*2)+'px',
-    zIndex:1,
-  }
-}
-
-var fillStyleFn = function(){
-
-  return {
-    backgroundColor:'#000',
-    width:'100%',
-    height:'100%',
-    position:'absolute',
-    left:'-100%',
-    top:0,
-  }
-}
-
-
-
-module.exports = function(){
-
-  console.warn('to be deprecated.suggest to use loading.basicLoading')
-
-  var containerBox = document.createElement('div')
-
-  var container = document.createElement('div')
-  var containerBg = document.createElement('div')
-
-  var topCover = document.createElement('div')
-
-  var blCover = document.createElement('div')
-
-  var brCover = document.createElement('div')
-
-  var fill = document.createElement('div')
-
-  addStyle(containerBox,containerStyle)
-  addStyle(containerBg,blackBgStyle)
-
-  addStyle(container,iconContainerStyle)
-
-  addStyle(fill,fillStyleFn())
-
-  addStyle(topCover,topCoverStyleFn())
-  addStyle(blCover,bottomCoverStyleFn(true))
-  addStyle(brCover,bottomCoverStyleFn())
-
-
-//  containerBox.appendChild(containerBg)
-  containerBox.appendChild(container)
-
-  container.appendChild(topCover)
-  container.appendChild(blCover)
-  container.appendChild(brCover)
-  container.appendChild(fill)
-  
-  var allProgress = 0;
-  
-  return {
-    el:function(){
-      
-      return containerBox
-    },
-    load:function(progress){
-      if(progress < 100){
-        allProgress = progress
-        fill.style.transform = 'translate('+allProgress+'%,0%)'
-      }
-    },
-    autoLoad:function(cb){
-      
-      var si=setInterval(function(){
-        
-        allProgress++;
-        
-        fill.style.transform = 'translate('+allProgress+'%,0%)'
-
-        cb && cb(allProgress)
-        
-      },200)
-      
-      return function(){
-        clearInterval(si)
-      }
-    }
-  }
-}
-
-/***/ }),
-/* 33 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Created by zyg on 16/7/20.
- */
-
-var matrixManager = __webpack_require__(6)
-var repeate = __webpack_require__(3)
-
-var cgrey = 'rgb(169,197,202)',
-  cyellow = 'rgb(245,207,56)',
-  cred = 'rgb(234, 108, 95)',
-  cgreen = 'rgb(49, 210, 76)',
-  cblack = 'rgb(66,91,112)',
-  corange = 'rgb(208,127,52)',
-  cpurple = 'rgb(95,100,136)',
-  cblue = 'rgb(34,189,250)';
-
-var colorArr = []
-  .concat(repeate('transparent',3)).concat(repeate('#000',5)).concat(repeate('transparent',3))
-  .concat(repeate('transparent',1)).concat(repeate('#000',9)).concat(repeate('transparent',1))
-  .concat(['transparent','#000',cgrey,cyellow]).concat(repeate('#000',3)).concat(['transparent','#000',cred,cyellow].reverse())
-  .concat(repeate('#000',2)).concat([cgreen,cred]).concat(repeate('#000',3)).concat([cblack,corange]).concat(repeate('#000',2))
-  .concat(repeate('#000',2)).concat([cpurple,cblack,cyellow,'#000',cgreen,cyellow,cblack]).concat(repeate('#000',2))
-  .concat(repeate('#000',2)).concat([corange,cred,cblack,cgreen,corange,cblack,cgreen]).concat(repeate('#000',2))
-  .concat(repeate('#000',2)).concat([cblack,cgreen,'#000',cred,'#000',corange,cred]).concat(repeate('#000',2))
-  .concat(repeate('#000',2)).concat([cred,cblack]).concat(repeate('#000',3)).concat([cyellow,cblack]).concat(repeate('#000',2))
-  .concat(['transparent','#000']).concat([cblue,cgreen]).concat(repeate('#000',3)).concat([cred,cgreen]).concat(['#000','transparent'])
-  .concat(repeate('transparent',1)).concat(repeate('#000',9)).concat(repeate('transparent',1))
-  .concat(repeate('transparent',3)).concat(repeate('#000',5)).concat(repeate('transparent',3))
-
-module.exports = function(){
-
-  console.warn('to be deprecated.suggest to use loading.mpLoading')
-
-  var m = matrixManager(colorArr)
-
-  return {
-    el:function () {
-      return m.el()
-    },
-    progress:function(){
-      return m.progress(1)
-    }
-  }
-}
-
-/***/ }),
-/* 34 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Created by zyg on 16/7/25.
- */
-var repeat = __webpack_require__(3)
-
-/**
- *
- * 放大canvas的ImageData
- *
- * @param data ImageData.data数组
- * @param width 原canvas宽度
- * @param resizeX 横坐标放大倍数
- * @param resizeY 纵坐标放大倍数,默认为resizeX
- * @param gap 默认为4, ImageData中默认 rgba4位 为一个颜色单元
- * @returns {*}
- */
-
-
-
-module.exports = function resizeImageData(data,width,resizeX,resizeY,gap){
-  resizeX = parseInt(resizeX)
-  resizeY = resizeY ? parseInt(resizeY) : resizeX
-  width = parseInt(width)
-  gap = gap ? gap : 4
-
-  if(!isNaN(resizeX) && !isNaN(resizeY) && !isNaN(width)){
-
-    var lines = parseInt(data.length / width)
-    var i=0;
-
-    var finalResizedData = [];
-
-    while(i<=lines){
-      var lineOne = data.slice(i * width,(i+1)*width);
-      i++
-
-      //递归
-      if(gap === 1){
-        lineOne = lineOne.reduce(function (init,dataOne) {
-          return init.concat(repeat(dataOne,resizeX))
-        },[])
-      }else{
-        lineOne = resizeImageData(lineOne,gap,1,resizeX,1)
-      }
-
-
-      var resizedLineOne = repeat(lineOne,resizeY).reduce(function (p, n) {
-        return p.concat(n)
-      },[])
-
-      finalResizedData = finalResizedData.concat(resizedLineOne)
-    }
-
-    return finalResizedData
-  }else{
-    return false;
-  }
-}
-
-/***/ }),
-/* 35 */
-/***/ (function(module, exports) {
-
-/**
- * Created by zyg on 16/7/5.
- */
-var sharedPng ="iVBORw0KGgoAAAANSUhEUgAAAVMAAAEnCAMAAAAjJlCRAAADAFBMVEUAAACj+dgtLS3////////2///+//////////8lJSWY/////wD////h//////z///////wZGRn//+D///////////7////////1//7///////////////7//////////93///////////8bGxv///9iYmL///+Dg4Pd//////92dnYgICA/Pz9mZmaRkZH//+THx8fq/fMA//+VlZUhISH////f/////93//+tQUFBTU1OIiIhjY2O3t7f//+D//+T//+XQ0NC3t7eWlpaqqqrr/f0cHBz//wDU1NSkpKTo6Ojh/////9nm///KysqKiork//+tra3//+Lk//9WVlbq//+srKxFRUVBQUHn/////+Hv7+/b29vn///f///p/f3GxsZpaWm9vb3//+CsrKxPT0/q6sqZmZn//+/k5OQ6OjrV1dXo6Ojt7e3h//+UlJT//+Pg//9tbW2jo6NbW1vG//+s/////wCXl5ewsLDe3t7CwsLz8/O7u7vKysrR0dHs///j4+O+vr7u9vatra3k5OTV1dWCgoL7//nZ2dn///Dq/////+dsbGwFBQVxcXFubm6Ojo77+/vQ0ND5/v7q//9LS0vn5+fx8fH//+mjo6PAwMCZmZl1dXWwsLDq///h///c3Ny6urqbm5vIyMi7u7ugoKB7e3vAwMDAwMDp//8jIyOTk5N5eXmIiIjQ0NC8vLzr//8qKir//+aFhYX09PT8/Px+fn75/f329vb///KysrLh4eE8PDzQ0NDb29vv//+MjIz//+xVVVX//+s/Pz95eXkMDAwSEhJdXV2WlpawsLD9/frt7e35/////+9ubm7a2trc//9VVVX//+ktLS3X19c+Pj5WVlZSUlL//9f+//3////9/f339/f8/Pz19fX7+/v5+fnz8/P6+vr///Lu///x8fHt7e3q6uro6Ojv7+////v///fi4uL7///3///y///l5eXe3t7j///s7OzY2Nj//+Tp/////+7//+nNzc1ycnK/v79HR0c7OzsJca7VAAAA3HRSTlMAAQIgFRsK39AFAgLBaiYHEQp1gGAbLaYNszRqRO+Z34xNBA88CnUj0FYaFxYSMdD8IAdCHvjf0GArDsc6/sGzpmxdXTMmJQT++fbv79DQ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"
-
-module.exports = function () {
-  var div = document.createElement('div')
-  div.style.zIndex = 9999
-  div.style.position = 'fixed'
-  div.style.left = 0
-  div.style.top = 0
-  div.style.right = 0
-  div.style.bottom = 0
-
-  var bg = document.createElement('div');
-  bg.style.backgroundColor = '#000'
-  bg.style.opacity = 0.7
-  bg.style.width = '100%'
-  bg.style.height = '100%'
-  bg.style.position = 'absolute'
-  bg.style.left = 0
-  bg.style.top = 0
-
-  var img = new Image()
-  img.src="data:image/png;base64,"+sharedPng
-  img.style.zIndex = 1;
-  img.style.position = 'absolute'
-  img.style.top = '20px'
-  img.style.right = '20px'
-
-  var body = document.querySelector('body')
-
-  div.appendChild(bg)
-  div.appendChild(img)
-  body.appendChild(div)
-
-  div.onclick = function () {
-    div.remove()
-    div = null;
-  }
-
-  return function () {
-    div && div.remove()
-  }
-}
-
-/***/ }),
-/* 36 */
-/***/ (function(module, exports) {
-
-/**
- * Created by zyg on 16/8/28.
- */
-function unfoldArray(fromArr,arr) {
-  if(fromArr.length > 0){
-    var v = fromArr[0];
-
-    if(_.isArray(v)){
-      var unV = unfoldArray(v,[]);
-      arr = arr.concat(unV);
-    }else{
-      arr = arr.concat(v);
-    }
-    return unfoldArray(fromArr.slice(1),arr);
-  }else{
-    return arr;
-  }
-}
-
-
-module.exports = unfoldArray;
-
-/***/ }),
-/* 37 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*
-Copyright (c) 2010,2011,2012,2013,2014 Morgan Roderick http://roderick.dk
-License: MIT - http://mrgnrdrck.mit-license.org
-
-https://github.com/mroderick/PubSubJS
-*/
-(function (root, factory){
-	'use strict';
-
-    if (true){
-        // AMD. Register as an anonymous module.
-        !(__WEBPACK_AMD_DEFINE_ARRAY__ = [exports], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory),
-				__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
-				(__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-    } else if (typeof exports === 'object'){
-        // CommonJS
-        factory(exports);
-
-    }
-
-    // Browser globals
-    var PubSub = {};
-    root.PubSub = PubSub;
-    factory(PubSub);
-
-}(( typeof window === 'object' && window ) || this, function (PubSub){
-	'use strict';
-
-	var messages = {},
-		lastUid = -1;
-
-	function hasKeys(obj){
-		var key;
-
-		for (key in obj){
-			if ( obj.hasOwnProperty(key) ){
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 *	Returns a function that throws the passed exception, for use as argument for setTimeout
-	 *	@param { Object } ex An Error object
-	 */
-	function throwException( ex ){
-		return function reThrowException(){
-			throw ex;
-		};
-	}
-
-	function callSubscriberWithDelayedExceptions( subscriber, message, data ){
-		try {
-			subscriber( message, data );
-		} catch( ex ){
-			setTimeout( throwException( ex ), 0);
-		}
-	}
-
-	function callSubscriberWithImmediateExceptions( subscriber, message, data ){
-		subscriber( message, data );
-	}
-
-	function deliverMessage( originalMessage, matchedMessage, data, immediateExceptions ){
-		var subscribers = messages[matchedMessage],
-			callSubscriber = immediateExceptions ? callSubscriberWithImmediateExceptions : callSubscriberWithDelayedExceptions,
-			s;
-
-		if ( !messages.hasOwnProperty( matchedMessage ) ) {
-			return;
-		}
-
-		for (s in subscribers){
-			if ( subscribers.hasOwnProperty(s)){
-				callSubscriber( subscribers[s], originalMessage, data );
-			}
-		}
-	}
-
-	function createDeliveryFunction( message, data, immediateExceptions ){
-		return function deliverNamespaced(){
-			var topic = String( message ),
-				position = topic.lastIndexOf( '.' );
-
-			// deliver the message as it is now
-			deliverMessage(message, message, data, immediateExceptions);
-
-			// trim the hierarchy and deliver message to each level
-			while( position !== -1 ){
-				topic = topic.substr( 0, position );
-				position = topic.lastIndexOf('.');
-				deliverMessage( message, topic, data, immediateExceptions );
-			}
-		};
-	}
-
-	function messageHasSubscribers( message ){
-		var topic = String( message ),
-			found = Boolean(messages.hasOwnProperty( topic ) && hasKeys(messages[topic])),
-			position = topic.lastIndexOf( '.' );
-
-		while ( !found && position !== -1 ){
-			topic = topic.substr( 0, position );
-			position = topic.lastIndexOf( '.' );
-			found = Boolean(messages.hasOwnProperty( topic ) && hasKeys(messages[topic]));
-		}
-
-		return found;
-	}
-
-	function publish( message, data, sync, immediateExceptions ){
-		var deliver = createDeliveryFunction( message, data, immediateExceptions ),
-			hasSubscribers = messageHasSubscribers( message );
-
-		if ( !hasSubscribers ){
-			return false;
-		}
-
-		if ( sync === true ){
-			deliver();
-		} else {
-			setTimeout( deliver, 0 );
-		}
-		return true;
-	}
-
-	/**
-	 *	PubSub.publish( message[, data] ) -> Boolean
-	 *	- message (String): The message to publish
-	 *	- data: The data to pass to subscribers
-	 *	Publishes the the message, passing the data to it's subscribers
-	**/
-	PubSub.publish = function( message, data ){
-		return publish( message, data, false, PubSub.immediateExceptions );
-	};
-
-	/**
-	 *	PubSub.publishSync( message[, data] ) -> Boolean
-	 *	- message (String): The message to publish
-	 *	- data: The data to pass to subscribers
-	 *	Publishes the the message synchronously, passing the data to it's subscribers
-	**/
-	PubSub.publishSync = function( message, data ){
-		return publish( message, data, true, PubSub.immediateExceptions );
-	};
-
-	/**
-	 *	PubSub.subscribe( message, func ) -> String
-	 *	- message (String): The message to subscribe to
-	 *	- func (Function): The function to call when a new message is published
-	 *	Subscribes the passed function to the passed message. Every returned token is unique and should be stored if
-	 *	you need to unsubscribe
-	**/
-	PubSub.subscribe = function( message, func ){
-		if ( typeof func !== 'function'){
-			return false;
-		}
-
-		// message is not registered yet
-		if ( !messages.hasOwnProperty( message ) ){
-			messages[message] = {};
-		}
-
-		// forcing token as String, to allow for future expansions without breaking usage
-		// and allow for easy use as key names for the 'messages' object
-		var token = 'uid_' + String(++lastUid);
-		messages[message][token] = func;
-
-		// return token for unsubscribing
-		return token;
-	};
-
-	/* Public: Clears all subscriptions
-	 */
-	PubSub.clearAllSubscriptions = function clearAllSubscriptions(){
-		messages = {};
-	};
-
-	/*Public: Clear subscriptions by the topic
-	*/
-	PubSub.clearSubscriptions = function clearSubscriptions(topic){
-		var m;
-		for (m in messages){
-			if (messages.hasOwnProperty(m) && m.indexOf(topic) === 0){
-				delete messages[m];
-			}
-		}
-	};
-
-	/* Public: removes subscriptions.
-	 * When passed a token, removes a specific subscription.
-	 * When passed a function, removes all subscriptions for that function
-	 * When passed a topic, removes all subscriptions for that topic (hierarchy)
-	 *
-	 * value - A token, function or topic to unsubscribe.
-	 *
-	 * Examples
-	 *
-	 *		// Example 1 - unsubscribing with a token
-	 *		var token = PubSub.subscribe('mytopic', myFunc);
-	 *		PubSub.unsubscribe(token);
-	 *
-	 *		// Example 2 - unsubscribing with a function
-	 *		PubSub.unsubscribe(myFunc);
-	 *
-	 *		// Example 3 - unsubscribing a topic
-	 *		PubSub.unsubscribe('mytopic');
-	 */
-	PubSub.unsubscribe = function(value){
-		var descendantTopicExists = function(topic) {
-				var m;
-				for ( m in messages ){
-					if ( messages.hasOwnProperty(m) && m.indexOf(topic) === 0 ){
-						// a descendant of the topic exists:
-						return true;
-					}
-				}
-
-				return false;
-			},
-			isTopic    = typeof value === 'string' && ( messages.hasOwnProperty(value) || descendantTopicExists(value) ),
-			isToken    = !isTopic && typeof value === 'string',
-			isFunction = typeof value === 'function',
-			result = false,
-			m, message, t;
-
-		if (isTopic){
-			PubSub.clearSubscriptions(value);
-			return;
-		}
-
-		for ( m in messages ){
-			if ( messages.hasOwnProperty( m ) ){
-				message = messages[m];
-
-				if ( isToken && message[value] ){
-					delete message[value];
-					result = value;
-					// tokens are unique, so we can just stop here
-					break;
-				}
-
-				if (isFunction) {
-					for ( t in message ){
-						if (message.hasOwnProperty(t) && message[t] === value){
-							delete message[t];
-							result = true;
-						}
-					}
-				}
-			}
-		}
-
-		return result;
-	};
-}));
-
-
-/***/ }),
-/* 38 */
-/***/ (function(module, exports) {
-
-module.exports = function(module) {
-	if(!module.webpackPolyfill) {
-		module.deprecate = function() {};
-		module.paths = [];
-		// module.parent = undefined by default
-		if(!module.children) module.children = [];
-		Object.defineProperty(module, "loaded", {
-			enumerable: true,
-			get: function() {
-				return module.l;
-			}
-		});
-		Object.defineProperty(module, "id", {
-			enumerable: true,
-			get: function() {
-				return module.i;
-			}
-		});
-		module.webpackPolyfill = 1;
-	}
-	return module;
-};
-
-
-/***/ }),
-/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -19792,7 +18520,7 @@ function isBuffer(b) {
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-var util = __webpack_require__(49);
+var util = __webpack_require__(48);
 var hasOwn = Object.prototype.hasOwnProperty;
 var pSlice = Array.prototype.slice;
 var functionsHaveNames = (function () {
@@ -20218,13 +18946,1321 @@ var objectKeys = Object.keys || function (obj) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(16)))
 
 /***/ }),
+/* 20 */
+/***/ (function(module, exports) {
+
+
+
+/***/ }),
+/* 21 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/**
+ * Created by zyg on 16/7/15.
+ */
+
+
+var n=0;
+
+class Container {
+  constructor(props) {
+    this.name = n++;
+    this.props = props;
+    this.children = [];
+  }
+  addChild(c){
+    this.children.push(c)
+  }
+  addChildAt(c,i){
+    this.children.splice(i,0,c);
+  }
+  removeChildAt(i){
+    this.children.splice(i,1);
+  }
+}
+
+
+module.exports = {
+  Container,
+}
+
+
+/***/ }),
+/* 22 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(PIXI) {/**
+ * 快速生成一个stage，并插入到容器种
+ * @param container
+ * @param config
+ * @returns {module.exports.Container}
+ */
+var createRender = __webpack_require__(10);
+
+module.exports = function (container, config) {
+
+  var render = createRender.apply(this,arguments);
+
+  var stage = new PIXI.Container();
+
+  var cancelAnimate = render(stage);
+
+  stage.clearRender = cancelAnimate.cancel;
+
+  return stage;
+};
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 23 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Created by zyg on 16/8/17.
+ */
+
+var _ = __webpack_require__(1);
+
+
+function AudioPlayer(src) {
+  this.el = document.createElement('audio');
+  this.el.src = src;
+  this.playing = false;
+
+  var self = this;
+
+  this.el.addEventListener('pause',function () {
+    self.playing = false;
+  });
+  this.el.addEventListener('ended',function () {
+    self.playing = false;
+  })
+  
+}
+AudioPlayer.prototype.play = function (beginHead) {
+  if(beginHead){
+    this.el.currentTime=0;
+  }
+  this.el.play();
+  this.playing = true;
+};
+AudioPlayer.prototype.stop = function () {
+  this.el.stop();
+  this.playing = false;
+};
+/**
+ * 音频加载和播放相关的库
+ * @param Object config {
+ *    key:<url>
+ * }
+ */
+module.exports = function (config) {
+
+  var cache = [];
+
+  var playObj = Object.keys(config).map(function(key){
+
+    var playObj = {};
+    playObj[key] = function () {
+
+      var  idleAp = cache.filter(function (ap) {
+        return !ap.playing;
+      })[0];
+
+      if(!idleAp){
+        idleAp = new AudioPlayer(config[key]);
+        cache.push(idleAp);
+      }
+
+      idleAp.play(true);
+
+      return idleAp;
+    };
+    return playObj;
+  }).reduce(function (i,next) {
+    return _.assign(i,next);
+  },{});
+
+
+  return playObj;
+};
+
+/***/ }),
+/* 24 */
+/***/ (function(module, exports) {
+
+/**
+ * Created by zyg on 16/6/5.
+ */
+
+module.exports = function (mp3Url,config) {
+  var body = document.querySelector('body')
+
+  var audioEle = document.createElement('audio')
+
+
+
+  audioEle.src = mp3Url
+
+
+
+  return {
+    play: function () {
+      audioEle.play()
+    },
+    stop: function () {
+      audioEle.stop()
+    },
+    remove: function () {
+      audioEle.stop()
+      audioEle.remove();
+    }
+  }
+}
+
+/***/ }),
+/* 25 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Created by zyg on 16/2/4.
+ */
+var PubSub = __webpack_require__(38);
+
+function createAction(name,action) {
+
+  var isStart = false;
+  var isEnd = false;
+
+  var actionStates = {
+    start: function (data) {
+      isEnd = false;
+      PubSub.publish(name+'Start',data)
+    },
+    progress: function (data) {
+      PubSub.publish(name+'Progress',data);
+    },
+    end: function (data) {
+      if(!isEnd){
+        isEnd= true;
+        PubSub.publish(name+'End',data)
+      }
+    },
+    on: function (name,callback,extra) {
+      PubSub.subscribe(name,function(topic,data){
+        callback(data)
+      });
+    }
+  };
+
+  return function () {
+    action.apply(actionStates,arguments);
+  }
+}
+
+createAction.dispatch = PubSub.publish.bind(PubSub);
+
+module.exports = createAction;
+
+/***/ }),
+/* 26 */
+/***/ (function(module, exports) {
+
+/**
+ * 修正精灵属性，比如play和stop不能同时存在，容易毫无意思。
+ * @param settingProperties
+ * @param finalProperties
+ * @returns {*}
+ */
+
+module.exports = function fixProperties(settingProperties,finalProperties){
+
+  if(settingProperties.play !== undefined){
+    delete finalProperties.stop;
+  }
+  if(settingProperties.stop !== undefined){
+    delete finalProperties.play;
+  }
+
+  var finalKeys = Object.keys(finalProperties).filter(function(key){
+    return /playAction/.test(key)
+  });
+
+  var settingKeys = Object.keys(settingProperties).filter(function(key){
+    return /playAction/.test(key)
+  });
+
+  finalKeys.map(function(key){
+    if(settingKeys.indexOf(key) === -1){
+      delete finalProperties[key];
+    }
+  });
+
+  if(settingKeys.length > 0){
+    delete finalProperties.stop;
+  }
+
+  return finalProperties;
+};
+
+/***/ }),
+/* 27 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var createLoader = __webpack_require__(9);
+
+/**
+ * 设定资源或取出资源
+ *
+ * @param spriteName
+ * @returns {*}
+ */
+module.exports = function(spriteName){
+  var resources = createLoader.getResources();
+
+  var textures = false;
+
+  if (resources[spriteName]) {
+
+    textures = resources[spriteName].texture || resources[spriteName].textures;
+  }
+
+  return textures;
+};
+
+/***/ }),
+/* 28 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var _ = __webpack_require__(1)
+var loadResource = __webpack_require__(14);
+var types = __webpack_require__(15);
+var getMc = __webpack_require__(4);
+var getIm = __webpack_require__(12);
+var getSp = __webpack_require__(13);
+
+var spriteFnMap = {};
+
+spriteFnMap[types.SPRITE_IM] = getIm;
+spriteFnMap[types.SPRITE_MC] = getMc;
+spriteFnMap[types.SPRITE_SP] = getSp;
+//为了兼容
+spriteFnMap['image'] = getIm;
+spriteFnMap['movieClip'] = getMc;
+/**
+ * 加载资源，生成精灵
+ *
+ * @param resourceUrl  资源
+ * @param spriteType  类型
+ * @param properties 属性
+ * @param actionFrames 帧 仅用于sp类型
+ * @param cb
+ */
+module.exports = function (resourceUrl,spriteType,properties,actionFrames,cb) {
+
+  if(typeof actionFrames === 'function'){
+    cb = actionFrames;
+    actionFrames = [];
+  }
+  properties = _.assign({},properties);
+
+  loadResource(resourceUrl, function (resource) {
+    //同时兼容到im和mc
+    properties.textures = resource.texture || resource.textures;
+
+    var spriteDisplayObj = spriteFnMap[spriteType](properties,actionFrames);
+
+    cb(spriteDisplayObj);
+  });
+};
+
+/***/ }),
+/* 29 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Created by zyg on 16/7/5.
+ */
+
+var addStyle = __webpack_require__(2)
+
+var cw = 100;
+var ch = 100;
+
+var containerStyle=  {
+  backgroundColor:'#f0f0f0',
+  width:'100%',
+  height:'100%',
+  position:'fixed',
+  top:0,
+  left:0,
+}
+
+var blackBgStyle = {
+  backgroundColor:'#000',
+  opacity:0.7,
+  width:'100%',
+  height:'100%',
+  position:'absolute',
+  top:0,
+  left:0,
+}
+
+
+var iconContainerStyle = {
+  backgroundColor:'#fff',
+  width:cw+'px',
+  height:ch+'px',
+  position:'absolute',
+  top:'50%',
+  left:'50%',
+  transform:'translate(-50%,-50%)',
+  overflow:'hidden',
+}
+
+
+var topCoverStyleFn = function () {
+
+  var topW = 50
+  var topH = 40
+
+  var c = containerStyle.backgroundColor
+
+  return {
+    width:0,
+    height:0,
+    border:'solid',
+    borderWidth:topH + 'px ' + topW + 'px ' + topH + 'px ' + topW + 'px ',
+    borderColor:c + ' transparent transparent transparent',
+    position:'absolute',
+    top:0,
+    left:0,
+    zIndex:1,
+  }
+}
+
+var bottomCoverStyleFn = function(lOrR){
+
+  var bh = 32
+  var bw = 50
+
+  var l = 15
+
+  var c = containerStyle.backgroundColor
+
+  return {
+    width:0,
+    height:0,
+    border:'50px solid',
+    borderWidth:bh + 'px ' + bw + 'px ' + bh + 'px ' + bw + 'px ',
+    borderColor: lOrR ? 'transparent transparent ' + c + ' '  + c:  'transparent '+c+' ' +c+' transparent',
+    position:'absolute',
+    bottom:0,
+    left: (lOrR ? l : cw - l - bw*2)+'px',
+    zIndex:1,
+  }
+}
+
+var fillStyleFn = function(){
+
+  return {
+    backgroundColor:'#000',
+    width:'100%',
+    height:'100%',
+    position:'absolute',
+    left:'-100%',
+    top:0,
+  }
+}
+
+
+
+module.exports = function(){
+
+  var containerBox = document.createElement('div')
+
+  var container = document.createElement('div')
+  var containerBg = document.createElement('div')
+
+  var topCover = document.createElement('div')
+
+  var blCover = document.createElement('div')
+
+  var brCover = document.createElement('div')
+
+  var fill = document.createElement('div')
+
+  addStyle(containerBox,containerStyle)
+  addStyle(containerBg,blackBgStyle)
+
+  addStyle(container,iconContainerStyle)
+
+  addStyle(fill,fillStyleFn())
+
+  addStyle(topCover,topCoverStyleFn())
+  addStyle(blCover,bottomCoverStyleFn(true))
+  addStyle(brCover,bottomCoverStyleFn())
+
+//  containerBox.appendChild(containerBg)
+  containerBox.appendChild(container)
+
+  container.appendChild(topCover)
+  container.appendChild(blCover)
+  container.appendChild(brCover)
+  container.appendChild(fill)
+  
+  var allProgress = 0;
+  
+  return {
+    el:function(){
+      
+      return containerBox
+    },
+    load:function(progress){
+      if(progress < 100){
+        allProgress = progress
+        fill.style.transform = 'translate('+allProgress+'%,0%)'
+      }
+    },
+    autoLoad:function(cb){
+      
+      var si=setInterval(function(){
+        
+        allProgress++;
+        
+        fill.style.transform = 'translate('+allProgress+'%,0%)'
+
+        cb && cb(allProgress)
+        
+      },200)
+      
+      return function(){
+        clearInterval(si)
+      }
+    }
+  }
+}
+
+/***/ }),
+/* 30 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Created by zyg on 16/7/20.
+ */
+
+var matrixManager = __webpack_require__(6)
+var repeate = __webpack_require__(3)
+
+var cgrey = 'rgb(169,197,202)',
+  cyellow = 'rgb(245,207,56)',
+  cred = 'rgb(234, 108, 95)',
+  cgreen = 'rgb(49, 210, 76)',
+  cblack = 'rgb(66,91,112)',
+  corange = 'rgb(208,127,52)',
+  cpurple = 'rgb(95,100,136)',
+  cblue = 'rgb(34,189,250)';
+
+var colorArr = []
+  .concat(repeate('transparent',3)).concat(repeate('#000',5)).concat(repeate('transparent',3))
+  .concat(repeate('transparent',1)).concat(repeate('#000',9)).concat(repeate('transparent',1))
+  .concat(['transparent','#000',cgrey,cyellow]).concat(repeate('#000',3)).concat(['transparent','#000',cred,cyellow].reverse())
+  .concat(repeate('#000',2)).concat([cgreen,cred]).concat(repeate('#000',3)).concat([cblack,corange]).concat(repeate('#000',2))
+  .concat(repeate('#000',2)).concat([cpurple,cblack,cyellow,'#000',cgreen,cyellow,cblack]).concat(repeate('#000',2))
+  .concat(repeate('#000',2)).concat([corange,cred,cblack,cgreen,corange,cblack,cgreen]).concat(repeate('#000',2))
+  .concat(repeate('#000',2)).concat([cblack,cgreen,'#000',cred,'#000',corange,cred]).concat(repeate('#000',2))
+  .concat(repeate('#000',2)).concat([cred,cblack]).concat(repeate('#000',3)).concat([cyellow,cblack]).concat(repeate('#000',2))
+  .concat(['transparent','#000']).concat([cblue,cgreen]).concat(repeate('#000',3)).concat([cred,cgreen]).concat(['#000','transparent'])
+  .concat(repeate('transparent',1)).concat(repeate('#000',9)).concat(repeate('transparent',1))
+  .concat(repeate('transparent',3)).concat(repeate('#000',5)).concat(repeate('transparent',3))
+
+function containerStyle(){
+  return {
+    border:'1px solid #ccc',
+    borderRadius:'50%',
+    padding:'15px',
+  }
+}
+
+module.exports = function(){
+
+  var m = matrixManager(colorArr)
+
+  var s = containerStyle()
+
+  return {
+    el:function () {
+      return m.el(s)
+    },
+    progress:function(){
+      return m.progress(1)
+    },
+    startLoading:function (cb) {
+      var si = setInterval(function () {
+        if(!this.progress()){
+          clearInterval(si);
+          cb && cb();
+        }
+      }.bind(this),100);
+    }
+  }
+}
+
+/***/ }),
+/* 31 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * 计算单位向量
+ * @param [a,b]
+ * @returns [c,d]
+ */
+var distance = __webpack_require__(11);
+
+module.exports = function(a) {
+  console.log('deprecated:use .math.makeIdentity')
+
+  if(!a || a[0] === 0 && a[1] === 0) {
+    return [0, 0]
+  }
+  var b = distance(0,0,a[0],a[1]);
+  //Math.pow((Math.pow(a[0], 2) + Math.pow(a[1], 2)), 0.5);
+  return [a[0] / b , a[1] / b]
+};
+
+/***/ }),
+/* 32 */
+/***/ (function(module, exports) {
+
+/**
+ * Created by zyg on 16/5/24.
+ */
+module.exports = {
+
+  rotateWithCentral: function (x,y,radians) {
+
+    var targetX = x*Math.cos(radians) - y*Math.sin(radians);
+    var targetY = x*Math.sin(radians) + y*Math.cos(radians);
+
+    return [
+      targetX - x,
+      targetY - y,
+    ]
+  },
+  distance: function (x1, y1, x2, y2) {
+    return Math.pow((Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2)), 0.5);
+  },
+  makeIdentity : function (a) {
+    if(!a || a[0] === 0 && a[1] === 0) {
+      return [0, 0]
+    }
+    var b = this.distance(0,0,a[0],a[1]);
+    //Math.pow((Math.pow(a[0], 2) + Math.pow(a[1], 2)), 0.5);
+    return [a[0] / b , a[1] / b]
+  },
+  //从0开始
+  boomerangTrace:function(x,maxValue){
+    var doubleV = maxValue * 2
+
+    x = x%doubleV
+    
+    if(x > maxValue){
+      x = doubleV - x
+    }
+    
+    return x
+  },
+  boomrangeTraceThunk:function (maxValue) {
+    var doubleV = maxValue * 2
+
+    return function () {
+      x = x%doubleV
+
+      if(x > maxValue){
+        x = doubleV - x
+      }
+
+      return x
+    }
+  },
+  circleTrace:function (r, x) {
+    if(x>r){
+      return 0
+    }
+    return Math.sqrt(Math.pow(r,2) - Math.pow(x,2));
+  },
+  circleTraceThunk:function (r) {
+    var rr = Math.pow(r,2)
+    return function(x){
+      if(x>r){
+        return 0
+      }
+      return Math.sqrt(rr - Math.pow(x,2))
+    }
+  },
+}
+
+/***/ }),
+/* 33 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Created by zyg on 16/7/5.
+ */
+
+var addStyle = __webpack_require__(2)
+
+var cw = 100;
+var ch = 100;
+
+var containerStyle=  {
+  backgroundColor:'#f0f0f0',
+  width:'100%',
+  height:'100%',
+  position:'fixed',
+  top:0,
+  left:0,
+}
+
+var blackBgStyle = {
+  backgroundColor:'#000',
+  opacity:0.7,
+  width:'100%',
+  height:'100%',
+  position:'absolute',
+  top:0,
+  left:0,
+}
+
+
+var iconContainerStyle = {
+  backgroundColor:'#fff',
+  width:cw+'px',
+  height:ch+'px',
+  position:'absolute',
+  top:'50%',
+  left:'50%',
+  transform:'translate(-50%,-50%)',
+  overflow:'hidden',
+}
+
+
+var topCoverStyleFn = function () {
+
+  var topW = 50
+  var topH = 40
+
+  var c = containerStyle.backgroundColor
+
+  return {
+    width:0,
+    height:0,
+    border:'solid',
+    borderWidth:topH + 'px ' + topW + 'px ' + topH + 'px ' + topW + 'px ',
+    borderColor:c + ' transparent transparent transparent',
+    position:'absolute',
+    top:0,
+    left:0,
+    zIndex:1,
+  }
+}
+
+var bottomCoverStyleFn = function(lOrR){
+
+  var bh = 32
+  var bw = 50
+
+  var l = 15
+
+  var c = containerStyle.backgroundColor
+
+  return {
+    width:0,
+    height:0,
+    border:'50px solid',
+    borderWidth:bh + 'px ' + bw + 'px ' + bh + 'px ' + bw + 'px ',
+    borderColor: lOrR ? 'transparent transparent ' + c + ' '  + c:  'transparent '+c+' ' +c+' transparent',
+    position:'absolute',
+    bottom:0,
+    left: (lOrR ? l : cw - l - bw*2)+'px',
+    zIndex:1,
+  }
+}
+
+var fillStyleFn = function(){
+
+  return {
+    backgroundColor:'#000',
+    width:'100%',
+    height:'100%',
+    position:'absolute',
+    left:'-100%',
+    top:0,
+  }
+}
+
+
+
+module.exports = function(){
+
+  console.warn('to be deprecated.suggest to use loading.basicLoading')
+
+  var containerBox = document.createElement('div')
+
+  var container = document.createElement('div')
+  var containerBg = document.createElement('div')
+
+  var topCover = document.createElement('div')
+
+  var blCover = document.createElement('div')
+
+  var brCover = document.createElement('div')
+
+  var fill = document.createElement('div')
+
+  addStyle(containerBox,containerStyle)
+  addStyle(containerBg,blackBgStyle)
+
+  addStyle(container,iconContainerStyle)
+
+  addStyle(fill,fillStyleFn())
+
+  addStyle(topCover,topCoverStyleFn())
+  addStyle(blCover,bottomCoverStyleFn(true))
+  addStyle(brCover,bottomCoverStyleFn())
+
+
+//  containerBox.appendChild(containerBg)
+  containerBox.appendChild(container)
+
+  container.appendChild(topCover)
+  container.appendChild(blCover)
+  container.appendChild(brCover)
+  container.appendChild(fill)
+  
+  var allProgress = 0;
+  
+  return {
+    el:function(){
+      
+      return containerBox
+    },
+    load:function(progress){
+      if(progress < 100){
+        allProgress = progress
+        fill.style.transform = 'translate('+allProgress+'%,0%)'
+      }
+    },
+    autoLoad:function(cb){
+      
+      var si=setInterval(function(){
+        
+        allProgress++;
+        
+        fill.style.transform = 'translate('+allProgress+'%,0%)'
+
+        cb && cb(allProgress)
+        
+      },200)
+      
+      return function(){
+        clearInterval(si)
+      }
+    }
+  }
+}
+
+/***/ }),
+/* 34 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Created by zyg on 16/7/20.
+ */
+
+var matrixManager = __webpack_require__(6)
+var repeate = __webpack_require__(3)
+
+var cgrey = 'rgb(169,197,202)',
+  cyellow = 'rgb(245,207,56)',
+  cred = 'rgb(234, 108, 95)',
+  cgreen = 'rgb(49, 210, 76)',
+  cblack = 'rgb(66,91,112)',
+  corange = 'rgb(208,127,52)',
+  cpurple = 'rgb(95,100,136)',
+  cblue = 'rgb(34,189,250)';
+
+var colorArr = []
+  .concat(repeate('transparent',3)).concat(repeate('#000',5)).concat(repeate('transparent',3))
+  .concat(repeate('transparent',1)).concat(repeate('#000',9)).concat(repeate('transparent',1))
+  .concat(['transparent','#000',cgrey,cyellow]).concat(repeate('#000',3)).concat(['transparent','#000',cred,cyellow].reverse())
+  .concat(repeate('#000',2)).concat([cgreen,cred]).concat(repeate('#000',3)).concat([cblack,corange]).concat(repeate('#000',2))
+  .concat(repeate('#000',2)).concat([cpurple,cblack,cyellow,'#000',cgreen,cyellow,cblack]).concat(repeate('#000',2))
+  .concat(repeate('#000',2)).concat([corange,cred,cblack,cgreen,corange,cblack,cgreen]).concat(repeate('#000',2))
+  .concat(repeate('#000',2)).concat([cblack,cgreen,'#000',cred,'#000',corange,cred]).concat(repeate('#000',2))
+  .concat(repeate('#000',2)).concat([cred,cblack]).concat(repeate('#000',3)).concat([cyellow,cblack]).concat(repeate('#000',2))
+  .concat(['transparent','#000']).concat([cblue,cgreen]).concat(repeate('#000',3)).concat([cred,cgreen]).concat(['#000','transparent'])
+  .concat(repeate('transparent',1)).concat(repeate('#000',9)).concat(repeate('transparent',1))
+  .concat(repeate('transparent',3)).concat(repeate('#000',5)).concat(repeate('transparent',3))
+
+module.exports = function(){
+
+  console.warn('to be deprecated.suggest to use loading.mpLoading')
+
+  var m = matrixManager(colorArr)
+
+  return {
+    el:function () {
+      return m.el()
+    },
+    progress:function(){
+      return m.progress(1)
+    }
+  }
+}
+
+/***/ }),
+/* 35 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Created by zyg on 16/7/25.
+ */
+var repeat = __webpack_require__(3)
+
+/**
+ *
+ * 放大canvas的ImageData
+ *
+ * @param data ImageData.data数组
+ * @param width 原canvas宽度
+ * @param resizeX 横坐标放大倍数
+ * @param resizeY 纵坐标放大倍数,默认为resizeX
+ * @param gap 默认为4, ImageData中默认 rgba4位 为一个颜色单元
+ * @returns {*}
+ */
+
+
+
+module.exports = function resizeImageData(data,width,resizeX,resizeY,gap){
+  resizeX = parseInt(resizeX)
+  resizeY = resizeY ? parseInt(resizeY) : resizeX
+  width = parseInt(width)
+  gap = gap ? gap : 4
+
+  if(!isNaN(resizeX) && !isNaN(resizeY) && !isNaN(width)){
+
+    var lines = parseInt(data.length / width)
+    var i=0;
+
+    var finalResizedData = [];
+
+    while(i<=lines){
+      var lineOne = data.slice(i * width,(i+1)*width);
+      i++
+
+      //递归
+      if(gap === 1){
+        lineOne = lineOne.reduce(function (init,dataOne) {
+          return init.concat(repeat(dataOne,resizeX))
+        },[])
+      }else{
+        lineOne = resizeImageData(lineOne,gap,1,resizeX,1)
+      }
+
+
+      var resizedLineOne = repeat(lineOne,resizeY).reduce(function (p, n) {
+        return p.concat(n)
+      },[])
+
+      finalResizedData = finalResizedData.concat(resizedLineOne)
+    }
+
+    return finalResizedData
+  }else{
+    return false;
+  }
+}
+
+/***/ }),
+/* 36 */
+/***/ (function(module, exports) {
+
+/**
+ * Created by zyg on 16/7/5.
+ */
+var sharedPng ="iVBORw0KGgoAAAANSUhEUgAAAVMAAAEnCAMAAAAjJlCRAAADAFBMVEUAAACj+dgtLS3////////2///+//////////8lJSWY/////wD////h//////z///////wZGRn//+D///////////7////////1//7///////////////7//////////93///////////8bGxv///9iYmL///+Dg4Pd//////92dnYgICA/Pz9mZmaRkZH//+THx8fq/fMA//+VlZUhISH////f/////93//+tQUFBTU1OIiIhjY2O3t7f//+D//+T//+XQ0NC3t7eWlpaqqqrr/f0cHBz//wDU1NSkpKTo6Ojh/////9nm///KysqKiork//+tra3//+Lk//9WVlbq//+srKxFRUVBQUHn/////+Hv7+/b29vn///f///p/f3GxsZpaWm9vb3//+CsrKxPT0/q6sqZmZn//+/k5OQ6OjrV1dXo6Ojt7e3h//+UlJT//+Pg//9tbW2jo6NbW1vG//+s/////wCXl5ewsLDe3t7CwsLz8/O7u7vKysrR0dHs///j4+O+vr7u9vatra3k5OTV1dWCgoL7//nZ2dn///Dq/////+dsbGwFBQVxcXFubm6Ojo77+/vQ0ND5/v7q//9LS0vn5+fx8fH//+mjo6PAwMCZmZl1dXWwsLDq///h///c3Ny6urqbm5vIyMi7u7ugoKB7e3vAwMDAwMDp//8jIyOTk5N5eXmIiIjQ0NC8vLzr//8qKir//+aFhYX09PT8/Px+fn75/f329vb///KysrLh4eE8PDzQ0NDb29vv//+MjIz//+xVVVX//+s/Pz95eXkMDAwSEhJdXV2WlpawsLD9/frt7e35/////+9ubm7a2trc//9VVVX//+ktLS3X19c+Pj5WVlZSUlL//9f+//3////9/f339/f8/Pz19fX7+/v5+fnz8/P6+vr///Lu///x8fHt7e3q6uro6Ojv7+////v///fi4uL7///3///y///l5eXe3t7j///s7OzY2Nj//+Tp/////+7//+nNzc1ycnK/v79HR0c7OzsJca7VAAAA3HRSTlMAAQIgFRsK39AFAgLBaiYHEQp1gGAbLaYNszRqRO+Z34xNBA88CnUj0FYaFxYSMdD8IAdCHvjf0GArDsc6/sGzpmxdXTMmJQT++fbv79DQ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"
+
+module.exports = function () {
+  var div = document.createElement('div')
+  div.style.zIndex = 9999
+  div.style.position = 'fixed'
+  div.style.left = 0
+  div.style.top = 0
+  div.style.right = 0
+  div.style.bottom = 0
+
+  var bg = document.createElement('div');
+  bg.style.backgroundColor = '#000'
+  bg.style.opacity = 0.7
+  bg.style.width = '100%'
+  bg.style.height = '100%'
+  bg.style.position = 'absolute'
+  bg.style.left = 0
+  bg.style.top = 0
+
+  var img = new Image()
+  img.src="data:image/png;base64,"+sharedPng
+  img.style.zIndex = 1;
+  img.style.position = 'absolute'
+  img.style.top = '20px'
+  img.style.right = '20px'
+
+  var body = document.querySelector('body')
+
+  div.appendChild(bg)
+  div.appendChild(img)
+  body.appendChild(div)
+
+  div.onclick = function () {
+    div.remove()
+    div = null;
+  }
+
+  return function () {
+    div && div.remove()
+  }
+}
+
+/***/ }),
+/* 37 */
+/***/ (function(module, exports) {
+
+/**
+ * Created by zyg on 16/8/28.
+ */
+function unfoldArray(fromArr,arr) {
+  if(fromArr.length > 0){
+    var v = fromArr[0];
+
+    if(_.isArray(v)){
+      var unV = unfoldArray(v,[]);
+      arr = arr.concat(unV);
+    }else{
+      arr = arr.concat(v);
+    }
+    return unfoldArray(fromArr.slice(1),arr);
+  }else{
+    return arr;
+  }
+}
+
+
+module.exports = unfoldArray;
+
+/***/ }),
+/* 38 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*
+Copyright (c) 2010,2011,2012,2013,2014 Morgan Roderick http://roderick.dk
+License: MIT - http://mrgnrdrck.mit-license.org
+
+https://github.com/mroderick/PubSubJS
+*/
+(function (root, factory){
+	'use strict';
+
+    if (true){
+        // AMD. Register as an anonymous module.
+        !(__WEBPACK_AMD_DEFINE_ARRAY__ = [exports], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory),
+				__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
+				(__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+    } else if (typeof exports === 'object'){
+        // CommonJS
+        factory(exports);
+
+    }
+
+    // Browser globals
+    var PubSub = {};
+    root.PubSub = PubSub;
+    factory(PubSub);
+
+}(( typeof window === 'object' && window ) || this, function (PubSub){
+	'use strict';
+
+	var messages = {},
+		lastUid = -1;
+
+	function hasKeys(obj){
+		var key;
+
+		for (key in obj){
+			if ( obj.hasOwnProperty(key) ){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 *	Returns a function that throws the passed exception, for use as argument for setTimeout
+	 *	@param { Object } ex An Error object
+	 */
+	function throwException( ex ){
+		return function reThrowException(){
+			throw ex;
+		};
+	}
+
+	function callSubscriberWithDelayedExceptions( subscriber, message, data ){
+		try {
+			subscriber( message, data );
+		} catch( ex ){
+			setTimeout( throwException( ex ), 0);
+		}
+	}
+
+	function callSubscriberWithImmediateExceptions( subscriber, message, data ){
+		subscriber( message, data );
+	}
+
+	function deliverMessage( originalMessage, matchedMessage, data, immediateExceptions ){
+		var subscribers = messages[matchedMessage],
+			callSubscriber = immediateExceptions ? callSubscriberWithImmediateExceptions : callSubscriberWithDelayedExceptions,
+			s;
+
+		if ( !messages.hasOwnProperty( matchedMessage ) ) {
+			return;
+		}
+
+		for (s in subscribers){
+			if ( subscribers.hasOwnProperty(s)){
+				callSubscriber( subscribers[s], originalMessage, data );
+			}
+		}
+	}
+
+	function createDeliveryFunction( message, data, immediateExceptions ){
+		return function deliverNamespaced(){
+			var topic = String( message ),
+				position = topic.lastIndexOf( '.' );
+
+			// deliver the message as it is now
+			deliverMessage(message, message, data, immediateExceptions);
+
+			// trim the hierarchy and deliver message to each level
+			while( position !== -1 ){
+				topic = topic.substr( 0, position );
+				position = topic.lastIndexOf('.');
+				deliverMessage( message, topic, data, immediateExceptions );
+			}
+		};
+	}
+
+	function messageHasSubscribers( message ){
+		var topic = String( message ),
+			found = Boolean(messages.hasOwnProperty( topic ) && hasKeys(messages[topic])),
+			position = topic.lastIndexOf( '.' );
+
+		while ( !found && position !== -1 ){
+			topic = topic.substr( 0, position );
+			position = topic.lastIndexOf( '.' );
+			found = Boolean(messages.hasOwnProperty( topic ) && hasKeys(messages[topic]));
+		}
+
+		return found;
+	}
+
+	function publish( message, data, sync, immediateExceptions ){
+		var deliver = createDeliveryFunction( message, data, immediateExceptions ),
+			hasSubscribers = messageHasSubscribers( message );
+
+		if ( !hasSubscribers ){
+			return false;
+		}
+
+		if ( sync === true ){
+			deliver();
+		} else {
+			setTimeout( deliver, 0 );
+		}
+		return true;
+	}
+
+	/**
+	 *	PubSub.publish( message[, data] ) -> Boolean
+	 *	- message (String): The message to publish
+	 *	- data: The data to pass to subscribers
+	 *	Publishes the the message, passing the data to it's subscribers
+	**/
+	PubSub.publish = function( message, data ){
+		return publish( message, data, false, PubSub.immediateExceptions );
+	};
+
+	/**
+	 *	PubSub.publishSync( message[, data] ) -> Boolean
+	 *	- message (String): The message to publish
+	 *	- data: The data to pass to subscribers
+	 *	Publishes the the message synchronously, passing the data to it's subscribers
+	**/
+	PubSub.publishSync = function( message, data ){
+		return publish( message, data, true, PubSub.immediateExceptions );
+	};
+
+	/**
+	 *	PubSub.subscribe( message, func ) -> String
+	 *	- message (String): The message to subscribe to
+	 *	- func (Function): The function to call when a new message is published
+	 *	Subscribes the passed function to the passed message. Every returned token is unique and should be stored if
+	 *	you need to unsubscribe
+	**/
+	PubSub.subscribe = function( message, func ){
+		if ( typeof func !== 'function'){
+			return false;
+		}
+
+		// message is not registered yet
+		if ( !messages.hasOwnProperty( message ) ){
+			messages[message] = {};
+		}
+
+		// forcing token as String, to allow for future expansions without breaking usage
+		// and allow for easy use as key names for the 'messages' object
+		var token = 'uid_' + String(++lastUid);
+		messages[message][token] = func;
+
+		// return token for unsubscribing
+		return token;
+	};
+
+	/* Public: Clears all subscriptions
+	 */
+	PubSub.clearAllSubscriptions = function clearAllSubscriptions(){
+		messages = {};
+	};
+
+	/*Public: Clear subscriptions by the topic
+	*/
+	PubSub.clearSubscriptions = function clearSubscriptions(topic){
+		var m;
+		for (m in messages){
+			if (messages.hasOwnProperty(m) && m.indexOf(topic) === 0){
+				delete messages[m];
+			}
+		}
+	};
+
+	/* Public: removes subscriptions.
+	 * When passed a token, removes a specific subscription.
+	 * When passed a function, removes all subscriptions for that function
+	 * When passed a topic, removes all subscriptions for that topic (hierarchy)
+	 *
+	 * value - A token, function or topic to unsubscribe.
+	 *
+	 * Examples
+	 *
+	 *		// Example 1 - unsubscribing with a token
+	 *		var token = PubSub.subscribe('mytopic', myFunc);
+	 *		PubSub.unsubscribe(token);
+	 *
+	 *		// Example 2 - unsubscribing with a function
+	 *		PubSub.unsubscribe(myFunc);
+	 *
+	 *		// Example 3 - unsubscribing a topic
+	 *		PubSub.unsubscribe('mytopic');
+	 */
+	PubSub.unsubscribe = function(value){
+		var descendantTopicExists = function(topic) {
+				var m;
+				for ( m in messages ){
+					if ( messages.hasOwnProperty(m) && m.indexOf(topic) === 0 ){
+						// a descendant of the topic exists:
+						return true;
+					}
+				}
+
+				return false;
+			},
+			isTopic    = typeof value === 'string' && ( messages.hasOwnProperty(value) || descendantTopicExists(value) ),
+			isToken    = !isTopic && typeof value === 'string',
+			isFunction = typeof value === 'function',
+			result = false,
+			m, message, t;
+
+		if (isTopic){
+			PubSub.clearSubscriptions(value);
+			return;
+		}
+
+		for ( m in messages ){
+			if ( messages.hasOwnProperty( m ) ){
+				message = messages[m];
+
+				if ( isToken && message[value] ){
+					delete message[value];
+					result = value;
+					// tokens are unique, so we can just stop here
+					break;
+				}
+
+				if (isFunction) {
+					for ( t in message ){
+						if (message.hasOwnProperty(t) && message[t] === value){
+							delete message[t];
+							result = true;
+						}
+					}
+				}
+			}
+		}
+
+		return result;
+	};
+}));
+
+
+/***/ }),
+/* 39 */
+/***/ (function(module, exports) {
+
+module.exports = function(module) {
+	if(!module.webpackPolyfill) {
+		module.deprecate = function() {};
+		module.paths = [];
+		// module.parent = undefined by default
+		if(!module.children) module.children = [];
+		Object.defineProperty(module, "loaded", {
+			enumerable: true,
+			get: function() {
+				return module.l;
+			}
+		});
+		Object.defineProperty(module, "id", {
+			enumerable: true,
+			get: function() {
+				return module.i;
+			}
+		});
+		module.webpackPolyfill = 1;
+	}
+	return module;
+};
+
+
+/***/ }),
 /* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var map = {
-	"./updateChildrenComponent_test.js": 43,
-	"./updateChildren_test.js": 44,
-	"./updateProps_test.js": 45
+	"./updateChildrenComponent_test.js": 42,
+	"./updateChildren_test.js": 43,
+	"./updateProps_test.js": 44
 };
 function webpackContext(req) {
 	return __webpack_require__(webpackContextResolve(req));
@@ -20252,8 +20288,7 @@ testsContext.keys().forEach(function (k) {
 });
 
 /***/ }),
-/* 42 */,
-/* 43 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -20261,9 +20296,9 @@ testsContext.keys().forEach(function (k) {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _assert = __webpack_require__(39);
+var _assert = __webpack_require__(19);
 
-var _pixiReact = __webpack_require__(15);
+var _pixiReact = __webpack_require__(7);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -20506,7 +20541,7 @@ describe('复杂嵌套的组件', function () {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 44 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -20514,9 +20549,9 @@ describe('复杂嵌套的组件', function () {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _assert = __webpack_require__(39);
+var _assert = __webpack_require__(19);
 
-var _pixiReact = __webpack_require__(15);
+var _pixiReact = __webpack_require__(7);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -20694,7 +20729,7 @@ describe('基础组件', function () {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 45 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -20702,9 +20737,9 @@ describe('基础组件', function () {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _assert = __webpack_require__(39);
+var _assert = __webpack_require__(19);
 
-var _pixiReact = __webpack_require__(15);
+var _pixiReact = __webpack_require__(7);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -20865,7 +20900,7 @@ describe('更新props', function () {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 46 */
+/* 45 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -21051,7 +21086,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 47 */
+/* 46 */
 /***/ (function(module, exports) {
 
 if (typeof Object.create === 'function') {
@@ -21080,7 +21115,7 @@ if (typeof Object.create === 'function') {
 
 
 /***/ }),
-/* 48 */
+/* 47 */
 /***/ (function(module, exports) {
 
 module.exports = function isBuffer(arg) {
@@ -21091,7 +21126,7 @@ module.exports = function isBuffer(arg) {
 }
 
 /***/ }),
-/* 49 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, process) {// Copyright Joyent, Inc. and other Node contributors.
@@ -21619,7 +21654,7 @@ function isPrimitive(arg) {
 }
 exports.isPrimitive = isPrimitive;
 
-exports.isBuffer = __webpack_require__(48);
+exports.isBuffer = __webpack_require__(47);
 
 function objectToString(o) {
   return Object.prototype.toString.call(o);
@@ -21663,7 +21698,7 @@ exports.log = function() {
  *     prototype.
  * @param {function} superCtor Constructor function to inherit prototype from.
  */
-exports.inherits = __webpack_require__(47);
+exports.inherits = __webpack_require__(46);
 
 exports._extend = function(origin, add) {
   // Don't do anything if add isn't an object
@@ -21681,7 +21716,7 @@ function hasOwnProperty(obj, prop) {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(16), __webpack_require__(46)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(16), __webpack_require__(45)))
 
 /***/ })
 /******/ ]);
