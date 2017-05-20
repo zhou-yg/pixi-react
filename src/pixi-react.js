@@ -165,37 +165,32 @@ function syncProps(oldVNode, newVNode) {
   oldVNode.instance.setProps(oldVNode.props);
 }
 
-// function replaceVNode(parentVNode, newVNode, replaceIndex) {
-//   //...@TODO
-//   // log('replaceVNode:', replaceIndex, newVNode.key);
-//
-//   const newInstance = mountComponent(newVNode, parentVNode.instance);
-//
-//   parentVNode.instance.children[replaceIndex] = newInstance;
-//   parentVNode.children[replaceIndex] = newVNode;
-//
-//   if(!newInstance.vNode){
-//     parentVNode.instance.pixiEl.removeChildAt(replaceIndex);
-//     parentVNode.instance.pixiEl.addChildAt(newInstance.pixiEl, replaceIndex);
-//   }
-// }
+function replaceVNode(parentVNode, newVNode, replaceIndex) {
+  log(`replaceVNode`, replaceIndex);
+  log(`replaceVNode`, parentVNode.children[replaceIndex], newVNode);
+  //...@TODO
+  const newInstance = mountComponent(newVNode, parentVNode.instance);
+
+  parentVNode.instance.children[replaceIndex] = newInstance;
+  parentVNode.children[replaceIndex] = newVNode;
+
+  if(typeof newInstance !== 'string' && !newInstance.vNode){
+    parentVNode.instance.pixiEl.removeChildAt(replaceIndex);
+    parentVNode.instance.pixiEl.addChildAt(newInstance.pixiEl, replaceIndex);
+  }
+}
 function addVNode(parentVNode, newVNode, targetIndex) {
-  log(3,'addVNode', targetIndex, newVNode.key);
   const newInstance = mountComponent(newVNode, parentVNode.instance);
 
   parentVNode.instance.children.splice(targetIndex, 0 , newInstance);
   parentVNode.children.splice(targetIndex,0 , newVNode);
 
-  // log(targetIndex,parentVNode.instance);
-  // log('=== addVNode ===');
-
-  if(!newInstance.vNode){
+  if(typeof newInstance !== 'string' && !newInstance.vNode){
     parentVNode.instance.pixiEl.addChildAt(newInstance.pixiEl, targetIndex);
   }
 }
 
-function removeVNode(parentVNode, oldVNode, removeFromIndex) {
-  log(3,'removeVNode', removeFromIndex, oldVNode.key);
+function removeVNode(parentVNode, removeFromIndex) {
 
   parentVNode.instance.children.splice(removeFromIndex, 1);
   parentVNode.children.splice(removeFromIndex, 1);
@@ -204,6 +199,83 @@ function removeVNode(parentVNode, oldVNode, removeFromIndex) {
     parentVNode.instance.pixiEl.removeChildAt(removeFromIndex);
   }
 }
+
+// function updateChildren(instanceParentVnode, newParentVnode) {
+//   const oldCh = instanceParentVnode.children.slice();
+//   const newCh = newParentVnode.children.slice();
+//
+//   const oldLen = oldCh.length;
+//   const newLen = newCh.length;
+//
+//   var oldStartIndex = 0;
+//   var oldEndIndex = 0;
+//   var oldStartVnode = oldCh[0];
+//   var oldEndVnode = oldCh[oldLen - 1];
+//
+//   var newStartIndex = 0;
+//   var newEndIndex = newLen -1;
+//   var newStartVnode = newCh[0];
+//   var newEndVnode = newCh[newLen-1];
+//
+//   var patchedIndexArr = [];
+//   var addedNum = 0;
+//   //newCh [new1, new2, new3...]
+//   while (newStartIndex <= newEndIndex) {
+//     if(patchedIndexArr.indexOf(newStartIndex) !== -1){
+//       newStartIndex++;
+//       continue;
+//     }
+//     //...diff
+//     let newVNode = newCh[newStartIndex];
+//     let oldChIndex = oldStartIndex;
+//     let finalMatchOldNode = false;
+//
+//     //oldCh [old1, old2, old3....]
+//     while(oldChIndex <= oldLen - 1){
+//       let oldVNode = oldCh[oldChIndex];
+//
+//       if(utils.equalVNode(oldVNode, newVNode)){
+//         oldStartIndex = oldChIndex+1;
+//
+//         patchVnode(oldVNode, newVNode);
+//         finalMatchOldNode = true;
+//         break;
+//       }else{
+//         let findOldVNode = false;
+//         let otherNewIndex = newStartIndex + 1;
+//         let newVNode2 = null;
+//
+//         //newCh [new2, new3...]
+//         while (otherNewIndex <= newEndIndex) {
+//           newVNode2 = newCh[otherNewIndex];
+//           if(utils.equalVNode(oldVNode, newVNode2)){
+//             patchedIndexArr.push(otherNewIndex);
+//             findOldVNode = true;
+//             break;
+//           }
+//           otherNewIndex++;
+//         }
+//
+//         if(findOldVNode){
+//           oldStartIndex = oldChIndex + 1;
+//           patchVnode(oldVNode, newVNode2);
+//           break;
+//         }else{
+//           removeVNode(instanceParentVnode, oldVNode, oldChIndex + addedNum);
+//           addedNum--;
+//           oldChIndex++;
+//           oldStartIndex++;
+//         }
+//       }
+//     }
+//
+//     if(!finalMatchOldNode){
+//       addVNode(instanceParentVnode, newVNode, oldChIndex);
+//       addedNum++;
+//     }
+//     newStartIndex++;
+//   }
+// }
 
 function updateChildren(instanceParentVnode, newParentVnode) {
   const oldCh = instanceParentVnode.children.slice();
@@ -222,91 +294,51 @@ function updateChildren(instanceParentVnode, newParentVnode) {
   var newStartVnode = newCh[0];
   var newEndVnode = newCh[newLen-1];
 
-  var patchedIndexArr = [];
-  var addedNum = 0;
   //newCh [new1, new2, new3...]
   while (newStartIndex <= newEndIndex) {
-    if(patchedIndexArr.indexOf(newStartIndex) !== -1){
-      newStartIndex++;
-      continue;
-    }
-    //...diff
     let newVNode = newCh[newStartIndex];
-    let oldChIndex = oldStartIndex;
-    let finalMatchOldNode = false;
+    let oldVNode = oldCh[newStartIndex];
 
-    log('newVNode:',newVNode.key, newStartIndex, oldChIndex);
-
-    //oldCh [old1, old2, old3....]
-    while(oldChIndex <= oldLen - 1){
-      let oldVNode = oldCh[oldChIndex];
-      if(utils.equalVNode(oldVNode, newVNode)){
-        oldStartIndex = oldChIndex+1;
-
-        log('finalMatchOldNode:',oldVNode.key, oldChIndex);
-        patchVnode(oldVNode, newVNode);
-        finalMatchOldNode = true;
-        break;
+    log('updateChildren', oldVNode, newVNode);
+    if(isDef(oldVNode)){
+      if(typeof oldVNode === 'string' || typeof newVNode === 'string'){
+        replaceVNode(instanceParentVnode, newVNode, newStartIndex);
       }else{
-        let findOldVNode = false;
-        let otherNewIndex = newStartIndex + 1;
-        let newVNode2 = null;
-
-        //newCh [new2, new3...]
-        while (otherNewIndex <= newEndIndex) {
-          newVNode2 = newCh[otherNewIndex];
-          if(utils.equalVNode(oldVNode, newVNode2)){
-            patchedIndexArr.push(otherNewIndex);
-            findOldVNode = true;
-            break;
-          }
-          otherNewIndex++;
-        }
-
-        if(findOldVNode){
-          oldStartIndex = oldChIndex + 1;
-          patchVnode(oldVNode, newVNode2);
-          break;
+        if(utils.equalVNode(oldVNode, newVNode)){
+          patchVnode(oldVNode, newVNode);
         }else{
-          log(newStartIndex, newVNode.key);
-          removeVNode(instanceParentVnode, oldVNode, oldChIndex + addedNum);
-          addedNum--;
-          oldChIndex++;
-          oldStartIndex++;
+          if(oldVNode.type === newVNode.type && oldVNode.key === newVNode.key){
+            patchVnode(oldVNode, newVNode);
+          }else{
+            replaceVNode(instanceParentVnode, newVNode, newStartIndex);
+          }
         }
       }
-    }
-
-    if(!finalMatchOldNode){
-      addVNode(instanceParentVnode, newVNode, oldChIndex);
-      addedNum++;
+    }else{
+      addVNode(instanceParentVnode, newVNode, newStartIndex);
     }
     newStartIndex++;
   }
 
-
-  // log('=== updateChildren ===')
+  while (newStartIndex <= oldEndIndex) {
+    removeVNode(instanceParentVnode, newStartIndex)
+    newStartIndex++;
+  }
 }
 
 function patchVnode(oldVNode, newVNode) {
+  // 完全等价的节点，不同替换。但props可能变化
+  // 非顶级
+  if(!utils.compareObject(oldVNode.props, newVNode.props)){
+    syncProps(oldVNode, newVNode);
+    updateComponent(oldVNode.instance);
+  }
 
-  let isEquivalentNodeWithChildren = utils.equalVNode(oldVNode, newVNode, true);
+  let isEquivalentNodeWithChildren = utils.equalVNodeChildren(oldVNode, newVNode);
 
-  // log(`isEquivalentNodeWithChildren:`,oldVNode.key,isEquivalentNodeWithChildren);
-  // log(oldVNode);
-  // log(newVNode);
-  // log('== patchVnode ==');
+  log('patchVnode', isEquivalentNodeWithChildren);
 
   if(isEquivalentNodeWithChildren){
-    // 完全等价的节点，不同替换。但props可能变化
-    // 非顶级
-    log(3,'patch node', oldVNode.key, oldVNode.props, newVNode.props);
-    if(!utils.compareObject(oldVNode.props, newVNode.props)){
-      log(3,'compare', 1);
-      syncProps(oldVNode, newVNode);
-      updateComponent(oldVNode.instance);
-    }
-
 
     // 继续检查子节点
     oldVNode.children.slice().forEach((oldChildVNode, i) => {
@@ -319,11 +351,14 @@ function patchVnode(oldVNode, newVNode) {
 
 function updateComponent(instance) {
   const newVNode = instance.render();
-  // log(`updateComponent:`, newVNode);
   if(utils.isPixiObj(newVNode)){
 
   } else if(utils.isVNode(newVNode)){
+
+
     var isEquivalentNode = utils.equalVNode(instance.vNode, newVNode);
+    log(`updateComponent`,instance.vNode.props, newVNode.props, isEquivalentNode);
+    log(`updateComponent`,instance.vNode.key, newVNode.key);
     if (isEquivalentNode){
       patchVnode(instance.vNode, newVNode)
     } else {
@@ -333,40 +368,46 @@ function updateComponent(instance) {
   }
   // debugger;
   instance.children.forEach(childInstance => {
-    updateComponent(childInstance);
+    if(typeof childInstance === 'object'){
+      updateComponent(childInstance);
+    }
   });
 }
 var i = 0;
 function mountComponent(node, parentComponent) {
-  const instance = new node.type(node.props, node.slots);
-  const vNode = instance.render();
+  if(typeof node === 'string'){
+    return node;
+  } else {
+    const instance = new node.type(node.props, node.slots);
+    const vNode = instance.render();
 
-  node.instance = instance;
+    node.instance = instance;
 
-  if(utils.isPixiObj(vNode)){
-    instance.pixiEl = vNode;
-    instance.isMounted = true;
-    parentComponent.pixiEl.addChild(vNode);
+    if(utils.isPixiObj(vNode)){
+      instance.pixiEl = vNode;
+      instance.isMounted = true;
+      parentComponent.pixiEl.addChild(vNode);
 
-  } else if(utils.isVNode(vNode)){
+    } else if(utils.isVNode(vNode)){
 
-    instance.vNode = vNode;
-    instance.pixiEl = parentComponent.pixiEl;
-    instance.isMounted = true;
+      instance.vNode = vNode;
+      instance.pixiEl = parentComponent.pixiEl;
+      instance.isMounted = true;
 
-    const rootInstance = mountComponent(vNode, instance);
+      const rootInstance = mountComponent(vNode, instance);
 
-  }else{
-    throw new Error('mountComponent 卧槽');
+    }else{
+      throw new Error('mountComponent 卧槽');
+    }
+
+    node.children.map(childNode => {
+
+      const childInstance = mountComponent(childNode, instance);
+      instance.children.push(childInstance);
+    });
+
+    return instance;
   }
-
-  node.children.map(childNode => {
-
-    const childInstance = mountComponent(childNode, instance);
-    instance.children.push(childInstance);
-  });
-
-  return instance;
 }
 
 /**
@@ -397,9 +438,17 @@ function h(componentClass, props, ...children) {
     props = {};
   }
   children = children.filter(child => {
-    return !!child && typeof child === 'object';
+    return typeof child === 'object' || typeof child === 'string';
   }).reduce((prev, next) => {
     // 带slots情况下,children是个二维数组
+    if(__ENV__ === 'dev'){
+      if(Array.isArray(next) && !next.isSlot && !next.every(node => {
+        return !!node.key;
+      })){
+        console.error('数组返回的每个节点必须含有key');
+      }
+    }
+
     return prev.concat(next);
   },[]);
 
@@ -411,6 +460,7 @@ function h(componentClass, props, ...children) {
   } else if(typeof componentClass === 'function'){
     //暂时忽略 props.children
     slots = children.slice();
+    slots.isSlot = true;
     children = [];
   } else {
     console.error(componentClass);
@@ -430,7 +480,6 @@ function h(componentClass, props, ...children) {
     isTop: false,
   };
 
-  // log(`node:`, node);
   return node;
 }
 

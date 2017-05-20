@@ -25,7 +25,7 @@ module.exports = {
   },
   plugins: [
     new webpack.DefinePlugin({
-      '__ENV__': 'dev',
+      '__ENV__': '"dev"',
     }),
     new webpack.ProvidePlugin({
       PIXI: 'pixi-fake.js'
