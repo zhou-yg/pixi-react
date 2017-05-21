@@ -445,7 +445,8 @@ function h(componentClass, props, ...children) {
       if(Array.isArray(next) && !next.isSlot && !next.every(node => {
         return !!node.key;
       })){
-        console.error('数组返回的每个节点必须含有key');
+
+        throw new Error('数组返回的每个节点必须含有key');
       }
     }
 
