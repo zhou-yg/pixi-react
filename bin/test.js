@@ -17620,10 +17620,46 @@ var AnimatedSprite = function (_PixiComponent3) {
   return AnimatedSprite;
 }(PixiComponent);
 
+var Rect = function (_PixiComponent4) {
+  _inherits(Rect, _PixiComponent4);
+
+  function Rect(props) {
+    _classCallCheck(this, Rect);
+
+    return _possibleConstructorReturn(this, (Rect.__proto__ || Object.getPrototypeOf(Rect)).call(this, props));
+  }
+
+  _createClass(Rect, [{
+    key: 'render',
+    value: function render() {
+      var _props = this.props,
+          color = _props.color,
+          _props$x = _props.x,
+          x = _props$x === undefined ? 0 : _props$x,
+          _props$y = _props.y,
+          y = _props$y === undefined ? 0 : _props$y,
+          w = _props.w,
+          h = _props.h;
+
+
+      var g = new PIXI.Graphics();
+      g.beginFill(color);
+      g.drawRect(x, y, w, h);
+      g.endFill();
+
+      return g;
+    }
+  }]);
+
+  return Rect;
+}(PixiComponent);
+
 var primitiveMap = {
   c: Container,
   container: Container,
   sprite: Sprite,
+  sp: Sprite,
+  rect: Rect,
   'animated-sprite': AnimatedSprite,
   ani: AnimatedSprite
 };
@@ -17936,7 +17972,7 @@ function h(componentClass, props) {
     children = [];
   } else {
     console.error(componentClass);
-    throw new Error('the compoennt muse be a PactComponent');
+    throw new Error('the compoennt ' + componentClass + ' muse be a PactComponent');
   }
 
   var key = props.key;

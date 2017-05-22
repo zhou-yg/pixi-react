@@ -147,10 +147,28 @@ class AnimatedSprite extends PixiComponent {
   }
 }
 
+class Rect extends PixiComponent {
+  constructor(props){
+    super(props)
+  }
+  render () {
+    const {color, x = 0, y =0, w, h} = this.props;
+
+    const g = new PIXI.Graphics();
+    g.beginFill(color);
+    g.drawRect(x,y,w,h);
+    g.endFill();
+
+    return g;
+  }
+}
+
 const primitiveMap = {
   c: Container,
   container:Container,
   sprite: Sprite,
+  sp: Sprite,
+  rect: Rect,
   'animated-sprite': AnimatedSprite,
   ani: AnimatedSprite,
 }
@@ -465,7 +483,7 @@ function h(componentClass, props, ...children) {
     children = [];
   } else {
     console.error(componentClass);
-    throw new Error('the compoennt muse be a PactComponent');
+    throw new Error(`the compoennt ${componentClass} muse be a PactComponent`);
   }
 
   const key = props.key;
