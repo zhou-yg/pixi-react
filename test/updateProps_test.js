@@ -57,13 +57,13 @@ class T extends PactComponent {
 
     return (
       <c key="top" name={name1} >
-        {a ? <c key = "a" / > : ''}
-        <MyComponent key="c1" name={name2} >
-          <c key ="m1" />
-          <c key ="m2" />
+        {a ? <c / > : ''}
+        <MyComponent name={name2} >
+          <c />
+          <c />
         </MyComponent>
         {c2 ? <c key = "c2" ></c> : <c key="c3"></c>}
-        {c4 ? <c key="c4" name={name2} /> : ''}
+        {c4 ? <c name={name2} /> : ''}
       </c>
     );
   }
@@ -75,31 +75,34 @@ describe('更新props', function() {
     const tVNode = h(T);
     const topContainer = new PIXI.Container();
     const tInstance = renderTo(tVNode, topContainer);
-    const childrenLen = 3;
+    const childrenLen = 4;
 
     it('vNode', function() {
       // body...
-      equal(tInstance.vNode.children.length , 3 , 'length of vNode children');
+      equal(tInstance.vNode.children.length , childrenLen , 'length of vNode children');
       equal(tInstance.vNode.props.name, 'c' , 'name in vNode');
-      equal(tInstance.vNode.children[0].props.name, 'myComponent' , 'name of first child');
+      equal(tInstance.vNode.children[0], '' , '第一个是空字符串');
+      equal(tInstance.vNode.children[1].props.name, 'myComponent' , 'name of first child');
     });
     it('instance', function(){
 
       equal(tInstance.children, 0, 'cur instance children');
       equal(tInstance.vNode.instance.props.name, 'c', 'root instance name');
-      equal(tInstance.vNode.instance.children[0].props.name, 'myComponent', 'first child instance name');
-      equal(tInstance.vNode.instance.children[0].vNode.instance.children[3].props.name, 'm3-myComponent', 'first child instance name');
+      equal(tInstance.vNode.instance.children[1].props.name, 'myComponent', 'first child instance name');
+      equal(tInstance.vNode.instance.children[1].vNode.instance.children[3].props.name, 'm3-myComponent', 'first child instance name');
     });
   });
   describe('更新name', function() {
     const tVNode = h(T);
     const topContainer = new PIXI.Container();
     const tInstance = renderTo(tVNode, topContainer);
-    const childrenLen = 3;
+    const childrenLen = 4;
 
-    const oldMyComponentInst = tInstance.vNode.instance.children[0];
-    const oldSecondVNode = tInstance.vNode.instance.children[0].vNode.children[3];
-    const oldSecondInst = tInstance.vNode.instance.children[0].vNode.instance.children[3];
+    const oldMyComponentInst = tInstance.vNode.instance.children[1];
+    const oldSecondVNode = tInstance.vNode.instance.children[1].vNode.children[3];
+    const oldSecondInst = tInstance.vNode.instance.children[1].vNode.instance.children[3];
+
+    console.log('==========更新name==========');
 
     tInstance.setState({
       name1: 'newName1',
@@ -108,18 +111,18 @@ describe('更新props', function() {
 
     it('vNode', function() {
       // body...
-      equal(tInstance.vNode.children.length , 3 , 'length of vNode children');
+      equal(tInstance.vNode.children.length , childrenLen , 'length of vNode children');
       equal(tInstance.vNode.props.name, 'newName1' , 'name in vNode');
-      equal(tInstance.vNode.children[0].props.name, 'newName2' , 'name of first child');
+      equal(tInstance.vNode.children[1].props.name, 'newName2' , 'name of first child');
       equal(oldSecondVNode.type, SecondComponent, 'child child compoennt type');
     });
     it('instance', function() {
       const newCh = tInstance.vNode.instance.children;
       // body...
       equal(tInstance.vNode.instance.props.name, 'newName1', 'root instance name');
-      equal(tInstance.vNode.instance.children[0].props.name, 'newName2', 'first child instance name');
-      equal(tInstance.vNode.instance.children[0].vNode.instance.children[3].props.name, 'm3-newName2', 'first child instance name');
-      equal(oldMyComponentInst, newCh[0], 'instace keep');
+      equal(tInstance.vNode.instance.children[1].props.name, 'newName2', 'first child instance name');
+      equal(tInstance.vNode.instance.children[1].vNode.instance.children[3].props.name, 'm3-newName2', 'first child instance name');
+      equal(oldMyComponentInst, newCh[1], 'instace keep');
     });
   })
 });
