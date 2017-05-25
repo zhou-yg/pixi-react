@@ -4,8 +4,8 @@ import pixiLib from 'pixi-lib';
 import * as utils from './utils.js';
 import _ from 'lodash'
 
-import {updateComponentSync} from './updator';
-import {mountComponent} from './mount';
+// import {updateComponentSync} from './updator';
+// import {mountComponent} from './mount';
 
 const {isUndef, isDef,log} = utils;
 
