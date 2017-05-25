@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 45);
+/******/ 	return __webpack_require__(__webpack_require__.s = 44);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -17165,7 +17165,7 @@ module.exports = __webpack_require__(24)
   }
 }.call(this));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8), __webpack_require__(42)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7), __webpack_require__(42)(module)))
 
 /***/ }),
 /* 2 */
@@ -17200,89 +17200,10 @@ module.exports = function(value,num){
 /* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(global) {var now = __webpack_require__(23)
-  , root = typeof window === 'undefined' ? global : window
-  , vendors = ['moz', 'webkit']
-  , suffix = 'AnimationFrame'
-  , raf = root['request' + suffix]
-  , caf = root['cancel' + suffix] || root['cancelRequest' + suffix]
-
-for(var i = 0; !raf && i < vendors.length; i++) {
-  raf = root[vendors[i] + 'Request' + suffix]
-  caf = root[vendors[i] + 'Cancel' + suffix]
-      || root[vendors[i] + 'CancelRequest' + suffix]
-}
-
-// Some versions of FF have rAF but not cAF
-if(!raf || !caf) {
-  var last = 0
-    , id = 0
-    , queue = []
-    , frameDuration = 1000 / 60
-
-  raf = function(callback) {
-    if(queue.length === 0) {
-      var _now = now()
-        , next = Math.max(0, frameDuration - (_now - last))
-      last = next + _now
-      setTimeout(function() {
-        var cp = queue.slice(0)
-        // Clear queue here to prevent
-        // callbacks from appending listeners
-        // to the current frame's queue
-        queue.length = 0
-        for(var i = 0; i < cp.length; i++) {
-          if(!cp[i].cancelled) {
-            try{
-              cp[i].callback(last)
-            } catch(e) {
-              setTimeout(function() { throw e }, 0)
-            }
-          }
-        }
-      }, Math.round(next))
-    }
-    queue.push({
-      handle: ++id,
-      callback: callback,
-      cancelled: false
-    })
-    return id
-  }
-
-  caf = function(handle) {
-    for(var i = 0; i < queue.length; i++) {
-      if(queue[i].handle === handle) {
-        queue[i].cancelled = true
-      }
-    }
-  }
-}
-
-module.exports = function(fn) {
-  // Wrap in a new function to prevent
-  // `cancel` potentially being assigned
-  // to the native rAF function
-  return raf.call(root, fn)
-}
-module.exports.cancel = function() {
-  caf.apply(root, arguments)
-}
-module.exports.polyfill = function() {
-  root.requestAnimationFrame = raf
-  root.cancelAnimationFrame = caf
-}
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8)))
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
 /* WEBPACK VAR INJECTION */(function(PIXI) {/**
  * Created by zyg on 16/1/31.
  */
-var setConfig = __webpack_require__(6);
+var setConfig = __webpack_require__(5);
 
 module.exports = function getMc(config) {
 
@@ -17308,7 +17229,7 @@ module.exports = function getMc(config) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 6 */
+/* 5 */
 /***/ (function(module, exports) {
 
 /**
@@ -17337,7 +17258,7 @@ module.exports = function(object,config){
 };
 
 /***/ }),
-/* 7 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(requestAnimationFrame) {/**
@@ -17459,10 +17380,10 @@ module.exports = function(dataArr){
     }
   }
 }
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(17)))
 
 /***/ }),
-/* 8 */
+/* 7 */
 /***/ (function(module, exports) {
 
 var g;
@@ -17489,521 +17410,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-exports.isDef = isDef;
-exports.isUndef = isUndef;
-exports.isVNode = isVNode;
-exports.isPixiObj = isPixiObj;
-exports.isEqualObj = isEqualObj;
-exports.equalVNode = equalVNode;
-exports.equalVNodeChildren = equalVNodeChildren;
-exports.compareObject = compareObject;
-exports.log = log;
-
-var _primitive = __webpack_require__(22);
-
-var _primitive2 = _interopRequireDefault(_primitive);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function isDef(v) {
-  return v !== undefined;
-}
-function isUndef(v) {
-  return v === undefined;
-}
-
-function isVNode(obj) {
-  var keys = Object.keys(obj);
-
-  return ['props', 'type', 'children'].every(function (k) {
-    return keys.indexOf(k) !== -1;
-  });
-}
-
-function isPixiObj(obj) {
-  return obj && obj.addChild;
-}
-
-function isEqualObj(obj1, obj2) {}
-
-function equalVNode(obj1, obj2, checkChildren) {
-  if ((typeof obj1 === 'undefined' ? 'undefined' : _typeof(obj1)) !== 'object' || (typeof obj2 === 'undefined' ? 'undefined' : _typeof(obj2)) !== 'object') {
-    return false;
-  }
-
-  var isSameNode;
-
-  if (isDef(obj1.key) || isDef(obj2.key)) {
-    isSameNode = obj1.key === obj2.key;
-  } else {
-    if (obj1.type === obj2.type) {
-      isSameNode = compareObject(obj1.props, obj2.props);
-    }
-  }
-
-  if (isSameNode && checkChildren) {}
-
-  return isSameNode;
-}
-
-function equalVNodeChildren(obj1, obj2) {
-  var len = obj1.children.length;
-  var isSameNode = len === obj2.children.length;
-  if (isSameNode) {
-    var i = 0;
-    var isSameChild = true;
-
-    while (i < len) {
-      var childObj1 = obj1.children[i];
-      var childObj2 = obj2.children[i];
-
-      isSameChild = equalVNode(childObj1, childObj2);
-      if (!isSameChild) {
-        break;
-      }
-      i++;
-    }
-    isSameNode = isSameChild;
-  }
-  return isSameNode;
-}
-
-function compareObject(obj1, obj2) {
-  var type1 = typeof obj1 === 'undefined' ? 'undefined' : _typeof(obj1);
-  var type2 = typeof obj2 === 'undefined' ? 'undefined' : _typeof(obj2);
-
-  if (obj1 === obj2) {
-    return true;
-  }
-
-  if (type1 === type2) {
-
-    var keys1 = Object.keys(obj1);
-    var keys2 = Object.keys(obj2);
-
-    if (keys1.join('') === keys2.join('')) {
-      return keys1.every(function (k) {
-        var type1 = _typeof(obj1[k]);
-        var type2 = _typeof(obj2[k]);
-
-        if (type1 !== type2) {
-          return false;
-        } else if (type1 === 'object') {
-          return compareObject(obj1[k], obj2[k]);
-        } else if (type1 === 'function') {
-          var r = obj1[k].toString() === obj2[k].toString();
-          return r;
-        }
-        return obj1[k] === obj2[k];
-      });
-    }
-  }
-
-  return false;
-}
-
-function log() {
-  if (['', ''].indexOf(arguments[0]) !== -1) {
-    console.log.apply(console, arguments);
-  }
-}
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports) {
-
-var canvases = {}
-
-var getCanvas = function(key) {
-  return canvases[key]
-}
-
-var setCanvas = function(key, canvas) {
-  canvases[key] = canvas
-}
-module.exports = {
-  getCanvas: getCanvas,
-  setCanvas: setCanvas
-}
-
-
-/***/ }),
-/* 11 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(PIXI) {var _ = __webpack_require__(1)
-
-var loadedResourceCache = {};
-/**
- *
- * @param config
- *
- * publicPath:'资源加载路径',以/结尾
- *
- * @returns {{load: Function}}
- */
-function createLoader(config) {
-
-  var mySpriteNames = [];
-
-  return {
-
-    load: function load(cb) {
-
-      mySpriteNames.forEach(function (spriteResourceOne) {
-        PIXI.loader.add(
-          spriteResourceOne.key,
-          spriteResourceOne.value
-        );
-      });
-
-      if(mySpriteNames.length > 0){
-
-        mySpriteNames = [];
-
-        PIXI.loader.load(function (loader,loadedResources) {
-
-          loadedResourceCache = _.assign(loadedResourceCache,loadedResources);
-
-          cb(loader,loadedResourceCache);
-        });
-      }else{
-        cb(PIXI.loader,loadedResourceCache);
-      }
-
-      return this;
-    },
-    add: function add(spriteNames,postFix,dir) {
-      if (!postFix) {
-        postFix = 'json'
-      }
-      if(!dir){
-        dir = '';
-      }
-      spriteNames = [].concat(spriteNames).filter(function (spriteNameOne) {
-
-        return !loadedResourceCache[spriteNameOne]
-
-      }).map(function (spriteNameOne) {
-
-        var spriteDir = config.publicPath;
-
-        if(dir){
-          spriteDir += dir + '/';
-        }
-
-        return {
-          key: spriteNameOne,
-          value: spriteDir + spriteNameOne + '/' + spriteNameOne + '.' + postFix
-        }
-      });
-
-      mySpriteNames = mySpriteNames.concat(spriteNames);
-
-      return this;
-    },
-    addMulti : function addMulti(spriteName,nameFormats,postFix){
-      if (!postFix) {
-        postFix = 'json'
-      }
-
-
-      if(typeof nameFormats === 'number'){
-        nameFormats = _.range(nameFormats);
-      }
-
-      mySpriteNames = mySpriteNames.concat(nameFormats.map(function (i) {
-
-        var spriteNameOne = spriteName + i;
-
-        return {
-          key:spriteNameOne,
-          value: config.publicPath + spriteName + '/' + spriteNameOne + '.' + postFix
-        }
-      }).filter(function (spriteObjOne) {
-        return !loadedResourceCache[spriteObjOne.key]
-      }));
-
-      return this;
-    }
-  }
-}
-
-createLoader.getResources = function getResources() {
-  return loadedResourceCache;
-};
-
-module.exports = createLoader;
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(PIXI, requestAnimationFrame) {var _ = __webpack_require__(1)
-var canvasManager = __webpack_require__(10)
-var DEFAULT_WIDTH = 640;
-
-var DEFAULT_HEIGHT = 1004;
-/**
- * 创建一个渲染器
- * @param container
- * @param config
- * @returns {Function}
- */
-
-function createRender(container,config) {
-
-  if(!config){
-    config = {};
-  }
-
-  config.w = config.w || DEFAULT_WIDTH;
-  config.h = config.h || DEFAULT_HEIGHT;
-  config.bg = config.bg || '#fff';
-  config.transparent = config.transparent || true
-
-  var renderer = new PIXI.autoDetectRenderer(config.w, config.h, config);
-  if (!renderer.view.parentElement) {
-    container.appendChild(renderer.view);
-  }
-  if (config.canvasKey) {
-    canvasManager.setCanvas(config.canvasKey, renderer.view)
-  }
-  var raf = null;
-
-  return function animate(stage) {
-
-    if(_.isFunction(stage)){
-      stage = stage()
-    }
-
-    cancelAnimationFrame(raf);
-
-    var animate = function (s,cb) {
-
-      raf = requestAnimationFrame(function(){
-        animate(s,cb);
-      });
-
-      if(s.render){
-        s.render();
-      }
-
-      s.children.forEach((function(child){
-        if(child.render){
-          child.render();
-        }
-      }));
-      renderer.render(s);
-
-      cb && cb();
-    };
-
-    animate(stage);
-
-    return {
-      cancel:function animateCancel(){
-        cancelAnimationFrame(raf);
-      },
-      startDuration:function start(duration){
-        animate(stage);
-        if(duration>0){
-          setTimeout(function () {
-            cancelAnimationFrame(raf);
-          },duration)
-        }
-      },
-      startCount:function start(count){
-        var i = 0;
-        animate(stage,function(){
-          i++;
-          if(i > count){
-            cancelAnimationFrame(raf);
-          }
-        });
-      }
-    }
-  }
-}
-
-createRender.DEFAULT_WIDTH = DEFAULT_WIDTH;
-createRender.DEFAULT_HEIGHT = DEFAULT_HEIGHT;
-
-module.exports = createRender;
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0), __webpack_require__(4)))
-
-/***/ }),
-/* 13 */
-/***/ (function(module, exports) {
-
-/**
- * 计算两点间距
- * @param x1
- * @param y1
- * @param x2
- * @param y2
- * @returns {number}
- */
-module.exports = function(x1, y1, x2, y2) {
-  console.log('deprecated:use .math.distance')
-  return Math.pow((Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2)), 0.5);
-}
-
-/***/ }),
-/* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(PIXI) {/**
- * Created by zyg on 16/1/31.
- */
-
-var setConfig = __webpack_require__(6);
-
-module.exports = function getIm(config) {
-  config = Object.assign({},config);
-
-  var textures = config.textures;
-
-  delete config.textures;
-
-  var sp = new PIXI.Sprite(textures);
-
-  sp.renderCount = 0;
-
-  return setConfig(sp,config);
-};
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 15 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Created by zyg on 16/2/29.
- */
-var getMc = __webpack_require__(5);
-
-/**
- *
- * @param config
- * @param actions 截止frame帧数
- *  [4,7,10]
- * @returns {*}
- */
-module.exports = function getSp(config,actions) {
-  if(!actions){
-    actions = []
-  }
-
-  var obj = getMc(config);
-
-  var _render = function(){};
-
-  var onAction = false;
-  /**
-   * 0~4-0
-   * 0-5~7-0
-   * 0-8~10-0
-   * 
-   * isKeepEnd 是否停在最后
-   */
-  obj.playAction = function playAction(index,loop,isKeepEnd) {
-    if(!index){
-      index = 0;
-    }
-
-    if(index < 0 || index > actions.length){
-      return false;
-    }
-
-    var min = (actions[index - 1]+1) || 0;
-    var max = actions[index];
-
-    var backTo = isKeepEnd ? max : 0
-    
-    this.gotoAndPlay(min);
-
-    _render = onAction ? _render : this.render;
-
-    onAction = true;
-
-    this.render = function copyRender() {
-      var cf = this.currentFrame;
-
-      if(cf >= max){
-
-        if(loop){
-          this.gotoAndPlay(min);
-        }else{
-          this.gotoAndStop(backTo);
-          this.render = _render;
-          onAction = false;
-        }
-      }
-
-      _render.call(this);
-    }
-  };
-
-  actions.map(function (ele, i) {
-    obj['playAction'+i] = obj.playAction.bind(obj,i);
-  });
-
-
-  return obj;
-};
-
-/***/ }),
-/* 16 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(PIXI) {/**
- * 加载对应的资源链接，png或json
- * @param resourceUrl
- * @param cb resourceObject
- */
-var count = 0;
-
-module.exports = function loadResource(resourceUrl, cb) {
-  var resourceKey = 'img' + Date.now() + '' + (count++);
-
-  PIXI.loader.add(resourceKey, resourceUrl)
-    .load(function (loader, resources) {
-
-      cb(resources[resourceKey]);
-    });
-};
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 17 */
-/***/ (function(module, exports) {
-
-module.exports = {
-  SPRITE_MC:'mc',
-  SPRITE_MC_ALIAS:'movieClip',
-  SPRITE_IM:'im',
-  SPRITE_IM_ALIAS:'image',
-  SPRITE_SP:'sp',
-};
-
-/***/ }),
-/* 18 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -18018,7 +17425,7 @@ var _pixiLib = __webpack_require__(21);
 
 var _pixiLib2 = _interopRequireDefault(_pixiLib);
 
-var _utils = __webpack_require__(9);
+var _utils = __webpack_require__(20);
 
 var utils = _interopRequireWildcard(_utils);
 
@@ -18573,7 +17980,7 @@ function h(componentClass, props) {
     return (typeof child === 'undefined' ? 'undefined' : _typeof(child)) === 'object' || typeof child === 'string';
   }).reduce(function (prev, next) {
     // 带slots情况下,children是个二维数组
-    if (dev === 'dev') {
+    if (true) {
       if (Array.isArray(next) && !next.isSlot && !next.every(function (node) {
         return !!node.key;
       })) {
@@ -18621,6 +18028,965 @@ module.exports.renderTo = renderTo;
 module.exports.PactComponent = PactComponent;
 module.exports.h = h;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports) {
+
+var canvases = {}
+
+var getCanvas = function(key) {
+  return canvases[key]
+}
+
+var setCanvas = function(key, canvas) {
+  canvases[key] = canvas
+}
+module.exports = {
+  getCanvas: getCanvas,
+  setCanvas: setCanvas
+}
+
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(PIXI) {var _ = __webpack_require__(1)
+
+var loadedResourceCache = {};
+/**
+ *
+ * @param config
+ *
+ * publicPath:'资源加载路径',以/结尾
+ *
+ * @returns {{load: Function}}
+ */
+function createLoader(config) {
+
+  var mySpriteNames = [];
+
+  return {
+
+    load: function load(cb) {
+
+      mySpriteNames.forEach(function (spriteResourceOne) {
+        PIXI.loader.add(
+          spriteResourceOne.key,
+          spriteResourceOne.value
+        );
+      });
+
+      if(mySpriteNames.length > 0){
+
+        mySpriteNames = [];
+
+        PIXI.loader.load(function (loader,loadedResources) {
+
+          loadedResourceCache = _.assign(loadedResourceCache,loadedResources);
+
+          cb(loader,loadedResourceCache);
+        });
+      }else{
+        cb(PIXI.loader,loadedResourceCache);
+      }
+
+      return this;
+    },
+    add: function add(spriteNames,postFix,dir) {
+      if (!postFix) {
+        postFix = 'json'
+      }
+      if(!dir){
+        dir = '';
+      }
+      spriteNames = [].concat(spriteNames).filter(function (spriteNameOne) {
+
+        return !loadedResourceCache[spriteNameOne]
+
+      }).map(function (spriteNameOne) {
+
+        var spriteDir = config.publicPath;
+
+        if(dir){
+          spriteDir += dir + '/';
+        }
+
+        return {
+          key: spriteNameOne,
+          value: spriteDir + spriteNameOne + '/' + spriteNameOne + '.' + postFix
+        }
+      });
+
+      mySpriteNames = mySpriteNames.concat(spriteNames);
+
+      return this;
+    },
+    addMulti : function addMulti(spriteName,nameFormats,postFix){
+      if (!postFix) {
+        postFix = 'json'
+      }
+
+
+      if(typeof nameFormats === 'number'){
+        nameFormats = _.range(nameFormats);
+      }
+
+      mySpriteNames = mySpriteNames.concat(nameFormats.map(function (i) {
+
+        var spriteNameOne = spriteName + i;
+
+        return {
+          key:spriteNameOne,
+          value: config.publicPath + spriteName + '/' + spriteNameOne + '.' + postFix
+        }
+      }).filter(function (spriteObjOne) {
+        return !loadedResourceCache[spriteObjOne.key]
+      }));
+
+      return this;
+    }
+  }
+}
+
+createLoader.getResources = function getResources() {
+  return loadedResourceCache;
+};
+
+module.exports = createLoader;
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(PIXI, requestAnimationFrame) {var _ = __webpack_require__(1)
+var canvasManager = __webpack_require__(9)
+var DEFAULT_WIDTH = 640;
+
+var DEFAULT_HEIGHT = 1004;
+/**
+ * 创建一个渲染器
+ * @param container
+ * @param config
+ * @returns {Function}
+ */
+
+function createRender(container,config) {
+
+  if(!config){
+    config = {};
+  }
+
+  config.w = config.w || DEFAULT_WIDTH;
+  config.h = config.h || DEFAULT_HEIGHT;
+  config.bg = config.bg || '#fff';
+  config.transparent = config.transparent || true
+
+  var renderer = new PIXI.autoDetectRenderer(config.w, config.h, config);
+  if (!renderer.view.parentElement) {
+    container.appendChild(renderer.view);
+  }
+  if (config.canvasKey) {
+    canvasManager.setCanvas(config.canvasKey, renderer.view)
+  }
+  var raf = null;
+
+  return function animate(stage) {
+
+    if(_.isFunction(stage)){
+      stage = stage()
+    }
+
+    cancelAnimationFrame(raf);
+
+    var animate = function (s,cb) {
+
+      raf = requestAnimationFrame(function(){
+        animate(s,cb);
+      });
+
+      if(s.render){
+        s.render();
+      }
+
+      s.children.forEach((function(child){
+        if(child.render){
+          child.render();
+        }
+      }));
+      renderer.render(s);
+
+      cb && cb();
+    };
+
+    animate(stage);
+
+    return {
+      cancel:function animateCancel(){
+        cancelAnimationFrame(raf);
+      },
+      startDuration:function start(duration){
+        animate(stage);
+        if(duration>0){
+          setTimeout(function () {
+            cancelAnimationFrame(raf);
+          },duration)
+        }
+      },
+      startCount:function start(count){
+        var i = 0;
+        animate(stage,function(){
+          i++;
+          if(i > count){
+            cancelAnimationFrame(raf);
+          }
+        });
+      }
+    }
+  }
+}
+
+createRender.DEFAULT_WIDTH = DEFAULT_WIDTH;
+createRender.DEFAULT_HEIGHT = DEFAULT_HEIGHT;
+
+module.exports = createRender;
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0), __webpack_require__(17)))
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports) {
+
+/**
+ * 计算两点间距
+ * @param x1
+ * @param y1
+ * @param x2
+ * @param y2
+ * @returns {number}
+ */
+module.exports = function(x1, y1, x2, y2) {
+  console.log('deprecated:use .math.distance')
+  return Math.pow((Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2)), 0.5);
+}
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(PIXI) {/**
+ * Created by zyg on 16/1/31.
+ */
+
+var setConfig = __webpack_require__(5);
+
+module.exports = function getIm(config) {
+  config = Object.assign({},config);
+
+  var textures = config.textures;
+
+  delete config.textures;
+
+  var sp = new PIXI.Sprite(textures);
+
+  sp.renderCount = 0;
+
+  return setConfig(sp,config);
+};
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Created by zyg on 16/2/29.
+ */
+var getMc = __webpack_require__(4);
+
+/**
+ *
+ * @param config
+ * @param actions 截止frame帧数
+ *  [4,7,10]
+ * @returns {*}
+ */
+module.exports = function getSp(config,actions) {
+  if(!actions){
+    actions = []
+  }
+
+  var obj = getMc(config);
+
+  var _render = function(){};
+
+  var onAction = false;
+  /**
+   * 0~4-0
+   * 0-5~7-0
+   * 0-8~10-0
+   * 
+   * isKeepEnd 是否停在最后
+   */
+  obj.playAction = function playAction(index,loop,isKeepEnd) {
+    if(!index){
+      index = 0;
+    }
+
+    if(index < 0 || index > actions.length){
+      return false;
+    }
+
+    var min = (actions[index - 1]+1) || 0;
+    var max = actions[index];
+
+    var backTo = isKeepEnd ? max : 0
+    
+    this.gotoAndPlay(min);
+
+    _render = onAction ? _render : this.render;
+
+    onAction = true;
+
+    this.render = function copyRender() {
+      var cf = this.currentFrame;
+
+      if(cf >= max){
+
+        if(loop){
+          this.gotoAndPlay(min);
+        }else{
+          this.gotoAndStop(backTo);
+          this.render = _render;
+          onAction = false;
+        }
+      }
+
+      _render.call(this);
+    }
+  };
+
+  actions.map(function (ele, i) {
+    obj['playAction'+i] = obj.playAction.bind(obj,i);
+  });
+
+
+  return obj;
+};
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(PIXI) {/**
+ * 加载对应的资源链接，png或json
+ * @param resourceUrl
+ * @param cb resourceObject
+ */
+var count = 0;
+
+module.exports = function loadResource(resourceUrl, cb) {
+  var resourceKey = 'img' + Date.now() + '' + (count++);
+
+  PIXI.loader.add(resourceKey, resourceUrl)
+    .load(function (loader, resources) {
+
+      cb(resources[resourceKey]);
+    });
+};
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports) {
+
+module.exports = {
+  SPRITE_MC:'mc',
+  SPRITE_MC_ALIAS:'movieClip',
+  SPRITE_IM:'im',
+  SPRITE_IM_ALIAS:'image',
+  SPRITE_SP:'sp',
+};
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(global) {var now = __webpack_require__(23)
+  , root = typeof window === 'undefined' ? global : window
+  , vendors = ['moz', 'webkit']
+  , suffix = 'AnimationFrame'
+  , raf = root['request' + suffix]
+  , caf = root['cancel' + suffix] || root['cancelRequest' + suffix]
+
+for(var i = 0; !raf && i < vendors.length; i++) {
+  raf = root[vendors[i] + 'Request' + suffix]
+  caf = root[vendors[i] + 'Cancel' + suffix]
+      || root[vendors[i] + 'CancelRequest' + suffix]
+}
+
+// Some versions of FF have rAF but not cAF
+if(!raf || !caf) {
+  var last = 0
+    , id = 0
+    , queue = []
+    , frameDuration = 1000 / 60
+
+  raf = function(callback) {
+    if(queue.length === 0) {
+      var _now = now()
+        , next = Math.max(0, frameDuration - (_now - last))
+      last = next + _now
+      setTimeout(function() {
+        var cp = queue.slice(0)
+        // Clear queue here to prevent
+        // callbacks from appending listeners
+        // to the current frame's queue
+        queue.length = 0
+        for(var i = 0; i < cp.length; i++) {
+          if(!cp[i].cancelled) {
+            try{
+              cp[i].callback(last)
+            } catch(e) {
+              setTimeout(function() { throw e }, 0)
+            }
+          }
+        }
+      }, Math.round(next))
+    }
+    queue.push({
+      handle: ++id,
+      callback: callback,
+      cancelled: false
+    })
+    return id
+  }
+
+  caf = function(handle) {
+    for(var i = 0; i < queue.length; i++) {
+      if(queue[i].handle === handle) {
+        queue[i].cancelled = true
+      }
+    }
+  }
+}
+
+module.exports = function(fn) {
+  // Wrap in a new function to prevent
+  // `cancel` potentially being assigned
+  // to the native rAF function
+  return raf.call(root, fn)
+}
+module.exports.cancel = function() {
+  caf.apply(root, arguments)
+}
+module.exports.polyfill = function() {
+  root.requestAnimationFrame = raf
+  root.cancelAnimationFrame = caf
+}
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7)))
+
+/***/ }),
+/* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(global) {
+
+// compare and isBuffer taken from https://github.com/feross/buffer/blob/680e9e5e488f22aac27599a57dc844a6315928dd/index.js
+// original notice:
+
+/*!
+ * The buffer module from node.js, for the browser.
+ *
+ * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
+ * @license  MIT
+ */
+function compare(a, b) {
+  if (a === b) {
+    return 0;
+  }
+
+  var x = a.length;
+  var y = b.length;
+
+  for (var i = 0, len = Math.min(x, y); i < len; ++i) {
+    if (a[i] !== b[i]) {
+      x = a[i];
+      y = b[i];
+      break;
+    }
+  }
+
+  if (x < y) {
+    return -1;
+  }
+  if (y < x) {
+    return 1;
+  }
+  return 0;
+}
+function isBuffer(b) {
+  if (global.Buffer && typeof global.Buffer.isBuffer === 'function') {
+    return global.Buffer.isBuffer(b);
+  }
+  return !!(b != null && b._isBuffer);
+}
+
+// based on node assert, original notice:
+
+// http://wiki.commonjs.org/wiki/Unit_Testing/1.0
+//
+// THIS IS NOT TESTED NOR LIKELY TO WORK OUTSIDE V8!
+//
+// Originally from narwhal.js (http://narwhaljs.org)
+// Copyright (c) 2009 Thomas Robinson <280north.com>
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the 'Software'), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+var util = __webpack_require__(51);
+var hasOwn = Object.prototype.hasOwnProperty;
+var pSlice = Array.prototype.slice;
+var functionsHaveNames = (function () {
+  return function foo() {}.name === 'foo';
+}());
+function pToString (obj) {
+  return Object.prototype.toString.call(obj);
+}
+function isView(arrbuf) {
+  if (isBuffer(arrbuf)) {
+    return false;
+  }
+  if (typeof global.ArrayBuffer !== 'function') {
+    return false;
+  }
+  if (typeof ArrayBuffer.isView === 'function') {
+    return ArrayBuffer.isView(arrbuf);
+  }
+  if (!arrbuf) {
+    return false;
+  }
+  if (arrbuf instanceof DataView) {
+    return true;
+  }
+  if (arrbuf.buffer && arrbuf.buffer instanceof ArrayBuffer) {
+    return true;
+  }
+  return false;
+}
+// 1. The assert module provides functions that throw
+// AssertionError's when particular conditions are not met. The
+// assert module must conform to the following interface.
+
+var assert = module.exports = ok;
+
+// 2. The AssertionError is defined in assert.
+// new assert.AssertionError({ message: message,
+//                             actual: actual,
+//                             expected: expected })
+
+var regex = /\s*function\s+([^\(\s]*)\s*/;
+// based on https://github.com/ljharb/function.prototype.name/blob/adeeeec8bfcc6068b187d7d9fb3d5bb1d3a30899/implementation.js
+function getName(func) {
+  if (!util.isFunction(func)) {
+    return;
+  }
+  if (functionsHaveNames) {
+    return func.name;
+  }
+  var str = func.toString();
+  var match = str.match(regex);
+  return match && match[1];
+}
+assert.AssertionError = function AssertionError(options) {
+  this.name = 'AssertionError';
+  this.actual = options.actual;
+  this.expected = options.expected;
+  this.operator = options.operator;
+  if (options.message) {
+    this.message = options.message;
+    this.generatedMessage = false;
+  } else {
+    this.message = getMessage(this);
+    this.generatedMessage = true;
+  }
+  var stackStartFunction = options.stackStartFunction || fail;
+  if (Error.captureStackTrace) {
+    Error.captureStackTrace(this, stackStartFunction);
+  } else {
+    // non v8 browsers so we can have a stacktrace
+    var err = new Error();
+    if (err.stack) {
+      var out = err.stack;
+
+      // try to strip useless frames
+      var fn_name = getName(stackStartFunction);
+      var idx = out.indexOf('\n' + fn_name);
+      if (idx >= 0) {
+        // once we have located the function frame
+        // we need to strip out everything before it (and its line)
+        var next_line = out.indexOf('\n', idx + 1);
+        out = out.substring(next_line + 1);
+      }
+
+      this.stack = out;
+    }
+  }
+};
+
+// assert.AssertionError instanceof Error
+util.inherits(assert.AssertionError, Error);
+
+function truncate(s, n) {
+  if (typeof s === 'string') {
+    return s.length < n ? s : s.slice(0, n);
+  } else {
+    return s;
+  }
+}
+function inspect(something) {
+  if (functionsHaveNames || !util.isFunction(something)) {
+    return util.inspect(something);
+  }
+  var rawname = getName(something);
+  var name = rawname ? ': ' + rawname : '';
+  return '[Function' +  name + ']';
+}
+function getMessage(self) {
+  return truncate(inspect(self.actual), 128) + ' ' +
+         self.operator + ' ' +
+         truncate(inspect(self.expected), 128);
+}
+
+// At present only the three keys mentioned above are used and
+// understood by the spec. Implementations or sub modules can pass
+// other keys to the AssertionError's constructor - they will be
+// ignored.
+
+// 3. All of the following functions must throw an AssertionError
+// when a corresponding condition is not met, with a message that
+// may be undefined if not provided.  All assertion methods provide
+// both the actual and expected values to the assertion error for
+// display purposes.
+
+function fail(actual, expected, message, operator, stackStartFunction) {
+  throw new assert.AssertionError({
+    message: message,
+    actual: actual,
+    expected: expected,
+    operator: operator,
+    stackStartFunction: stackStartFunction
+  });
+}
+
+// EXTENSION! allows for well behaved errors defined elsewhere.
+assert.fail = fail;
+
+// 4. Pure assertion tests whether a value is truthy, as determined
+// by !!guard.
+// assert.ok(guard, message_opt);
+// This statement is equivalent to assert.equal(true, !!guard,
+// message_opt);. To test strictly for the value true, use
+// assert.strictEqual(true, guard, message_opt);.
+
+function ok(value, message) {
+  if (!value) fail(value, true, message, '==', assert.ok);
+}
+assert.ok = ok;
+
+// 5. The equality assertion tests shallow, coercive equality with
+// ==.
+// assert.equal(actual, expected, message_opt);
+
+assert.equal = function equal(actual, expected, message) {
+  if (actual != expected) fail(actual, expected, message, '==', assert.equal);
+};
+
+// 6. The non-equality assertion tests for whether two objects are not equal
+// with != assert.notEqual(actual, expected, message_opt);
+
+assert.notEqual = function notEqual(actual, expected, message) {
+  if (actual == expected) {
+    fail(actual, expected, message, '!=', assert.notEqual);
+  }
+};
+
+// 7. The equivalence assertion tests a deep equality relation.
+// assert.deepEqual(actual, expected, message_opt);
+
+assert.deepEqual = function deepEqual(actual, expected, message) {
+  if (!_deepEqual(actual, expected, false)) {
+    fail(actual, expected, message, 'deepEqual', assert.deepEqual);
+  }
+};
+
+assert.deepStrictEqual = function deepStrictEqual(actual, expected, message) {
+  if (!_deepEqual(actual, expected, true)) {
+    fail(actual, expected, message, 'deepStrictEqual', assert.deepStrictEqual);
+  }
+};
+
+function _deepEqual(actual, expected, strict, memos) {
+  // 7.1. All identical values are equivalent, as determined by ===.
+  if (actual === expected) {
+    return true;
+  } else if (isBuffer(actual) && isBuffer(expected)) {
+    return compare(actual, expected) === 0;
+
+  // 7.2. If the expected value is a Date object, the actual value is
+  // equivalent if it is also a Date object that refers to the same time.
+  } else if (util.isDate(actual) && util.isDate(expected)) {
+    return actual.getTime() === expected.getTime();
+
+  // 7.3 If the expected value is a RegExp object, the actual value is
+  // equivalent if it is also a RegExp object with the same source and
+  // properties (`global`, `multiline`, `lastIndex`, `ignoreCase`).
+  } else if (util.isRegExp(actual) && util.isRegExp(expected)) {
+    return actual.source === expected.source &&
+           actual.global === expected.global &&
+           actual.multiline === expected.multiline &&
+           actual.lastIndex === expected.lastIndex &&
+           actual.ignoreCase === expected.ignoreCase;
+
+  // 7.4. Other pairs that do not both pass typeof value == 'object',
+  // equivalence is determined by ==.
+  } else if ((actual === null || typeof actual !== 'object') &&
+             (expected === null || typeof expected !== 'object')) {
+    return strict ? actual === expected : actual == expected;
+
+  // If both values are instances of typed arrays, wrap their underlying
+  // ArrayBuffers in a Buffer each to increase performance
+  // This optimization requires the arrays to have the same type as checked by
+  // Object.prototype.toString (aka pToString). Never perform binary
+  // comparisons for Float*Arrays, though, since e.g. +0 === -0 but their
+  // bit patterns are not identical.
+  } else if (isView(actual) && isView(expected) &&
+             pToString(actual) === pToString(expected) &&
+             !(actual instanceof Float32Array ||
+               actual instanceof Float64Array)) {
+    return compare(new Uint8Array(actual.buffer),
+                   new Uint8Array(expected.buffer)) === 0;
+
+  // 7.5 For all other Object pairs, including Array objects, equivalence is
+  // determined by having the same number of owned properties (as verified
+  // with Object.prototype.hasOwnProperty.call), the same set of keys
+  // (although not necessarily the same order), equivalent values for every
+  // corresponding key, and an identical 'prototype' property. Note: this
+  // accounts for both named and indexed properties on Arrays.
+  } else if (isBuffer(actual) !== isBuffer(expected)) {
+    return false;
+  } else {
+    memos = memos || {actual: [], expected: []};
+
+    var actualIndex = memos.actual.indexOf(actual);
+    if (actualIndex !== -1) {
+      if (actualIndex === memos.expected.indexOf(expected)) {
+        return true;
+      }
+    }
+
+    memos.actual.push(actual);
+    memos.expected.push(expected);
+
+    return objEquiv(actual, expected, strict, memos);
+  }
+}
+
+function isArguments(object) {
+  return Object.prototype.toString.call(object) == '[object Arguments]';
+}
+
+function objEquiv(a, b, strict, actualVisitedObjects) {
+  if (a === null || a === undefined || b === null || b === undefined)
+    return false;
+  // if one is a primitive, the other must be same
+  if (util.isPrimitive(a) || util.isPrimitive(b))
+    return a === b;
+  if (strict && Object.getPrototypeOf(a) !== Object.getPrototypeOf(b))
+    return false;
+  var aIsArgs = isArguments(a);
+  var bIsArgs = isArguments(b);
+  if ((aIsArgs && !bIsArgs) || (!aIsArgs && bIsArgs))
+    return false;
+  if (aIsArgs) {
+    a = pSlice.call(a);
+    b = pSlice.call(b);
+    return _deepEqual(a, b, strict);
+  }
+  var ka = objectKeys(a);
+  var kb = objectKeys(b);
+  var key, i;
+  // having the same number of owned properties (keys incorporates
+  // hasOwnProperty)
+  if (ka.length !== kb.length)
+    return false;
+  //the same set of keys (although not necessarily the same order),
+  ka.sort();
+  kb.sort();
+  //~~~cheap key test
+  for (i = ka.length - 1; i >= 0; i--) {
+    if (ka[i] !== kb[i])
+      return false;
+  }
+  //equivalent values for every corresponding key, and
+  //~~~possibly expensive deep test
+  for (i = ka.length - 1; i >= 0; i--) {
+    key = ka[i];
+    if (!_deepEqual(a[key], b[key], strict, actualVisitedObjects))
+      return false;
+  }
+  return true;
+}
+
+// 8. The non-equivalence assertion tests for any deep inequality.
+// assert.notDeepEqual(actual, expected, message_opt);
+
+assert.notDeepEqual = function notDeepEqual(actual, expected, message) {
+  if (_deepEqual(actual, expected, false)) {
+    fail(actual, expected, message, 'notDeepEqual', assert.notDeepEqual);
+  }
+};
+
+assert.notDeepStrictEqual = notDeepStrictEqual;
+function notDeepStrictEqual(actual, expected, message) {
+  if (_deepEqual(actual, expected, true)) {
+    fail(actual, expected, message, 'notDeepStrictEqual', notDeepStrictEqual);
+  }
+}
+
+
+// 9. The strict equality assertion tests strict equality, as determined by ===.
+// assert.strictEqual(actual, expected, message_opt);
+
+assert.strictEqual = function strictEqual(actual, expected, message) {
+  if (actual !== expected) {
+    fail(actual, expected, message, '===', assert.strictEqual);
+  }
+};
+
+// 10. The strict non-equality assertion tests for strict inequality, as
+// determined by !==.  assert.notStrictEqual(actual, expected, message_opt);
+
+assert.notStrictEqual = function notStrictEqual(actual, expected, message) {
+  if (actual === expected) {
+    fail(actual, expected, message, '!==', assert.notStrictEqual);
+  }
+};
+
+function expectedException(actual, expected) {
+  if (!actual || !expected) {
+    return false;
+  }
+
+  if (Object.prototype.toString.call(expected) == '[object RegExp]') {
+    return expected.test(actual);
+  }
+
+  try {
+    if (actual instanceof expected) {
+      return true;
+    }
+  } catch (e) {
+    // Ignore.  The instanceof check doesn't work for arrow functions.
+  }
+
+  if (Error.isPrototypeOf(expected)) {
+    return false;
+  }
+
+  return expected.call({}, actual) === true;
+}
+
+function _tryBlock(block) {
+  var error;
+  try {
+    block();
+  } catch (e) {
+    error = e;
+  }
+  return error;
+}
+
+function _throws(shouldThrow, block, expected, message) {
+  var actual;
+
+  if (typeof block !== 'function') {
+    throw new TypeError('"block" argument must be a function');
+  }
+
+  if (typeof expected === 'string') {
+    message = expected;
+    expected = null;
+  }
+
+  actual = _tryBlock(block);
+
+  message = (expected && expected.name ? ' (' + expected.name + ').' : '.') +
+            (message ? ' ' + message : '.');
+
+  if (shouldThrow && !actual) {
+    fail(actual, expected, 'Missing expected exception' + message);
+  }
+
+  var userProvidedMessage = typeof message === 'string';
+  var isUnwantedException = !shouldThrow && util.isError(actual);
+  var isUnexpectedException = !shouldThrow && actual && !expected;
+
+  if ((isUnwantedException &&
+      userProvidedMessage &&
+      expectedException(actual, expected)) ||
+      isUnexpectedException) {
+    fail(actual, expected, 'Got unwanted exception' + message);
+  }
+
+  if ((shouldThrow && actual && expected &&
+      !expectedException(actual, expected)) || (!shouldThrow && actual)) {
+    throw actual;
+  }
+}
+
+// 11. Expected to throw an error:
+// assert.throws(block, Error_opt, message_opt);
+
+assert.throws = function(block, /*optional*/error, /*optional*/message) {
+  _throws(true, block, error, message);
+};
+
+// EXTENSION! This is annoying to write outside this module.
+assert.doesNotThrow = function(block, /*optional*/error, /*optional*/message) {
+  _throws(false, block, error, message);
+};
+
+assert.ifError = function(err) { if (err) throw err; };
+
+var objectKeys = Object.keys || function (obj) {
+  var keys = [];
+  for (var key in obj) {
+    if (hasOwn.call(obj, key)) keys.push(key);
+  }
+  return keys;
+};
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7)))
 
 /***/ }),
 /* 19 */
@@ -18809,11 +19175,142 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 20 */,
+/* 20 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+exports.isDef = isDef;
+exports.isUndef = isUndef;
+exports.isVNode = isVNode;
+exports.isPixiObj = isPixiObj;
+exports.isEqualObj = isEqualObj;
+exports.equalVNode = equalVNode;
+exports.equalVNodeChildren = equalVNodeChildren;
+exports.compareObject = compareObject;
+exports.log = log;
+
+var _primitive = __webpack_require__(22);
+
+var _primitive2 = _interopRequireDefault(_primitive);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function isDef(v) {
+  return v !== undefined;
+}
+function isUndef(v) {
+  return v === undefined;
+}
+
+function isVNode(obj) {
+  var keys = Object.keys(obj);
+
+  return ['props', 'type', 'children'].every(function (k) {
+    return keys.indexOf(k) !== -1;
+  });
+}
+
+function isPixiObj(obj) {
+  return obj && obj.addChild;
+}
+
+function isEqualObj(obj1, obj2) {}
+
+function equalVNode(obj1, obj2, checkChildren) {
+  if ((typeof obj1 === 'undefined' ? 'undefined' : _typeof(obj1)) !== 'object' || (typeof obj2 === 'undefined' ? 'undefined' : _typeof(obj2)) !== 'object') {
+    return false;
+  }
+
+  var isSameNode;
+
+  if (isDef(obj1.key) || isDef(obj2.key)) {
+    isSameNode = obj1.key === obj2.key;
+  } else {
+    if (obj1.type === obj2.type) {
+      isSameNode = compareObject(obj1.props, obj2.props);
+    }
+  }
+
+  if (isSameNode && checkChildren) {}
+
+  return isSameNode;
+}
+
+function equalVNodeChildren(obj1, obj2) {
+  var len = obj1.children.length;
+  var isSameNode = len === obj2.children.length;
+  if (isSameNode) {
+    var i = 0;
+    var isSameChild = true;
+
+    while (i < len) {
+      var childObj1 = obj1.children[i];
+      var childObj2 = obj2.children[i];
+
+      isSameChild = equalVNode(childObj1, childObj2);
+      if (!isSameChild) {
+        break;
+      }
+      i++;
+    }
+    isSameNode = isSameChild;
+  }
+  return isSameNode;
+}
+
+function compareObject(obj1, obj2) {
+  var type1 = typeof obj1 === 'undefined' ? 'undefined' : _typeof(obj1);
+  var type2 = typeof obj2 === 'undefined' ? 'undefined' : _typeof(obj2);
+
+  if (obj1 === obj2) {
+    return true;
+  }
+
+  if (type1 === type2) {
+
+    var keys1 = Object.keys(obj1);
+    var keys2 = Object.keys(obj2);
+
+    if (keys1.join('') === keys2.join('')) {
+      return keys1.every(function (k) {
+        var type1 = _typeof(obj1[k]);
+        var type2 = _typeof(obj2[k]);
+
+        if (type1 !== type2) {
+          return false;
+        } else if (type1 === 'object') {
+          return compareObject(obj1[k], obj2[k]);
+        } else if (type1 === 'function') {
+          var r = obj1[k].toString() === obj2[k].toString();
+          return r;
+        }
+        return obj1[k] === obj2[k];
+      });
+    }
+  }
+
+  return false;
+}
+
+function log() {
+  if (['', ''].indexOf(arguments[0]) !== -1) {
+    console.log.apply(console, arguments);
+  }
+}
+
+/***/ }),
 /* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var pixiLib = {appendStage:__webpack_require__(25),audioControl:__webpack_require__(27),canvasManager:__webpack_require__(10),createAction:__webpack_require__(28),createLoader:__webpack_require__(11),createRender:__webpack_require__(12),distance:__webpack_require__(13),fixSpriteProperties:__webpack_require__(29),getIm:__webpack_require__(14),getMc:__webpack_require__(5),getSp:__webpack_require__(15),getTextures:__webpack_require__(30),loadResource:__webpack_require__(16),loadSprite:__webpack_require__(31),makeIdentity:__webpack_require__(34),math:__webpack_require__(35),setConfig:__webpack_require__(6),types:__webpack_require__(17),audio:{loadAudio:__webpack_require__(26),}, loading:{basicLoading:__webpack_require__(32),mpLoading:__webpack_require__(33),}, utils:{addStyle:__webpack_require__(2),basicLoading:__webpack_require__(36),matrixManager:__webpack_require__(7),mpLoading:__webpack_require__(37),repeat:__webpack_require__(3),resizeImageData:__webpack_require__(38),shareGuide:__webpack_require__(39),unfoldArray:__webpack_require__(40),},};if( typeof window !== "undefined" ){ 
+var pixiLib = {appendStage:__webpack_require__(25),audioControl:__webpack_require__(27),canvasManager:__webpack_require__(9),createAction:__webpack_require__(28),createLoader:__webpack_require__(10),createRender:__webpack_require__(11),distance:__webpack_require__(12),fixSpriteProperties:__webpack_require__(29),getIm:__webpack_require__(13),getMc:__webpack_require__(4),getSp:__webpack_require__(14),getTextures:__webpack_require__(30),loadResource:__webpack_require__(15),loadSprite:__webpack_require__(31),makeIdentity:__webpack_require__(34),math:__webpack_require__(35),setConfig:__webpack_require__(5),types:__webpack_require__(16),audio:{loadAudio:__webpack_require__(26),}, loading:{basicLoading:__webpack_require__(32),mpLoading:__webpack_require__(33),}, utils:{addStyle:__webpack_require__(2),basicLoading:__webpack_require__(36),matrixManager:__webpack_require__(6),mpLoading:__webpack_require__(37),repeat:__webpack_require__(3),resizeImageData:__webpack_require__(38),shareGuide:__webpack_require__(39),unfoldArray:__webpack_require__(40),},};if( typeof window !== "undefined" ){ 
 window.pixiLib=pixiLib; 
 } 
 if(true ){  
@@ -18914,7 +19411,7 @@ module.exports = {
  * @param config
  * @returns {module.exports.Container}
  */
-var createRender = __webpack_require__(12);
+var createRender = __webpack_require__(11);
 
 module.exports = function (container, config) {
 
@@ -19127,7 +19624,7 @@ module.exports = function fixProperties(settingProperties,finalProperties){
 /* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var createLoader = __webpack_require__(11);
+var createLoader = __webpack_require__(10);
 
 /**
  * 设定资源或取出资源
@@ -19153,11 +19650,11 @@ module.exports = function(spriteName){
 /***/ (function(module, exports, __webpack_require__) {
 
 var _ = __webpack_require__(1)
-var loadResource = __webpack_require__(16);
-var types = __webpack_require__(17);
-var getMc = __webpack_require__(5);
-var getIm = __webpack_require__(14);
-var getSp = __webpack_require__(15);
+var loadResource = __webpack_require__(15);
+var types = __webpack_require__(16);
+var getMc = __webpack_require__(4);
+var getIm = __webpack_require__(13);
+var getSp = __webpack_require__(14);
 
 var spriteFnMap = {};
 
@@ -19369,7 +19866,7 @@ module.exports = function(){
  * Created by zyg on 16/7/20.
  */
 
-var matrixManager = __webpack_require__(7)
+var matrixManager = __webpack_require__(6)
 var repeate = __webpack_require__(3)
 
 var cgrey = 'rgb(169,197,202)',
@@ -19435,7 +19932,7 @@ module.exports = function(){
  * @param [a,b]
  * @returns [c,d]
  */
-var distance = __webpack_require__(13);
+var distance = __webpack_require__(12);
 
 module.exports = function(a) {
   console.log('deprecated:use .math.makeIdentity')
@@ -19698,7 +20195,7 @@ module.exports = function(){
  * Created by zyg on 16/7/20.
  */
 
-var matrixManager = __webpack_require__(7)
+var matrixManager = __webpack_require__(6)
 var repeate = __webpack_require__(3)
 
 var cgrey = 'rgb(169,197,202)',
@@ -20175,509 +20672,11 @@ module.exports = function(module) {
 /* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
-/* WEBPACK VAR INJECTION */(function(global) {
-
-// compare and isBuffer taken from https://github.com/feross/buffer/blob/680e9e5e488f22aac27599a57dc844a6315928dd/index.js
-// original notice:
-
-/*!
- * The buffer module from node.js, for the browser.
- *
- * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
- * @license  MIT
- */
-function compare(a, b) {
-  if (a === b) {
-    return 0;
-  }
-
-  var x = a.length;
-  var y = b.length;
-
-  for (var i = 0, len = Math.min(x, y); i < len; ++i) {
-    if (a[i] !== b[i]) {
-      x = a[i];
-      y = b[i];
-      break;
-    }
-  }
-
-  if (x < y) {
-    return -1;
-  }
-  if (y < x) {
-    return 1;
-  }
-  return 0;
-}
-function isBuffer(b) {
-  if (global.Buffer && typeof global.Buffer.isBuffer === 'function') {
-    return global.Buffer.isBuffer(b);
-  }
-  return !!(b != null && b._isBuffer);
-}
-
-// based on node assert, original notice:
-
-// http://wiki.commonjs.org/wiki/Unit_Testing/1.0
-//
-// THIS IS NOT TESTED NOR LIKELY TO WORK OUTSIDE V8!
-//
-// Originally from narwhal.js (http://narwhaljs.org)
-// Copyright (c) 2009 Thomas Robinson <280north.com>
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the 'Software'), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-var util = __webpack_require__(52);
-var hasOwn = Object.prototype.hasOwnProperty;
-var pSlice = Array.prototype.slice;
-var functionsHaveNames = (function () {
-  return function foo() {}.name === 'foo';
-}());
-function pToString (obj) {
-  return Object.prototype.toString.call(obj);
-}
-function isView(arrbuf) {
-  if (isBuffer(arrbuf)) {
-    return false;
-  }
-  if (typeof global.ArrayBuffer !== 'function') {
-    return false;
-  }
-  if (typeof ArrayBuffer.isView === 'function') {
-    return ArrayBuffer.isView(arrbuf);
-  }
-  if (!arrbuf) {
-    return false;
-  }
-  if (arrbuf instanceof DataView) {
-    return true;
-  }
-  if (arrbuf.buffer && arrbuf.buffer instanceof ArrayBuffer) {
-    return true;
-  }
-  return false;
-}
-// 1. The assert module provides functions that throw
-// AssertionError's when particular conditions are not met. The
-// assert module must conform to the following interface.
-
-var assert = module.exports = ok;
-
-// 2. The AssertionError is defined in assert.
-// new assert.AssertionError({ message: message,
-//                             actual: actual,
-//                             expected: expected })
-
-var regex = /\s*function\s+([^\(\s]*)\s*/;
-// based on https://github.com/ljharb/function.prototype.name/blob/adeeeec8bfcc6068b187d7d9fb3d5bb1d3a30899/implementation.js
-function getName(func) {
-  if (!util.isFunction(func)) {
-    return;
-  }
-  if (functionsHaveNames) {
-    return func.name;
-  }
-  var str = func.toString();
-  var match = str.match(regex);
-  return match && match[1];
-}
-assert.AssertionError = function AssertionError(options) {
-  this.name = 'AssertionError';
-  this.actual = options.actual;
-  this.expected = options.expected;
-  this.operator = options.operator;
-  if (options.message) {
-    this.message = options.message;
-    this.generatedMessage = false;
-  } else {
-    this.message = getMessage(this);
-    this.generatedMessage = true;
-  }
-  var stackStartFunction = options.stackStartFunction || fail;
-  if (Error.captureStackTrace) {
-    Error.captureStackTrace(this, stackStartFunction);
-  } else {
-    // non v8 browsers so we can have a stacktrace
-    var err = new Error();
-    if (err.stack) {
-      var out = err.stack;
-
-      // try to strip useless frames
-      var fn_name = getName(stackStartFunction);
-      var idx = out.indexOf('\n' + fn_name);
-      if (idx >= 0) {
-        // once we have located the function frame
-        // we need to strip out everything before it (and its line)
-        var next_line = out.indexOf('\n', idx + 1);
-        out = out.substring(next_line + 1);
-      }
-
-      this.stack = out;
-    }
-  }
-};
-
-// assert.AssertionError instanceof Error
-util.inherits(assert.AssertionError, Error);
-
-function truncate(s, n) {
-  if (typeof s === 'string') {
-    return s.length < n ? s : s.slice(0, n);
-  } else {
-    return s;
-  }
-}
-function inspect(something) {
-  if (functionsHaveNames || !util.isFunction(something)) {
-    return util.inspect(something);
-  }
-  var rawname = getName(something);
-  var name = rawname ? ': ' + rawname : '';
-  return '[Function' +  name + ']';
-}
-function getMessage(self) {
-  return truncate(inspect(self.actual), 128) + ' ' +
-         self.operator + ' ' +
-         truncate(inspect(self.expected), 128);
-}
-
-// At present only the three keys mentioned above are used and
-// understood by the spec. Implementations or sub modules can pass
-// other keys to the AssertionError's constructor - they will be
-// ignored.
-
-// 3. All of the following functions must throw an AssertionError
-// when a corresponding condition is not met, with a message that
-// may be undefined if not provided.  All assertion methods provide
-// both the actual and expected values to the assertion error for
-// display purposes.
-
-function fail(actual, expected, message, operator, stackStartFunction) {
-  throw new assert.AssertionError({
-    message: message,
-    actual: actual,
-    expected: expected,
-    operator: operator,
-    stackStartFunction: stackStartFunction
-  });
-}
-
-// EXTENSION! allows for well behaved errors defined elsewhere.
-assert.fail = fail;
-
-// 4. Pure assertion tests whether a value is truthy, as determined
-// by !!guard.
-// assert.ok(guard, message_opt);
-// This statement is equivalent to assert.equal(true, !!guard,
-// message_opt);. To test strictly for the value true, use
-// assert.strictEqual(true, guard, message_opt);.
-
-function ok(value, message) {
-  if (!value) fail(value, true, message, '==', assert.ok);
-}
-assert.ok = ok;
-
-// 5. The equality assertion tests shallow, coercive equality with
-// ==.
-// assert.equal(actual, expected, message_opt);
-
-assert.equal = function equal(actual, expected, message) {
-  if (actual != expected) fail(actual, expected, message, '==', assert.equal);
-};
-
-// 6. The non-equality assertion tests for whether two objects are not equal
-// with != assert.notEqual(actual, expected, message_opt);
-
-assert.notEqual = function notEqual(actual, expected, message) {
-  if (actual == expected) {
-    fail(actual, expected, message, '!=', assert.notEqual);
-  }
-};
-
-// 7. The equivalence assertion tests a deep equality relation.
-// assert.deepEqual(actual, expected, message_opt);
-
-assert.deepEqual = function deepEqual(actual, expected, message) {
-  if (!_deepEqual(actual, expected, false)) {
-    fail(actual, expected, message, 'deepEqual', assert.deepEqual);
-  }
-};
-
-assert.deepStrictEqual = function deepStrictEqual(actual, expected, message) {
-  if (!_deepEqual(actual, expected, true)) {
-    fail(actual, expected, message, 'deepStrictEqual', assert.deepStrictEqual);
-  }
-};
-
-function _deepEqual(actual, expected, strict, memos) {
-  // 7.1. All identical values are equivalent, as determined by ===.
-  if (actual === expected) {
-    return true;
-  } else if (isBuffer(actual) && isBuffer(expected)) {
-    return compare(actual, expected) === 0;
-
-  // 7.2. If the expected value is a Date object, the actual value is
-  // equivalent if it is also a Date object that refers to the same time.
-  } else if (util.isDate(actual) && util.isDate(expected)) {
-    return actual.getTime() === expected.getTime();
-
-  // 7.3 If the expected value is a RegExp object, the actual value is
-  // equivalent if it is also a RegExp object with the same source and
-  // properties (`global`, `multiline`, `lastIndex`, `ignoreCase`).
-  } else if (util.isRegExp(actual) && util.isRegExp(expected)) {
-    return actual.source === expected.source &&
-           actual.global === expected.global &&
-           actual.multiline === expected.multiline &&
-           actual.lastIndex === expected.lastIndex &&
-           actual.ignoreCase === expected.ignoreCase;
-
-  // 7.4. Other pairs that do not both pass typeof value == 'object',
-  // equivalence is determined by ==.
-  } else if ((actual === null || typeof actual !== 'object') &&
-             (expected === null || typeof expected !== 'object')) {
-    return strict ? actual === expected : actual == expected;
-
-  // If both values are instances of typed arrays, wrap their underlying
-  // ArrayBuffers in a Buffer each to increase performance
-  // This optimization requires the arrays to have the same type as checked by
-  // Object.prototype.toString (aka pToString). Never perform binary
-  // comparisons for Float*Arrays, though, since e.g. +0 === -0 but their
-  // bit patterns are not identical.
-  } else if (isView(actual) && isView(expected) &&
-             pToString(actual) === pToString(expected) &&
-             !(actual instanceof Float32Array ||
-               actual instanceof Float64Array)) {
-    return compare(new Uint8Array(actual.buffer),
-                   new Uint8Array(expected.buffer)) === 0;
-
-  // 7.5 For all other Object pairs, including Array objects, equivalence is
-  // determined by having the same number of owned properties (as verified
-  // with Object.prototype.hasOwnProperty.call), the same set of keys
-  // (although not necessarily the same order), equivalent values for every
-  // corresponding key, and an identical 'prototype' property. Note: this
-  // accounts for both named and indexed properties on Arrays.
-  } else if (isBuffer(actual) !== isBuffer(expected)) {
-    return false;
-  } else {
-    memos = memos || {actual: [], expected: []};
-
-    var actualIndex = memos.actual.indexOf(actual);
-    if (actualIndex !== -1) {
-      if (actualIndex === memos.expected.indexOf(expected)) {
-        return true;
-      }
-    }
-
-    memos.actual.push(actual);
-    memos.expected.push(expected);
-
-    return objEquiv(actual, expected, strict, memos);
-  }
-}
-
-function isArguments(object) {
-  return Object.prototype.toString.call(object) == '[object Arguments]';
-}
-
-function objEquiv(a, b, strict, actualVisitedObjects) {
-  if (a === null || a === undefined || b === null || b === undefined)
-    return false;
-  // if one is a primitive, the other must be same
-  if (util.isPrimitive(a) || util.isPrimitive(b))
-    return a === b;
-  if (strict && Object.getPrototypeOf(a) !== Object.getPrototypeOf(b))
-    return false;
-  var aIsArgs = isArguments(a);
-  var bIsArgs = isArguments(b);
-  if ((aIsArgs && !bIsArgs) || (!aIsArgs && bIsArgs))
-    return false;
-  if (aIsArgs) {
-    a = pSlice.call(a);
-    b = pSlice.call(b);
-    return _deepEqual(a, b, strict);
-  }
-  var ka = objectKeys(a);
-  var kb = objectKeys(b);
-  var key, i;
-  // having the same number of owned properties (keys incorporates
-  // hasOwnProperty)
-  if (ka.length !== kb.length)
-    return false;
-  //the same set of keys (although not necessarily the same order),
-  ka.sort();
-  kb.sort();
-  //~~~cheap key test
-  for (i = ka.length - 1; i >= 0; i--) {
-    if (ka[i] !== kb[i])
-      return false;
-  }
-  //equivalent values for every corresponding key, and
-  //~~~possibly expensive deep test
-  for (i = ka.length - 1; i >= 0; i--) {
-    key = ka[i];
-    if (!_deepEqual(a[key], b[key], strict, actualVisitedObjects))
-      return false;
-  }
-  return true;
-}
-
-// 8. The non-equivalence assertion tests for any deep inequality.
-// assert.notDeepEqual(actual, expected, message_opt);
-
-assert.notDeepEqual = function notDeepEqual(actual, expected, message) {
-  if (_deepEqual(actual, expected, false)) {
-    fail(actual, expected, message, 'notDeepEqual', assert.notDeepEqual);
-  }
-};
-
-assert.notDeepStrictEqual = notDeepStrictEqual;
-function notDeepStrictEqual(actual, expected, message) {
-  if (_deepEqual(actual, expected, true)) {
-    fail(actual, expected, message, 'notDeepStrictEqual', notDeepStrictEqual);
-  }
-}
-
-
-// 9. The strict equality assertion tests strict equality, as determined by ===.
-// assert.strictEqual(actual, expected, message_opt);
-
-assert.strictEqual = function strictEqual(actual, expected, message) {
-  if (actual !== expected) {
-    fail(actual, expected, message, '===', assert.strictEqual);
-  }
-};
-
-// 10. The strict non-equality assertion tests for strict inequality, as
-// determined by !==.  assert.notStrictEqual(actual, expected, message_opt);
-
-assert.notStrictEqual = function notStrictEqual(actual, expected, message) {
-  if (actual === expected) {
-    fail(actual, expected, message, '!==', assert.notStrictEqual);
-  }
-};
-
-function expectedException(actual, expected) {
-  if (!actual || !expected) {
-    return false;
-  }
-
-  if (Object.prototype.toString.call(expected) == '[object RegExp]') {
-    return expected.test(actual);
-  }
-
-  try {
-    if (actual instanceof expected) {
-      return true;
-    }
-  } catch (e) {
-    // Ignore.  The instanceof check doesn't work for arrow functions.
-  }
-
-  if (Error.isPrototypeOf(expected)) {
-    return false;
-  }
-
-  return expected.call({}, actual) === true;
-}
-
-function _tryBlock(block) {
-  var error;
-  try {
-    block();
-  } catch (e) {
-    error = e;
-  }
-  return error;
-}
-
-function _throws(shouldThrow, block, expected, message) {
-  var actual;
-
-  if (typeof block !== 'function') {
-    throw new TypeError('"block" argument must be a function');
-  }
-
-  if (typeof expected === 'string') {
-    message = expected;
-    expected = null;
-  }
-
-  actual = _tryBlock(block);
-
-  message = (expected && expected.name ? ' (' + expected.name + ').' : '.') +
-            (message ? ' ' + message : '.');
-
-  if (shouldThrow && !actual) {
-    fail(actual, expected, 'Missing expected exception' + message);
-  }
-
-  var userProvidedMessage = typeof message === 'string';
-  var isUnwantedException = !shouldThrow && util.isError(actual);
-  var isUnexpectedException = !shouldThrow && actual && !expected;
-
-  if ((isUnwantedException &&
-      userProvidedMessage &&
-      expectedException(actual, expected)) ||
-      isUnexpectedException) {
-    fail(actual, expected, 'Got unwanted exception' + message);
-  }
-
-  if ((shouldThrow && actual && expected &&
-      !expectedException(actual, expected)) || (!shouldThrow && actual)) {
-    throw actual;
-  }
-}
-
-// 11. Expected to throw an error:
-// assert.throws(block, Error_opt, message_opt);
-
-assert.throws = function(block, /*optional*/error, /*optional*/message) {
-  _throws(true, block, error, message);
-};
-
-// EXTENSION! This is annoying to write outside this module.
-assert.doesNotThrow = function(block, /*optional*/error, /*optional*/message) {
-  _throws(false, block, error, message);
-};
-
-assert.ifError = function(err) { if (err) throw err; };
-
-var objectKeys = Object.keys || function (obj) {
-  var keys = [];
-  for (var key in obj) {
-    if (hasOwn.call(obj, key)) keys.push(key);
-  }
-  return keys;
-};
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8)))
-
-/***/ }),
-/* 44 */
-/***/ (function(module, exports, __webpack_require__) {
-
 var map = {
-	"./mapChildren_test.js": 54,
-	"./updateChildrenComponent_test.js": 47,
-	"./updateChildren_test.js": 48,
-	"./updateProps_test.js": 49
+	"./mapChildren_test.js": 45,
+	"./updateChildrenComponent_test.js": 46,
+	"./updateChildren_test.js": 47,
+	"./updateProps_test.js": 48
 };
 function webpackContext(req) {
 	return __webpack_require__(webpackContextResolve(req));
@@ -20693,20 +20692,19 @@ webpackContext.keys = function webpackContextKeys() {
 };
 webpackContext.resolve = webpackContextResolve;
 module.exports = webpackContext;
-webpackContext.id = 44;
+webpackContext.id = 43;
 
 /***/ }),
-/* 45 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var testsContext = __webpack_require__(44);
+var testsContext = __webpack_require__(43);
 testsContext.keys().forEach(function (k) {
   testsContext(k);
 });
 
 /***/ }),
-/* 46 */,
-/* 47 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -20714,9 +20712,79 @@ testsContext.keys().forEach(function (k) {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _assert = __webpack_require__(43);
+var _assert = __webpack_require__(18);
 
-var _pixiReact = __webpack_require__(18);
+var _pixiReact = __webpack_require__(8);
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var T = function (_PactComponent) {
+  _inherits(T, _PactComponent);
+
+  function T() {
+    _classCallCheck(this, T);
+
+    var _this = _possibleConstructorReturn(this, (T.__proto__ || Object.getPrototypeOf(T)).call(this, {}));
+
+    _this.state = {
+      list: ['name', 'xx']
+    };
+    return _this;
+  }
+
+  _createClass(T, [{
+    key: 'render',
+    value: function render() {
+      var list = this.state.list;
+
+
+      return (0, _pixiReact.h)(
+        'c',
+        null,
+        list.map(function (name) {
+          return (0, _pixiReact.h)('c', { key: name, name: name });
+        })
+      );
+    }
+  }]);
+
+  return T;
+}(_pixiReact.PactComponent);
+
+describe('数组子节点', function () {
+
+  describe('初始化', function () {
+    var tVNode = (0, _pixiReact.h)(T);
+    var topContainer = new PIXI.Container();
+    var tInstance = (0, _pixiReact.renderTo)(tVNode, topContainer);
+
+    it('vNode', function () {
+
+      (0, _assert.equal)(tInstance.vNode.type, _pixiReact.Container, '顶层vNode的type类型');
+      (0, _assert.equal)(tInstance.vNode.children.length, 2, 'vNode的儿子们的长度');
+      (0, _assert.equal)(tInstance.vNode.children[0].props.name, 'name', '第1个vNode的名字');
+      (0, _assert.equal)(tInstance.vNode.children[1].props.name, 'xx', '第2个vNode的名字');
+    });
+  });
+});
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 46 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(PIXI) {
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _assert = __webpack_require__(18);
+
+var _pixiReact = __webpack_require__(8);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -20959,7 +21027,7 @@ describe('复杂嵌套的组件', function () {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 48 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -20967,9 +21035,9 @@ describe('复杂嵌套的组件', function () {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _assert = __webpack_require__(43);
+var _assert = __webpack_require__(18);
 
-var _pixiReact = __webpack_require__(18);
+var _pixiReact = __webpack_require__(8);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -21149,7 +21217,7 @@ describe('基础组件', function () {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 49 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -21157,9 +21225,9 @@ describe('基础组件', function () {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _assert = __webpack_require__(43);
+var _assert = __webpack_require__(18);
 
-var _pixiReact = __webpack_require__(18);
+var _pixiReact = __webpack_require__(8);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -21323,7 +21391,7 @@ describe('更新props', function () {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 50 */
+/* 49 */
 /***/ (function(module, exports) {
 
 if (typeof Object.create === 'function') {
@@ -21352,7 +21420,7 @@ if (typeof Object.create === 'function') {
 
 
 /***/ }),
-/* 51 */
+/* 50 */
 /***/ (function(module, exports) {
 
 module.exports = function isBuffer(arg) {
@@ -21363,7 +21431,7 @@ module.exports = function isBuffer(arg) {
 }
 
 /***/ }),
-/* 52 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, process) {// Copyright Joyent, Inc. and other Node contributors.
@@ -21891,7 +21959,7 @@ function isPrimitive(arg) {
 }
 exports.isPrimitive = isPrimitive;
 
-exports.isBuffer = __webpack_require__(51);
+exports.isBuffer = __webpack_require__(50);
 
 function objectToString(o) {
   return Object.prototype.toString.call(o);
@@ -21935,7 +22003,7 @@ exports.log = function() {
  *     prototype.
  * @param {function} superCtor Constructor function to inherit prototype from.
  */
-exports.inherits = __webpack_require__(50);
+exports.inherits = __webpack_require__(49);
 
 exports._extend = function(origin, add) {
   // Don't do anything if add isn't an object
@@ -21953,78 +22021,7 @@ function hasOwnProperty(obj, prop) {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8), __webpack_require__(19)))
-
-/***/ }),
-/* 53 */,
-/* 54 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(PIXI) {
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _assert = __webpack_require__(43);
-
-var _pixiReact = __webpack_require__(18);
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var T = function (_PactComponent) {
-  _inherits(T, _PactComponent);
-
-  function T() {
-    _classCallCheck(this, T);
-
-    var _this = _possibleConstructorReturn(this, (T.__proto__ || Object.getPrototypeOf(T)).call(this, {}));
-
-    _this.state = {
-      list: ['name', 'xx']
-    };
-    return _this;
-  }
-
-  _createClass(T, [{
-    key: 'render',
-    value: function render() {
-      var list = this.state.list;
-
-
-      return (0, _pixiReact.h)(
-        'c',
-        null,
-        list.map(function (name) {
-          return (0, _pixiReact.h)('c', { key: name, name: name });
-        })
-      );
-    }
-  }]);
-
-  return T;
-}(_pixiReact.PactComponent);
-
-describe('数组子节点', function () {
-
-  describe('初始化', function () {
-    var tVNode = (0, _pixiReact.h)(T);
-    var topContainer = new PIXI.Container();
-    var tInstance = (0, _pixiReact.renderTo)(tVNode, topContainer);
-
-    it('vNode', function () {
-
-      (0, _assert.equal)(tInstance.vNode.type, _pixiReact.Container, '顶层vNode的type类型');
-      (0, _assert.equal)(tInstance.vNode.children.length, 2, 'vNode的儿子们的长度');
-      (0, _assert.equal)(tInstance.vNode.children[0].props.name, 'name', '第1个vNode的名字');
-      (0, _assert.equal)(tInstance.vNode.children[1].props.name, 'xx', '第2个vNode的名字');
-    });
-  });
-});
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7), __webpack_require__(19)))
 
 /***/ })
 /******/ ]);

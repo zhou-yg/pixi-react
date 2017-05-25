@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 18);
+/******/ 	return __webpack_require__(__webpack_require__.s = 8);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -17165,7 +17165,7 @@ module.exports = __webpack_require__(24)
   }
 }.call(this));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8), __webpack_require__(42)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7), __webpack_require__(42)(module)))
 
 /***/ }),
 /* 2 */
@@ -17200,89 +17200,10 @@ module.exports = function(value,num){
 /* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(global) {var now = __webpack_require__(23)
-  , root = typeof window === 'undefined' ? global : window
-  , vendors = ['moz', 'webkit']
-  , suffix = 'AnimationFrame'
-  , raf = root['request' + suffix]
-  , caf = root['cancel' + suffix] || root['cancelRequest' + suffix]
-
-for(var i = 0; !raf && i < vendors.length; i++) {
-  raf = root[vendors[i] + 'Request' + suffix]
-  caf = root[vendors[i] + 'Cancel' + suffix]
-      || root[vendors[i] + 'CancelRequest' + suffix]
-}
-
-// Some versions of FF have rAF but not cAF
-if(!raf || !caf) {
-  var last = 0
-    , id = 0
-    , queue = []
-    , frameDuration = 1000 / 60
-
-  raf = function(callback) {
-    if(queue.length === 0) {
-      var _now = now()
-        , next = Math.max(0, frameDuration - (_now - last))
-      last = next + _now
-      setTimeout(function() {
-        var cp = queue.slice(0)
-        // Clear queue here to prevent
-        // callbacks from appending listeners
-        // to the current frame's queue
-        queue.length = 0
-        for(var i = 0; i < cp.length; i++) {
-          if(!cp[i].cancelled) {
-            try{
-              cp[i].callback(last)
-            } catch(e) {
-              setTimeout(function() { throw e }, 0)
-            }
-          }
-        }
-      }, Math.round(next))
-    }
-    queue.push({
-      handle: ++id,
-      callback: callback,
-      cancelled: false
-    })
-    return id
-  }
-
-  caf = function(handle) {
-    for(var i = 0; i < queue.length; i++) {
-      if(queue[i].handle === handle) {
-        queue[i].cancelled = true
-      }
-    }
-  }
-}
-
-module.exports = function(fn) {
-  // Wrap in a new function to prevent
-  // `cancel` potentially being assigned
-  // to the native rAF function
-  return raf.call(root, fn)
-}
-module.exports.cancel = function() {
-  caf.apply(root, arguments)
-}
-module.exports.polyfill = function() {
-  root.requestAnimationFrame = raf
-  root.cancelAnimationFrame = caf
-}
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8)))
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
 /* WEBPACK VAR INJECTION */(function(PIXI) {/**
  * Created by zyg on 16/1/31.
  */
-var setConfig = __webpack_require__(6);
+var setConfig = __webpack_require__(5);
 
 module.exports = function getMc(config) {
 
@@ -17308,7 +17229,7 @@ module.exports = function getMc(config) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 6 */
+/* 5 */
 /***/ (function(module, exports) {
 
 /**
@@ -17337,7 +17258,7 @@ module.exports = function(object,config){
 };
 
 /***/ }),
-/* 7 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(requestAnimationFrame) {/**
@@ -17459,10 +17380,10 @@ module.exports = function(dataArr){
     }
   }
 }
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(17)))
 
 /***/ }),
-/* 8 */
+/* 7 */
 /***/ (function(module, exports) {
 
 var g;
@@ -17489,521 +17410,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-exports.isDef = isDef;
-exports.isUndef = isUndef;
-exports.isVNode = isVNode;
-exports.isPixiObj = isPixiObj;
-exports.isEqualObj = isEqualObj;
-exports.equalVNode = equalVNode;
-exports.equalVNodeChildren = equalVNodeChildren;
-exports.compareObject = compareObject;
-exports.log = log;
-
-var _primitive = __webpack_require__(22);
-
-var _primitive2 = _interopRequireDefault(_primitive);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function isDef(v) {
-  return v !== undefined;
-}
-function isUndef(v) {
-  return v === undefined;
-}
-
-function isVNode(obj) {
-  var keys = Object.keys(obj);
-
-  return ['props', 'type', 'children'].every(function (k) {
-    return keys.indexOf(k) !== -1;
-  });
-}
-
-function isPixiObj(obj) {
-  return obj && obj.addChild;
-}
-
-function isEqualObj(obj1, obj2) {}
-
-function equalVNode(obj1, obj2, checkChildren) {
-  if ((typeof obj1 === 'undefined' ? 'undefined' : _typeof(obj1)) !== 'object' || (typeof obj2 === 'undefined' ? 'undefined' : _typeof(obj2)) !== 'object') {
-    return false;
-  }
-
-  var isSameNode;
-
-  if (isDef(obj1.key) || isDef(obj2.key)) {
-    isSameNode = obj1.key === obj2.key;
-  } else {
-    if (obj1.type === obj2.type) {
-      isSameNode = compareObject(obj1.props, obj2.props);
-    }
-  }
-
-  if (isSameNode && checkChildren) {}
-
-  return isSameNode;
-}
-
-function equalVNodeChildren(obj1, obj2) {
-  var len = obj1.children.length;
-  var isSameNode = len === obj2.children.length;
-  if (isSameNode) {
-    var i = 0;
-    var isSameChild = true;
-
-    while (i < len) {
-      var childObj1 = obj1.children[i];
-      var childObj2 = obj2.children[i];
-
-      isSameChild = equalVNode(childObj1, childObj2);
-      if (!isSameChild) {
-        break;
-      }
-      i++;
-    }
-    isSameNode = isSameChild;
-  }
-  return isSameNode;
-}
-
-function compareObject(obj1, obj2) {
-  var type1 = typeof obj1 === 'undefined' ? 'undefined' : _typeof(obj1);
-  var type2 = typeof obj2 === 'undefined' ? 'undefined' : _typeof(obj2);
-
-  if (obj1 === obj2) {
-    return true;
-  }
-
-  if (type1 === type2) {
-
-    var keys1 = Object.keys(obj1);
-    var keys2 = Object.keys(obj2);
-
-    if (keys1.join('') === keys2.join('')) {
-      return keys1.every(function (k) {
-        var type1 = _typeof(obj1[k]);
-        var type2 = _typeof(obj2[k]);
-
-        if (type1 !== type2) {
-          return false;
-        } else if (type1 === 'object') {
-          return compareObject(obj1[k], obj2[k]);
-        } else if (type1 === 'function') {
-          var r = obj1[k].toString() === obj2[k].toString();
-          return r;
-        }
-        return obj1[k] === obj2[k];
-      });
-    }
-  }
-
-  return false;
-}
-
-function log() {
-  if (['', ''].indexOf(arguments[0]) !== -1) {
-    console.log.apply(console, arguments);
-  }
-}
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports) {
-
-var canvases = {}
-
-var getCanvas = function(key) {
-  return canvases[key]
-}
-
-var setCanvas = function(key, canvas) {
-  canvases[key] = canvas
-}
-module.exports = {
-  getCanvas: getCanvas,
-  setCanvas: setCanvas
-}
-
-
-/***/ }),
-/* 11 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(PIXI) {var _ = __webpack_require__(1)
-
-var loadedResourceCache = {};
-/**
- *
- * @param config
- *
- * publicPath:'资源加载路径',以/结尾
- *
- * @returns {{load: Function}}
- */
-function createLoader(config) {
-
-  var mySpriteNames = [];
-
-  return {
-
-    load: function load(cb) {
-
-      mySpriteNames.forEach(function (spriteResourceOne) {
-        PIXI.loader.add(
-          spriteResourceOne.key,
-          spriteResourceOne.value
-        );
-      });
-
-      if(mySpriteNames.length > 0){
-
-        mySpriteNames = [];
-
-        PIXI.loader.load(function (loader,loadedResources) {
-
-          loadedResourceCache = _.assign(loadedResourceCache,loadedResources);
-
-          cb(loader,loadedResourceCache);
-        });
-      }else{
-        cb(PIXI.loader,loadedResourceCache);
-      }
-
-      return this;
-    },
-    add: function add(spriteNames,postFix,dir) {
-      if (!postFix) {
-        postFix = 'json'
-      }
-      if(!dir){
-        dir = '';
-      }
-      spriteNames = [].concat(spriteNames).filter(function (spriteNameOne) {
-
-        return !loadedResourceCache[spriteNameOne]
-
-      }).map(function (spriteNameOne) {
-
-        var spriteDir = config.publicPath;
-
-        if(dir){
-          spriteDir += dir + '/';
-        }
-
-        return {
-          key: spriteNameOne,
-          value: spriteDir + spriteNameOne + '/' + spriteNameOne + '.' + postFix
-        }
-      });
-
-      mySpriteNames = mySpriteNames.concat(spriteNames);
-
-      return this;
-    },
-    addMulti : function addMulti(spriteName,nameFormats,postFix){
-      if (!postFix) {
-        postFix = 'json'
-      }
-
-
-      if(typeof nameFormats === 'number'){
-        nameFormats = _.range(nameFormats);
-      }
-
-      mySpriteNames = mySpriteNames.concat(nameFormats.map(function (i) {
-
-        var spriteNameOne = spriteName + i;
-
-        return {
-          key:spriteNameOne,
-          value: config.publicPath + spriteName + '/' + spriteNameOne + '.' + postFix
-        }
-      }).filter(function (spriteObjOne) {
-        return !loadedResourceCache[spriteObjOne.key]
-      }));
-
-      return this;
-    }
-  }
-}
-
-createLoader.getResources = function getResources() {
-  return loadedResourceCache;
-};
-
-module.exports = createLoader;
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(PIXI, requestAnimationFrame) {var _ = __webpack_require__(1)
-var canvasManager = __webpack_require__(10)
-var DEFAULT_WIDTH = 640;
-
-var DEFAULT_HEIGHT = 1004;
-/**
- * 创建一个渲染器
- * @param container
- * @param config
- * @returns {Function}
- */
-
-function createRender(container,config) {
-
-  if(!config){
-    config = {};
-  }
-
-  config.w = config.w || DEFAULT_WIDTH;
-  config.h = config.h || DEFAULT_HEIGHT;
-  config.bg = config.bg || '#fff';
-  config.transparent = config.transparent || true
-
-  var renderer = new PIXI.autoDetectRenderer(config.w, config.h, config);
-  if (!renderer.view.parentElement) {
-    container.appendChild(renderer.view);
-  }
-  if (config.canvasKey) {
-    canvasManager.setCanvas(config.canvasKey, renderer.view)
-  }
-  var raf = null;
-
-  return function animate(stage) {
-
-    if(_.isFunction(stage)){
-      stage = stage()
-    }
-
-    cancelAnimationFrame(raf);
-
-    var animate = function (s,cb) {
-
-      raf = requestAnimationFrame(function(){
-        animate(s,cb);
-      });
-
-      if(s.render){
-        s.render();
-      }
-
-      s.children.forEach((function(child){
-        if(child.render){
-          child.render();
-        }
-      }));
-      renderer.render(s);
-
-      cb && cb();
-    };
-
-    animate(stage);
-
-    return {
-      cancel:function animateCancel(){
-        cancelAnimationFrame(raf);
-      },
-      startDuration:function start(duration){
-        animate(stage);
-        if(duration>0){
-          setTimeout(function () {
-            cancelAnimationFrame(raf);
-          },duration)
-        }
-      },
-      startCount:function start(count){
-        var i = 0;
-        animate(stage,function(){
-          i++;
-          if(i > count){
-            cancelAnimationFrame(raf);
-          }
-        });
-      }
-    }
-  }
-}
-
-createRender.DEFAULT_WIDTH = DEFAULT_WIDTH;
-createRender.DEFAULT_HEIGHT = DEFAULT_HEIGHT;
-
-module.exports = createRender;
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0), __webpack_require__(4)))
-
-/***/ }),
-/* 13 */
-/***/ (function(module, exports) {
-
-/**
- * 计算两点间距
- * @param x1
- * @param y1
- * @param x2
- * @param y2
- * @returns {number}
- */
-module.exports = function(x1, y1, x2, y2) {
-  console.log('deprecated:use .math.distance')
-  return Math.pow((Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2)), 0.5);
-}
-
-/***/ }),
-/* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(PIXI) {/**
- * Created by zyg on 16/1/31.
- */
-
-var setConfig = __webpack_require__(6);
-
-module.exports = function getIm(config) {
-  config = Object.assign({},config);
-
-  var textures = config.textures;
-
-  delete config.textures;
-
-  var sp = new PIXI.Sprite(textures);
-
-  sp.renderCount = 0;
-
-  return setConfig(sp,config);
-};
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 15 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Created by zyg on 16/2/29.
- */
-var getMc = __webpack_require__(5);
-
-/**
- *
- * @param config
- * @param actions 截止frame帧数
- *  [4,7,10]
- * @returns {*}
- */
-module.exports = function getSp(config,actions) {
-  if(!actions){
-    actions = []
-  }
-
-  var obj = getMc(config);
-
-  var _render = function(){};
-
-  var onAction = false;
-  /**
-   * 0~4-0
-   * 0-5~7-0
-   * 0-8~10-0
-   * 
-   * isKeepEnd 是否停在最后
-   */
-  obj.playAction = function playAction(index,loop,isKeepEnd) {
-    if(!index){
-      index = 0;
-    }
-
-    if(index < 0 || index > actions.length){
-      return false;
-    }
-
-    var min = (actions[index - 1]+1) || 0;
-    var max = actions[index];
-
-    var backTo = isKeepEnd ? max : 0
-    
-    this.gotoAndPlay(min);
-
-    _render = onAction ? _render : this.render;
-
-    onAction = true;
-
-    this.render = function copyRender() {
-      var cf = this.currentFrame;
-
-      if(cf >= max){
-
-        if(loop){
-          this.gotoAndPlay(min);
-        }else{
-          this.gotoAndStop(backTo);
-          this.render = _render;
-          onAction = false;
-        }
-      }
-
-      _render.call(this);
-    }
-  };
-
-  actions.map(function (ele, i) {
-    obj['playAction'+i] = obj.playAction.bind(obj,i);
-  });
-
-
-  return obj;
-};
-
-/***/ }),
-/* 16 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(PIXI) {/**
- * 加载对应的资源链接，png或json
- * @param resourceUrl
- * @param cb resourceObject
- */
-var count = 0;
-
-module.exports = function loadResource(resourceUrl, cb) {
-  var resourceKey = 'img' + Date.now() + '' + (count++);
-
-  PIXI.loader.add(resourceKey, resourceUrl)
-    .load(function (loader, resources) {
-
-      cb(resources[resourceKey]);
-    });
-};
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 17 */
-/***/ (function(module, exports) {
-
-module.exports = {
-  SPRITE_MC:'mc',
-  SPRITE_MC_ALIAS:'movieClip',
-  SPRITE_IM:'im',
-  SPRITE_IM_ALIAS:'image',
-  SPRITE_SP:'sp',
-};
-
-/***/ }),
-/* 18 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -18018,7 +17425,7 @@ var _pixiLib = __webpack_require__(21);
 
 var _pixiLib2 = _interopRequireDefault(_pixiLib);
 
-var _utils = __webpack_require__(9);
+var _utils = __webpack_require__(20);
 
 var utils = _interopRequireWildcard(_utils);
 
@@ -18573,7 +17980,7 @@ function h(componentClass, props) {
     return (typeof child === 'undefined' ? 'undefined' : _typeof(child)) === 'object' || typeof child === 'string';
   }).reduce(function (prev, next) {
     // 带slots情况下,children是个二维数组
-    if (dev === 'dev') {
+    if (true) {
       if (Array.isArray(next) && !next.isSlot && !next.every(function (node) {
         return !!node.key;
       })) {
@@ -18623,6 +18030,468 @@ module.exports.h = h;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
+/* 9 */
+/***/ (function(module, exports) {
+
+var canvases = {}
+
+var getCanvas = function(key) {
+  return canvases[key]
+}
+
+var setCanvas = function(key, canvas) {
+  canvases[key] = canvas
+}
+module.exports = {
+  getCanvas: getCanvas,
+  setCanvas: setCanvas
+}
+
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(PIXI) {var _ = __webpack_require__(1)
+
+var loadedResourceCache = {};
+/**
+ *
+ * @param config
+ *
+ * publicPath:'资源加载路径',以/结尾
+ *
+ * @returns {{load: Function}}
+ */
+function createLoader(config) {
+
+  var mySpriteNames = [];
+
+  return {
+
+    load: function load(cb) {
+
+      mySpriteNames.forEach(function (spriteResourceOne) {
+        PIXI.loader.add(
+          spriteResourceOne.key,
+          spriteResourceOne.value
+        );
+      });
+
+      if(mySpriteNames.length > 0){
+
+        mySpriteNames = [];
+
+        PIXI.loader.load(function (loader,loadedResources) {
+
+          loadedResourceCache = _.assign(loadedResourceCache,loadedResources);
+
+          cb(loader,loadedResourceCache);
+        });
+      }else{
+        cb(PIXI.loader,loadedResourceCache);
+      }
+
+      return this;
+    },
+    add: function add(spriteNames,postFix,dir) {
+      if (!postFix) {
+        postFix = 'json'
+      }
+      if(!dir){
+        dir = '';
+      }
+      spriteNames = [].concat(spriteNames).filter(function (spriteNameOne) {
+
+        return !loadedResourceCache[spriteNameOne]
+
+      }).map(function (spriteNameOne) {
+
+        var spriteDir = config.publicPath;
+
+        if(dir){
+          spriteDir += dir + '/';
+        }
+
+        return {
+          key: spriteNameOne,
+          value: spriteDir + spriteNameOne + '/' + spriteNameOne + '.' + postFix
+        }
+      });
+
+      mySpriteNames = mySpriteNames.concat(spriteNames);
+
+      return this;
+    },
+    addMulti : function addMulti(spriteName,nameFormats,postFix){
+      if (!postFix) {
+        postFix = 'json'
+      }
+
+
+      if(typeof nameFormats === 'number'){
+        nameFormats = _.range(nameFormats);
+      }
+
+      mySpriteNames = mySpriteNames.concat(nameFormats.map(function (i) {
+
+        var spriteNameOne = spriteName + i;
+
+        return {
+          key:spriteNameOne,
+          value: config.publicPath + spriteName + '/' + spriteNameOne + '.' + postFix
+        }
+      }).filter(function (spriteObjOne) {
+        return !loadedResourceCache[spriteObjOne.key]
+      }));
+
+      return this;
+    }
+  }
+}
+
+createLoader.getResources = function getResources() {
+  return loadedResourceCache;
+};
+
+module.exports = createLoader;
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(PIXI, requestAnimationFrame) {var _ = __webpack_require__(1)
+var canvasManager = __webpack_require__(9)
+var DEFAULT_WIDTH = 640;
+
+var DEFAULT_HEIGHT = 1004;
+/**
+ * 创建一个渲染器
+ * @param container
+ * @param config
+ * @returns {Function}
+ */
+
+function createRender(container,config) {
+
+  if(!config){
+    config = {};
+  }
+
+  config.w = config.w || DEFAULT_WIDTH;
+  config.h = config.h || DEFAULT_HEIGHT;
+  config.bg = config.bg || '#fff';
+  config.transparent = config.transparent || true
+
+  var renderer = new PIXI.autoDetectRenderer(config.w, config.h, config);
+  if (!renderer.view.parentElement) {
+    container.appendChild(renderer.view);
+  }
+  if (config.canvasKey) {
+    canvasManager.setCanvas(config.canvasKey, renderer.view)
+  }
+  var raf = null;
+
+  return function animate(stage) {
+
+    if(_.isFunction(stage)){
+      stage = stage()
+    }
+
+    cancelAnimationFrame(raf);
+
+    var animate = function (s,cb) {
+
+      raf = requestAnimationFrame(function(){
+        animate(s,cb);
+      });
+
+      if(s.render){
+        s.render();
+      }
+
+      s.children.forEach((function(child){
+        if(child.render){
+          child.render();
+        }
+      }));
+      renderer.render(s);
+
+      cb && cb();
+    };
+
+    animate(stage);
+
+    return {
+      cancel:function animateCancel(){
+        cancelAnimationFrame(raf);
+      },
+      startDuration:function start(duration){
+        animate(stage);
+        if(duration>0){
+          setTimeout(function () {
+            cancelAnimationFrame(raf);
+          },duration)
+        }
+      },
+      startCount:function start(count){
+        var i = 0;
+        animate(stage,function(){
+          i++;
+          if(i > count){
+            cancelAnimationFrame(raf);
+          }
+        });
+      }
+    }
+  }
+}
+
+createRender.DEFAULT_WIDTH = DEFAULT_WIDTH;
+createRender.DEFAULT_HEIGHT = DEFAULT_HEIGHT;
+
+module.exports = createRender;
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0), __webpack_require__(17)))
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports) {
+
+/**
+ * 计算两点间距
+ * @param x1
+ * @param y1
+ * @param x2
+ * @param y2
+ * @returns {number}
+ */
+module.exports = function(x1, y1, x2, y2) {
+  console.log('deprecated:use .math.distance')
+  return Math.pow((Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2)), 0.5);
+}
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(PIXI) {/**
+ * Created by zyg on 16/1/31.
+ */
+
+var setConfig = __webpack_require__(5);
+
+module.exports = function getIm(config) {
+  config = Object.assign({},config);
+
+  var textures = config.textures;
+
+  delete config.textures;
+
+  var sp = new PIXI.Sprite(textures);
+
+  sp.renderCount = 0;
+
+  return setConfig(sp,config);
+};
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Created by zyg on 16/2/29.
+ */
+var getMc = __webpack_require__(4);
+
+/**
+ *
+ * @param config
+ * @param actions 截止frame帧数
+ *  [4,7,10]
+ * @returns {*}
+ */
+module.exports = function getSp(config,actions) {
+  if(!actions){
+    actions = []
+  }
+
+  var obj = getMc(config);
+
+  var _render = function(){};
+
+  var onAction = false;
+  /**
+   * 0~4-0
+   * 0-5~7-0
+   * 0-8~10-0
+   * 
+   * isKeepEnd 是否停在最后
+   */
+  obj.playAction = function playAction(index,loop,isKeepEnd) {
+    if(!index){
+      index = 0;
+    }
+
+    if(index < 0 || index > actions.length){
+      return false;
+    }
+
+    var min = (actions[index - 1]+1) || 0;
+    var max = actions[index];
+
+    var backTo = isKeepEnd ? max : 0
+    
+    this.gotoAndPlay(min);
+
+    _render = onAction ? _render : this.render;
+
+    onAction = true;
+
+    this.render = function copyRender() {
+      var cf = this.currentFrame;
+
+      if(cf >= max){
+
+        if(loop){
+          this.gotoAndPlay(min);
+        }else{
+          this.gotoAndStop(backTo);
+          this.render = _render;
+          onAction = false;
+        }
+      }
+
+      _render.call(this);
+    }
+  };
+
+  actions.map(function (ele, i) {
+    obj['playAction'+i] = obj.playAction.bind(obj,i);
+  });
+
+
+  return obj;
+};
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(PIXI) {/**
+ * 加载对应的资源链接，png或json
+ * @param resourceUrl
+ * @param cb resourceObject
+ */
+var count = 0;
+
+module.exports = function loadResource(resourceUrl, cb) {
+  var resourceKey = 'img' + Date.now() + '' + (count++);
+
+  PIXI.loader.add(resourceKey, resourceUrl)
+    .load(function (loader, resources) {
+
+      cb(resources[resourceKey]);
+    });
+};
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports) {
+
+module.exports = {
+  SPRITE_MC:'mc',
+  SPRITE_MC_ALIAS:'movieClip',
+  SPRITE_IM:'im',
+  SPRITE_IM_ALIAS:'image',
+  SPRITE_SP:'sp',
+};
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(global) {var now = __webpack_require__(23)
+  , root = typeof window === 'undefined' ? global : window
+  , vendors = ['moz', 'webkit']
+  , suffix = 'AnimationFrame'
+  , raf = root['request' + suffix]
+  , caf = root['cancel' + suffix] || root['cancelRequest' + suffix]
+
+for(var i = 0; !raf && i < vendors.length; i++) {
+  raf = root[vendors[i] + 'Request' + suffix]
+  caf = root[vendors[i] + 'Cancel' + suffix]
+      || root[vendors[i] + 'CancelRequest' + suffix]
+}
+
+// Some versions of FF have rAF but not cAF
+if(!raf || !caf) {
+  var last = 0
+    , id = 0
+    , queue = []
+    , frameDuration = 1000 / 60
+
+  raf = function(callback) {
+    if(queue.length === 0) {
+      var _now = now()
+        , next = Math.max(0, frameDuration - (_now - last))
+      last = next + _now
+      setTimeout(function() {
+        var cp = queue.slice(0)
+        // Clear queue here to prevent
+        // callbacks from appending listeners
+        // to the current frame's queue
+        queue.length = 0
+        for(var i = 0; i < cp.length; i++) {
+          if(!cp[i].cancelled) {
+            try{
+              cp[i].callback(last)
+            } catch(e) {
+              setTimeout(function() { throw e }, 0)
+            }
+          }
+        }
+      }, Math.round(next))
+    }
+    queue.push({
+      handle: ++id,
+      callback: callback,
+      cancelled: false
+    })
+    return id
+  }
+
+  caf = function(handle) {
+    for(var i = 0; i < queue.length; i++) {
+      if(queue[i].handle === handle) {
+        queue[i].cancelled = true
+      }
+    }
+  }
+}
+
+module.exports = function(fn) {
+  // Wrap in a new function to prevent
+  // `cancel` potentially being assigned
+  // to the native rAF function
+  return raf.call(root, fn)
+}
+module.exports.cancel = function() {
+  caf.apply(root, arguments)
+}
+module.exports.polyfill = function() {
+  root.requestAnimationFrame = raf
+  root.cancelAnimationFrame = caf
+}
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7)))
+
+/***/ }),
+/* 18 */,
 /* 19 */
 /***/ (function(module, exports) {
 
@@ -18809,11 +18678,142 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 20 */,
+/* 20 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+exports.isDef = isDef;
+exports.isUndef = isUndef;
+exports.isVNode = isVNode;
+exports.isPixiObj = isPixiObj;
+exports.isEqualObj = isEqualObj;
+exports.equalVNode = equalVNode;
+exports.equalVNodeChildren = equalVNodeChildren;
+exports.compareObject = compareObject;
+exports.log = log;
+
+var _primitive = __webpack_require__(22);
+
+var _primitive2 = _interopRequireDefault(_primitive);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function isDef(v) {
+  return v !== undefined;
+}
+function isUndef(v) {
+  return v === undefined;
+}
+
+function isVNode(obj) {
+  var keys = Object.keys(obj);
+
+  return ['props', 'type', 'children'].every(function (k) {
+    return keys.indexOf(k) !== -1;
+  });
+}
+
+function isPixiObj(obj) {
+  return obj && obj.addChild;
+}
+
+function isEqualObj(obj1, obj2) {}
+
+function equalVNode(obj1, obj2, checkChildren) {
+  if ((typeof obj1 === 'undefined' ? 'undefined' : _typeof(obj1)) !== 'object' || (typeof obj2 === 'undefined' ? 'undefined' : _typeof(obj2)) !== 'object') {
+    return false;
+  }
+
+  var isSameNode;
+
+  if (isDef(obj1.key) || isDef(obj2.key)) {
+    isSameNode = obj1.key === obj2.key;
+  } else {
+    if (obj1.type === obj2.type) {
+      isSameNode = compareObject(obj1.props, obj2.props);
+    }
+  }
+
+  if (isSameNode && checkChildren) {}
+
+  return isSameNode;
+}
+
+function equalVNodeChildren(obj1, obj2) {
+  var len = obj1.children.length;
+  var isSameNode = len === obj2.children.length;
+  if (isSameNode) {
+    var i = 0;
+    var isSameChild = true;
+
+    while (i < len) {
+      var childObj1 = obj1.children[i];
+      var childObj2 = obj2.children[i];
+
+      isSameChild = equalVNode(childObj1, childObj2);
+      if (!isSameChild) {
+        break;
+      }
+      i++;
+    }
+    isSameNode = isSameChild;
+  }
+  return isSameNode;
+}
+
+function compareObject(obj1, obj2) {
+  var type1 = typeof obj1 === 'undefined' ? 'undefined' : _typeof(obj1);
+  var type2 = typeof obj2 === 'undefined' ? 'undefined' : _typeof(obj2);
+
+  if (obj1 === obj2) {
+    return true;
+  }
+
+  if (type1 === type2) {
+
+    var keys1 = Object.keys(obj1);
+    var keys2 = Object.keys(obj2);
+
+    if (keys1.join('') === keys2.join('')) {
+      return keys1.every(function (k) {
+        var type1 = _typeof(obj1[k]);
+        var type2 = _typeof(obj2[k]);
+
+        if (type1 !== type2) {
+          return false;
+        } else if (type1 === 'object') {
+          return compareObject(obj1[k], obj2[k]);
+        } else if (type1 === 'function') {
+          var r = obj1[k].toString() === obj2[k].toString();
+          return r;
+        }
+        return obj1[k] === obj2[k];
+      });
+    }
+  }
+
+  return false;
+}
+
+function log() {
+  if (['', ''].indexOf(arguments[0]) !== -1) {
+    console.log.apply(console, arguments);
+  }
+}
+
+/***/ }),
 /* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var pixiLib = {appendStage:__webpack_require__(25),audioControl:__webpack_require__(27),canvasManager:__webpack_require__(10),createAction:__webpack_require__(28),createLoader:__webpack_require__(11),createRender:__webpack_require__(12),distance:__webpack_require__(13),fixSpriteProperties:__webpack_require__(29),getIm:__webpack_require__(14),getMc:__webpack_require__(5),getSp:__webpack_require__(15),getTextures:__webpack_require__(30),loadResource:__webpack_require__(16),loadSprite:__webpack_require__(31),makeIdentity:__webpack_require__(34),math:__webpack_require__(35),setConfig:__webpack_require__(6),types:__webpack_require__(17),audio:{loadAudio:__webpack_require__(26),}, loading:{basicLoading:__webpack_require__(32),mpLoading:__webpack_require__(33),}, utils:{addStyle:__webpack_require__(2),basicLoading:__webpack_require__(36),matrixManager:__webpack_require__(7),mpLoading:__webpack_require__(37),repeat:__webpack_require__(3),resizeImageData:__webpack_require__(38),shareGuide:__webpack_require__(39),unfoldArray:__webpack_require__(40),},};if( typeof window !== "undefined" ){ 
+var pixiLib = {appendStage:__webpack_require__(25),audioControl:__webpack_require__(27),canvasManager:__webpack_require__(9),createAction:__webpack_require__(28),createLoader:__webpack_require__(10),createRender:__webpack_require__(11),distance:__webpack_require__(12),fixSpriteProperties:__webpack_require__(29),getIm:__webpack_require__(13),getMc:__webpack_require__(4),getSp:__webpack_require__(14),getTextures:__webpack_require__(30),loadResource:__webpack_require__(15),loadSprite:__webpack_require__(31),makeIdentity:__webpack_require__(34),math:__webpack_require__(35),setConfig:__webpack_require__(5),types:__webpack_require__(16),audio:{loadAudio:__webpack_require__(26),}, loading:{basicLoading:__webpack_require__(32),mpLoading:__webpack_require__(33),}, utils:{addStyle:__webpack_require__(2),basicLoading:__webpack_require__(36),matrixManager:__webpack_require__(6),mpLoading:__webpack_require__(37),repeat:__webpack_require__(3),resizeImageData:__webpack_require__(38),shareGuide:__webpack_require__(39),unfoldArray:__webpack_require__(40),},};if( typeof window !== "undefined" ){ 
 window.pixiLib=pixiLib; 
 } 
 if(true ){  
@@ -18914,7 +18914,7 @@ module.exports = {
  * @param config
  * @returns {module.exports.Container}
  */
-var createRender = __webpack_require__(12);
+var createRender = __webpack_require__(11);
 
 module.exports = function (container, config) {
 
@@ -19127,7 +19127,7 @@ module.exports = function fixProperties(settingProperties,finalProperties){
 /* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var createLoader = __webpack_require__(11);
+var createLoader = __webpack_require__(10);
 
 /**
  * 设定资源或取出资源
@@ -19153,11 +19153,11 @@ module.exports = function(spriteName){
 /***/ (function(module, exports, __webpack_require__) {
 
 var _ = __webpack_require__(1)
-var loadResource = __webpack_require__(16);
-var types = __webpack_require__(17);
-var getMc = __webpack_require__(5);
-var getIm = __webpack_require__(14);
-var getSp = __webpack_require__(15);
+var loadResource = __webpack_require__(15);
+var types = __webpack_require__(16);
+var getMc = __webpack_require__(4);
+var getIm = __webpack_require__(13);
+var getSp = __webpack_require__(14);
 
 var spriteFnMap = {};
 
@@ -19369,7 +19369,7 @@ module.exports = function(){
  * Created by zyg on 16/7/20.
  */
 
-var matrixManager = __webpack_require__(7)
+var matrixManager = __webpack_require__(6)
 var repeate = __webpack_require__(3)
 
 var cgrey = 'rgb(169,197,202)',
@@ -19435,7 +19435,7 @@ module.exports = function(){
  * @param [a,b]
  * @returns [c,d]
  */
-var distance = __webpack_require__(13);
+var distance = __webpack_require__(12);
 
 module.exports = function(a) {
   console.log('deprecated:use .math.makeIdentity')
@@ -19698,7 +19698,7 @@ module.exports = function(){
  * Created by zyg on 16/7/20.
  */
 
-var matrixManager = __webpack_require__(7)
+var matrixManager = __webpack_require__(6)
 var repeate = __webpack_require__(3)
 
 var cgrey = 'rgb(169,197,202)',
