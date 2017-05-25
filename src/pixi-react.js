@@ -30,7 +30,7 @@ class PactComponent {
 
     this.state = _.merge(_.cloneDeep(this.state), obj);
     //@TODO 同步更新组件
-    updateComponentSync(this);
+    updateComponent(this);
   }
 
   setProps (newProps) {

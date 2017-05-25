@@ -17478,7 +17478,7 @@ var PactComponent = function () {
 
       this.state = _lodash2.default.merge(_lodash2.default.cloneDeep(this.state), obj);
       //@TODO 同步更新组件
-      updateComponentSync(this);
+      updateComponent(this);
     }
   }, {
     key: 'setProps',
