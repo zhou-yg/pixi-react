@@ -1,5 +1,5 @@
 'use strict';
-import primitiveMap from './primitive.js';
+import {primitiveMap} from './primitiveComponents.js';
 
 export function isDef(v) {
   return v !== undefined;
@@ -101,6 +101,11 @@ export function compareObject(obj1, obj2) {
   return false;
 }
 
+export function isReservedType(name) {
+  return !!primitiveMap[name] || Object.keys(primitiveMap).some(k => {
+    return primitiveMap[k] === name;
+  });
+}
 
 export function log(){
   if(['',''].indexOf(arguments[0]) !== -1) {

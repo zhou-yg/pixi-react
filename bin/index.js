@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 7);
+/******/ 	return __webpack_require__(__webpack_require__.s = 10);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -73,7 +73,7 @@
 /**
  * Created by zyg on 16/7/15.
  */
-module.exports = __webpack_require__(21)
+module.exports = __webpack_require__(26)
 
 /***/ }),
 /* 1 */
@@ -17165,7 +17165,7 @@ module.exports = __webpack_require__(21)
   }
 }.call(this));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(16), __webpack_require__(39)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9), __webpack_require__(44)(module)))
 
 /***/ }),
 /* 2 */
@@ -17200,10 +17200,145 @@ module.exports = function(value,num){
 /* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+exports.isDef = isDef;
+exports.isUndef = isUndef;
+exports.isVNode = isVNode;
+exports.isPixiObj = isPixiObj;
+exports.isEqualObj = isEqualObj;
+exports.equalVNode = equalVNode;
+exports.equalVNodeChildren = equalVNodeChildren;
+exports.compareObject = compareObject;
+exports.isReservedType = isReservedType;
+exports.log = log;
+
+var _primitiveComponents = __webpack_require__(12);
+
+function isDef(v) {
+  return v !== undefined;
+}
+function isUndef(v) {
+  return v === undefined;
+}
+
+function isVNode(obj) {
+  var keys = Object.keys(obj);
+
+  return ['props', 'type', 'children'].every(function (k) {
+    return keys.indexOf(k) !== -1;
+  });
+}
+
+function isPixiObj(obj) {
+  return obj && obj.addChild;
+}
+
+function isEqualObj(obj1, obj2) {}
+
+function equalVNode(obj1, obj2, checkChildren) {
+  if ((typeof obj1 === 'undefined' ? 'undefined' : _typeof(obj1)) !== 'object' || (typeof obj2 === 'undefined' ? 'undefined' : _typeof(obj2)) !== 'object') {
+    return false;
+  }
+
+  var isSameNode;
+
+  if (isDef(obj1.key) || isDef(obj2.key)) {
+    isSameNode = obj1.key === obj2.key;
+  } else {
+    if (obj1.type === obj2.type) {
+      isSameNode = compareObject(obj1.props, obj2.props);
+    }
+  }
+
+  if (isSameNode && checkChildren) {}
+
+  return isSameNode;
+}
+
+function equalVNodeChildren(obj1, obj2) {
+  var len = obj1.children.length;
+  var isSameNode = len === obj2.children.length;
+  if (isSameNode) {
+    var i = 0;
+    var isSameChild = true;
+
+    while (i < len) {
+      var childObj1 = obj1.children[i];
+      var childObj2 = obj2.children[i];
+
+      isSameChild = equalVNode(childObj1, childObj2);
+      if (!isSameChild) {
+        break;
+      }
+      i++;
+    }
+    isSameNode = isSameChild;
+  }
+  return isSameNode;
+}
+
+function compareObject(obj1, obj2) {
+  var type1 = typeof obj1 === 'undefined' ? 'undefined' : _typeof(obj1);
+  var type2 = typeof obj2 === 'undefined' ? 'undefined' : _typeof(obj2);
+
+  if (obj1 === obj2) {
+    return true;
+  }
+
+  if (type1 === type2) {
+
+    var keys1 = Object.keys(obj1);
+    var keys2 = Object.keys(obj2);
+
+    if (keys1.join('') === keys2.join('')) {
+      return keys1.every(function (k) {
+        var type1 = _typeof(obj1[k]);
+        var type2 = _typeof(obj2[k]);
+
+        if (type1 !== type2) {
+          return false;
+        } else if (type1 === 'object') {
+          return compareObject(obj1[k], obj2[k]);
+        } else if (type1 === 'function') {
+          var r = obj1[k].toString() === obj2[k].toString();
+          return r;
+        }
+        return obj1[k] === obj2[k];
+      });
+    }
+  }
+
+  return false;
+}
+
+function isReservedType(name) {
+  return !!_primitiveComponents.primitiveMap[name] || Object.keys(_primitiveComponents.primitiveMap).some(function (k) {
+    return _primitiveComponents.primitiveMap[k] === name;
+  });
+}
+
+function log() {
+  if (['', ''].indexOf(arguments[0]) !== -1) {
+    console.log.apply(console, arguments);
+  }
+}
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
 /* WEBPACK VAR INJECTION */(function(PIXI) {/**
  * Created by zyg on 16/1/31.
  */
-var setConfig = __webpack_require__(5);
+var setConfig = __webpack_require__(6);
 
 module.exports = function getMc(config) {
 
@@ -17229,7 +17364,7 @@ module.exports = function getMc(config) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports) {
 
 /**
@@ -17258,10 +17393,10 @@ module.exports = function(object,config){
 };
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/**
+/* WEBPACK VAR INJECTION */(function(requestAnimationFrame) {/**
  * Created by zyg on 16/7/20.
  */
 
@@ -17380,24 +17515,129 @@ module.exports = function(dataArr){
     }
   }
 }
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8)))
 
 /***/ }),
-/* 7 */
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(global) {var now = __webpack_require__(25)
+  , root = typeof window === 'undefined' ? global : window
+  , vendors = ['moz', 'webkit']
+  , suffix = 'AnimationFrame'
+  , raf = root['request' + suffix]
+  , caf = root['cancel' + suffix] || root['cancelRequest' + suffix]
+
+for(var i = 0; !raf && i < vendors.length; i++) {
+  raf = root[vendors[i] + 'Request' + suffix]
+  caf = root[vendors[i] + 'Cancel' + suffix]
+      || root[vendors[i] + 'CancelRequest' + suffix]
+}
+
+// Some versions of FF have rAF but not cAF
+if(!raf || !caf) {
+  var last = 0
+    , id = 0
+    , queue = []
+    , frameDuration = 1000 / 60
+
+  raf = function(callback) {
+    if(queue.length === 0) {
+      var _now = now()
+        , next = Math.max(0, frameDuration - (_now - last))
+      last = next + _now
+      setTimeout(function() {
+        var cp = queue.slice(0)
+        // Clear queue here to prevent
+        // callbacks from appending listeners
+        // to the current frame's queue
+        queue.length = 0
+        for(var i = 0; i < cp.length; i++) {
+          if(!cp[i].cancelled) {
+            try{
+              cp[i].callback(last)
+            } catch(e) {
+              setTimeout(function() { throw e }, 0)
+            }
+          }
+        }
+      }, Math.round(next))
+    }
+    queue.push({
+      handle: ++id,
+      callback: callback,
+      cancelled: false
+    })
+    return id
+  }
+
+  caf = function(handle) {
+    for(var i = 0; i < queue.length; i++) {
+      if(queue[i].handle === handle) {
+        queue[i].cancelled = true
+      }
+    }
+  }
+}
+
+module.exports = function(fn) {
+  // Wrap in a new function to prevent
+  // `cancel` potentially being assigned
+  // to the native rAF function
+  return raf.call(root, fn)
+}
+module.exports.cancel = function() {
+  caf.apply(root, arguments)
+}
+module.exports.polyfill = function() {
+  root.requestAnimationFrame = raf
+  root.cancelAnimationFrame = caf
+}
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports) {
+
+var g;
+
+// This works in non-strict mode
+g = (function() {
+	return this;
+})();
+
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || Function("return this")() || (1,eval)("this");
+} catch(e) {
+	// This works if the window reference is available
+	if(typeof window === "object")
+		g = window;
+}
+
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
+
+module.exports = g;
+
+
+/***/ }),
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(PIXI) {
+
 //import PIXI from 'pixi.js'
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _pixiLib = __webpack_require__(19);
+var _pixiLib = __webpack_require__(13);
 
 var _pixiLib2 = _interopRequireDefault(_pixiLib);
 
-var _utils = __webpack_require__(18);
+var _utils = __webpack_require__(4);
 
 var utils = _interopRequireWildcard(_utils);
 
@@ -17405,7 +17645,169 @@ var _lodash = __webpack_require__(1);
 
 var _lodash2 = _interopRequireDefault(_lodash);
 
+var _mount = __webpack_require__(11);
+
+var _primitiveComponents = __webpack_require__(12);
+
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var isUndef = utils.isUndef,
+    isDef = utils.isDef,
+    log = utils.log;
+
+/**
+
+node -> inst -> node2 -> inst2
+
+**/
+
+function renderTo(node, pixiContainer) {
+  var instance = new node.type(node.props, node.slots);
+  var instanceVNode = instance.render();
+
+  node.instance = instance;
+
+  node.isTop = true;
+  instance.isTop = true;
+
+  instance.pixiEl = pixiContainer;
+  instance.vNode = instanceVNode;
+
+  var rootInstance = (0, _mount.mountComponent)(instanceVNode, instance);
+
+  return instance;
+}
+
+function h(componentClass, props) {
+  for (var _len = arguments.length, children = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+    children[_key - 2] = arguments[_key];
+  }
+
+  if (!props) {
+    props = {};
+  }
+  children = children.filter(function (child) {
+    return (typeof child === 'undefined' ? 'undefined' : _typeof(child)) === 'object' || typeof child === 'string';
+  }).reduce(function (prev, next) {
+    // 带slots情况下,children是个二维数组
+    if (true) {
+      if (Array.isArray(next) && !next.isSlot && !next.every(function (node) {
+        return !!node.key;
+      })) {
+
+        throw new Error('数组返回的每个节点必须含有key');
+      }
+    }
+
+    return prev.concat(next);
+  }, []);
+
+  var slots = [];
+
+  // @TODO
+  if (utils.isReservedType(componentClass)) {
+    componentClass = _primitiveComponents.primitiveMap[componentClass];
+  } else if (typeof componentClass === 'function') {
+    //暂时忽略 props.children
+    slots = children.slice();
+    slots.isSlot = true;
+    children = [];
+  } else {
+    console.error(componentClass);
+    throw new Error('the compoennt ' + componentClass + ' muse be a PactComponent');
+  }
+
+  var key = props.key;
+  delete props.key;
+
+  var node = {
+    type: componentClass,
+    key: key,
+    instance: null,
+    props: props,
+    children: children,
+    slots: slots,
+    isTop: false
+  };
+
+  return node;
+}
+
+module.exports.renderTo = renderTo;
+module.exports.PactComponent = _primitiveComponents.PactComponent;
+module.exports.Container = _primitiveComponents.primitiveMap.c;
+module.exports.h = h;
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.mountComponent = mountComponent;
+
+var _utils = __webpack_require__(4);
+
+var utils = _interopRequireWildcard(_utils);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+var isUndef = utils.isUndef,
+    isDef = utils.isDef,
+    log = utils.log;
+function mountComponent(node, parentComponent) {
+  if (typeof node === 'string') {
+    return node;
+  } else {
+    var instance = new node.type(node.props, node.slots);
+    var vNode = instance.render();
+
+    node.instance = instance;
+
+    if (utils.isPixiObj(vNode)) {
+      instance.pixiEl = vNode;
+      instance.isMounted = true;
+      parentComponent.pixiEl.addChild(vNode);
+    } else if (utils.isVNode(vNode)) {
+
+      instance.vNode = vNode;
+      instance.pixiEl = parentComponent.pixiEl;
+      instance.isMounted = true;
+
+      var rootInstance = mountComponent(vNode, instance);
+    } else {
+      throw new Error('mountComponent 卧槽');
+    }
+
+    node.children.map(function (childNode) {
+
+      var childInstance = mountComponent(childNode, instance);
+      instance.children.push(childInstance);
+    });
+
+    return instance;
+  }
+}
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(PIXI) {Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.primitiveMap = exports.PactComponent = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _pixiLib = __webpack_require__(13);
+
+var _pixiLib2 = _interopRequireDefault(_pixiLib);
+
+var _updator = __webpack_require__(24);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -17415,21 +17817,16 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var isUndef = utils.isUndef,
-    isDef = utils.isDef,
-    log = utils.log;
-
-
 var PactComponentI = 0;
 
-var PactComponent = function () {
+var PactComponent = exports.PactComponent = function () {
   function PactComponent(props, slots) {
     _classCallCheck(this, PactComponent);
 
     this.state = {};
     this.props = {};
 
-    this.props = _lodash2.default.cloneDeep(props);
+    this.props = _.cloneDeep(props);
 
     this.displayName = 'PactComponent.' + PactComponentI++;
     this.isMounted = false;
@@ -17445,15 +17842,15 @@ var PactComponent = function () {
     key: 'setState',
     value: function setState(obj) {
 
-      this.state = _lodash2.default.merge(_lodash2.default.cloneDeep(this.state), obj);
+      this.state = _.merge(_.cloneDeep(this.state), obj);
       //@TODO 同步更新组件
-      updateComponent(this);
+      (0, _updator.updateComponentSync)(this);
     }
   }, {
     key: 'setProps',
     value: function setProps(newProps) {
 
-      this.props = _lodash2.default.merge(_lodash2.default.cloneDeep(this.props), newProps);
+      this.props = _.merge(_.cloneDeep(this.props), newProps);
 
       if (this.pixiEl) {
         _pixiLib2.default.setConfig(this.pixiEl, newProps.member);
@@ -17479,8 +17876,8 @@ var PactComponent = function () {
     key: 'removeChild',
     value: function removeChild(pactObj) {}
   }, {
-    key: 'didMounted',
-    value: function didMounted() {}
+    key: 'didMount',
+    value: function didMount() {}
   }, {
     key: 'unmount',
     value: function unmount() {}
@@ -17654,7 +18051,7 @@ var Rect = function (_PixiComponent4) {
   return Rect;
 }(PixiComponent);
 
-var primitiveMap = {
+var primitiveMap = exports.primitiveMap = {
   c: Container,
   container: Container,
   sprite: Sprite,
@@ -17663,14 +18060,618 @@ var primitiveMap = {
   'animated-sprite': AnimatedSprite,
   ani: AnimatedSprite
 };
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
-function isReservedType(name) {
-  return !!primitiveMap[name] || Object.keys(primitiveMap).some(function (k) {
-    return primitiveMap[k] === name;
-  });
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var pixiLib = {appendStage:__webpack_require__(27),audioControl:__webpack_require__(29),canvasManager:__webpack_require__(14),createAction:__webpack_require__(30),createLoader:__webpack_require__(15),createRender:__webpack_require__(16),distance:__webpack_require__(17),fixSpriteProperties:__webpack_require__(31),getIm:__webpack_require__(18),getMc:__webpack_require__(5),getSp:__webpack_require__(19),getTextures:__webpack_require__(32),loadResource:__webpack_require__(20),loadSprite:__webpack_require__(33),makeIdentity:__webpack_require__(36),math:__webpack_require__(37),setConfig:__webpack_require__(6),types:__webpack_require__(21),audio:{loadAudio:__webpack_require__(28),}, loading:{basicLoading:__webpack_require__(34),mpLoading:__webpack_require__(35),}, utils:{addStyle:__webpack_require__(2),basicLoading:__webpack_require__(38),matrixManager:__webpack_require__(7),mpLoading:__webpack_require__(39),repeat:__webpack_require__(3),resizeImageData:__webpack_require__(40),shareGuide:__webpack_require__(41),unfoldArray:__webpack_require__(42),},};if( typeof window !== "undefined" ){ 
+window.pixiLib=pixiLib; 
+} 
+if(true ){  
+module.exports= pixiLib; 
 }
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports) {
+
+var canvases = {}
+
+var getCanvas = function(key) {
+  return canvases[key]
+}
+
+var setCanvas = function(key, canvas) {
+  canvases[key] = canvas
+}
+module.exports = {
+  getCanvas: getCanvas,
+  setCanvas: setCanvas
+}
+
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(PIXI) {var _ = __webpack_require__(1)
+
+var loadedResourceCache = {};
+/**
+ *
+ * @param config
+ *
+ * publicPath:'资源加载路径',以/结尾
+ *
+ * @returns {{load: Function}}
+ */
+function createLoader(config) {
+
+  var mySpriteNames = [];
+
+  return {
+
+    load: function load(cb) {
+
+      mySpriteNames.forEach(function (spriteResourceOne) {
+        PIXI.loader.add(
+          spriteResourceOne.key,
+          spriteResourceOne.value
+        );
+      });
+
+      if(mySpriteNames.length > 0){
+
+        mySpriteNames = [];
+
+        PIXI.loader.load(function (loader,loadedResources) {
+
+          loadedResourceCache = _.assign(loadedResourceCache,loadedResources);
+
+          cb(loader,loadedResourceCache);
+        });
+      }else{
+        cb(PIXI.loader,loadedResourceCache);
+      }
+
+      return this;
+    },
+    add: function add(spriteNames,postFix,dir) {
+      if (!postFix) {
+        postFix = 'json'
+      }
+      if(!dir){
+        dir = '';
+      }
+      spriteNames = [].concat(spriteNames).filter(function (spriteNameOne) {
+
+        return !loadedResourceCache[spriteNameOne]
+
+      }).map(function (spriteNameOne) {
+
+        var spriteDir = config.publicPath;
+
+        if(dir){
+          spriteDir += dir + '/';
+        }
+
+        return {
+          key: spriteNameOne,
+          value: spriteDir + spriteNameOne + '/' + spriteNameOne + '.' + postFix
+        }
+      });
+
+      mySpriteNames = mySpriteNames.concat(spriteNames);
+
+      return this;
+    },
+    addMulti : function addMulti(spriteName,nameFormats,postFix){
+      if (!postFix) {
+        postFix = 'json'
+      }
+
+
+      if(typeof nameFormats === 'number'){
+        nameFormats = _.range(nameFormats);
+      }
+
+      mySpriteNames = mySpriteNames.concat(nameFormats.map(function (i) {
+
+        var spriteNameOne = spriteName + i;
+
+        return {
+          key:spriteNameOne,
+          value: config.publicPath + spriteName + '/' + spriteNameOne + '.' + postFix
+        }
+      }).filter(function (spriteObjOne) {
+        return !loadedResourceCache[spriteObjOne.key]
+      }));
+
+      return this;
+    }
+  }
+}
+
+createLoader.getResources = function getResources() {
+  return loadedResourceCache;
+};
+
+module.exports = createLoader;
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(PIXI, requestAnimationFrame) {var _ = __webpack_require__(1)
+var canvasManager = __webpack_require__(14)
+var DEFAULT_WIDTH = 640;
+
+var DEFAULT_HEIGHT = 1004;
+/**
+ * 创建一个渲染器
+ * @param container
+ * @param config
+ * @returns {Function}
+ */
+
+function createRender(container,config) {
+
+  if(!config){
+    config = {};
+  }
+
+  config.w = config.w || DEFAULT_WIDTH;
+  config.h = config.h || DEFAULT_HEIGHT;
+  config.bg = config.bg || '#fff';
+  config.transparent = config.transparent || true
+
+  var renderer = new PIXI.autoDetectRenderer(config.w, config.h, config);
+  if (!renderer.view.parentElement) {
+    container.appendChild(renderer.view);
+  }
+  if (config.canvasKey) {
+    canvasManager.setCanvas(config.canvasKey, renderer.view)
+  }
+  var raf = null;
+
+  return function animate(stage) {
+
+    if(_.isFunction(stage)){
+      stage = stage()
+    }
+
+    cancelAnimationFrame(raf);
+
+    var animate = function (s,cb) {
+
+      raf = requestAnimationFrame(function(){
+        animate(s,cb);
+      });
+
+      if(s.render){
+        s.render();
+      }
+
+      s.children.forEach((function(child){
+        if(child.render){
+          child.render();
+        }
+      }));
+      renderer.render(s);
+
+      cb && cb();
+    };
+
+    animate(stage);
+
+    return {
+      cancel:function animateCancel(){
+        cancelAnimationFrame(raf);
+      },
+      startDuration:function start(duration){
+        animate(stage);
+        if(duration>0){
+          setTimeout(function () {
+            cancelAnimationFrame(raf);
+          },duration)
+        }
+      },
+      startCount:function start(count){
+        var i = 0;
+        animate(stage,function(){
+          i++;
+          if(i > count){
+            cancelAnimationFrame(raf);
+          }
+        });
+      }
+    }
+  }
+}
+
+createRender.DEFAULT_WIDTH = DEFAULT_WIDTH;
+createRender.DEFAULT_HEIGHT = DEFAULT_HEIGHT;
+
+module.exports = createRender;
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0), __webpack_require__(8)))
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports) {
+
+/**
+ * 计算两点间距
+ * @param x1
+ * @param y1
+ * @param x2
+ * @param y2
+ * @returns {number}
+ */
+module.exports = function(x1, y1, x2, y2) {
+  console.log('deprecated:use .math.distance')
+  return Math.pow((Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2)), 0.5);
+}
+
+/***/ }),
+/* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(PIXI) {/**
+ * Created by zyg on 16/1/31.
+ */
+
+var setConfig = __webpack_require__(6);
+
+module.exports = function getIm(config) {
+  config = Object.assign({},config);
+
+  var textures = config.textures;
+
+  delete config.textures;
+
+  var sp = new PIXI.Sprite(textures);
+
+  sp.renderCount = 0;
+
+  return setConfig(sp,config);
+};
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Created by zyg on 16/2/29.
+ */
+var getMc = __webpack_require__(5);
+
+/**
+ *
+ * @param config
+ * @param actions 截止frame帧数
+ *  [4,7,10]
+ * @returns {*}
+ */
+module.exports = function getSp(config,actions) {
+  if(!actions){
+    actions = []
+  }
+
+  var obj = getMc(config);
+
+  var _render = function(){};
+
+  var onAction = false;
+  /**
+   * 0~4-0
+   * 0-5~7-0
+   * 0-8~10-0
+   * 
+   * isKeepEnd 是否停在最后
+   */
+  obj.playAction = function playAction(index,loop,isKeepEnd) {
+    if(!index){
+      index = 0;
+    }
+
+    if(index < 0 || index > actions.length){
+      return false;
+    }
+
+    var min = (actions[index - 1]+1) || 0;
+    var max = actions[index];
+
+    var backTo = isKeepEnd ? max : 0
+    
+    this.gotoAndPlay(min);
+
+    _render = onAction ? _render : this.render;
+
+    onAction = true;
+
+    this.render = function copyRender() {
+      var cf = this.currentFrame;
+
+      if(cf >= max){
+
+        if(loop){
+          this.gotoAndPlay(min);
+        }else{
+          this.gotoAndStop(backTo);
+          this.render = _render;
+          onAction = false;
+        }
+      }
+
+      _render.call(this);
+    }
+  };
+
+  actions.map(function (ele, i) {
+    obj['playAction'+i] = obj.playAction.bind(obj,i);
+  });
+
+
+  return obj;
+};
+
+/***/ }),
+/* 20 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(PIXI) {/**
+ * 加载对应的资源链接，png或json
+ * @param resourceUrl
+ * @param cb resourceObject
+ */
+var count = 0;
+
+module.exports = function loadResource(resourceUrl, cb) {
+  var resourceKey = 'img' + Date.now() + '' + (count++);
+
+  PIXI.loader.add(resourceKey, resourceUrl)
+    .load(function (loader, resources) {
+
+      cb(resources[resourceKey]);
+    });
+};
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 21 */
+/***/ (function(module, exports) {
+
+module.exports = {
+  SPRITE_MC:'mc',
+  SPRITE_MC_ALIAS:'movieClip',
+  SPRITE_IM:'im',
+  SPRITE_IM_ALIAS:'image',
+  SPRITE_SP:'sp',
+};
+
+/***/ }),
+/* 22 */,
+/* 23 */
+/***/ (function(module, exports) {
+
+// shim for using process in browser
+var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+(function () {
+    try {
+        if (typeof setTimeout === 'function') {
+            cachedSetTimeout = setTimeout;
+        } else {
+            cachedSetTimeout = defaultSetTimout;
+        }
+    } catch (e) {
+        cachedSetTimeout = defaultSetTimout;
+    }
+    try {
+        if (typeof clearTimeout === 'function') {
+            cachedClearTimeout = clearTimeout;
+        } else {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    } catch (e) {
+        cachedClearTimeout = defaultClearTimeout;
+    }
+} ())
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+
+
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+
+
+
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
+
+/***/ }),
+/* 24 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(requestAnimationFrame) {Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+exports.updateComponentSync = updateComponentSync;
+exports.updateComponentAsync = updateComponentAsync;
+
+var _utils = __webpack_require__(4);
+
+var utils = _interopRequireWildcard(_utils);
+
+var _mount = __webpack_require__(11);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+var isUndef = utils.isUndef,
+    isDef = utils.isDef,
+    log = utils.log;
+
+
+var updateQueue = []; //等待更新
+
 function syncProps(oldVNode, newVNode) {
-  oldVNode.props = _lodash2.default.merge(_lodash2.default.cloneDeep(oldVNode.props), newVNode.props);
+  oldVNode.props = _.merge(_.cloneDeep(oldVNode.props), newVNode.props);
   oldVNode.instance.setProps(oldVNode.props);
 }
 
@@ -17678,7 +18679,7 @@ function replaceVNode(parentVNode, newVNode, replaceIndex) {
   log('replaceVNode', replaceIndex);
   log('replaceVNode', parentVNode.children[replaceIndex], newVNode);
   //...@TODO
-  var newInstance = mountComponent(newVNode, parentVNode.instance);
+  var newInstance = (0, _mount.mountComponent)(newVNode, parentVNode.instance);
 
   parentVNode.instance.children[replaceIndex] = newInstance;
   parentVNode.children[replaceIndex] = newVNode;
@@ -17689,7 +18690,7 @@ function replaceVNode(parentVNode, newVNode, replaceIndex) {
   }
 }
 function addVNode(parentVNode, newVNode, targetIndex) {
-  var newInstance = mountComponent(newVNode, parentVNode.instance);
+  var newInstance = (0, _mount.mountComponent)(newVNode, parentVNode.instance);
 
   parentVNode.instance.children.splice(targetIndex, 0, newInstance);
   parentVNode.children.splice(targetIndex, 0, newVNode);
@@ -17879,685 +18880,76 @@ function updateComponent(instance) {
     }
   });
 }
-var i = 0;
-function mountComponent(node, parentComponent) {
-  if (typeof node === 'string') {
-    return node;
-  } else {
-    var instance = new node.type(node.props, node.slots);
-    var vNode = instance.render();
 
-    node.instance = instance;
+function startUpdate() {
 
-    if (utils.isPixiObj(vNode)) {
-      instance.pixiEl = vNode;
-      instance.isMounted = true;
-      parentComponent.pixiEl.addChild(vNode);
-    } else if (utils.isVNode(vNode)) {
+  requestAnimationFrame(function () {
+    var currentComponentInstance = updateQueue.shift();
 
-      instance.vNode = vNode;
-      instance.pixiEl = parentComponent.pixiEl;
-      instance.isMounted = true;
+    updateComponent(currentComponentInstance);
 
-      var rootInstance = mountComponent(vNode, instance);
-    } else {
-      throw new Error('mountComponent 卧槽');
+    if (updateQueue.length > 0) {
+      startUpdate();
     }
-
-    node.children.map(function (childNode) {
-
-      var childInstance = mountComponent(childNode, instance);
-      instance.children.push(childInstance);
-    });
-
-    return instance;
-  }
+  });
 }
 
-/**
-
-node -> inst -> node2 -> inst2
-
-**/
-function renderTo(node, pixiContainer) {
-  var instance = new node.type(node.props, node.slots);
-  var instanceVNode = instance.render();
-
-  node.instance = instance;
-
-  node.isTop = true;
-  instance.isTop = true;
-
-  instance.pixiEl = pixiContainer;
-  instance.vNode = instanceVNode;
-
-  var rootInstance = mountComponent(instanceVNode, instance);
-
-  return instance;
+function updateComponentSync(componentInstance) {
+  updateComponent(componentInstance);
 }
 
-function h(componentClass, props) {
-  for (var _len = arguments.length, children = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
-    children[_key - 2] = arguments[_key];
-  }
+function updateComponentAsync(componentInstance) {
+  updateQueue.push(componentInstance);
 
-  if (!props) {
-    props = {};
-  }
-  children = children.filter(function (child) {
-    return (typeof child === 'undefined' ? 'undefined' : _typeof(child)) === 'object' || typeof child === 'string';
-  }).reduce(function (prev, next) {
-    // 带slots情况下,children是个二维数组
-    if (true) {
-      if (Array.isArray(next) && !next.isSlot && !next.every(function (node) {
-        return !!node.key;
-      })) {
-
-        throw new Error('数组返回的每个节点必须含有key');
-      }
-    }
-
-    return prev.concat(next);
-  }, []);
-
-  var slots = [];
-
-  // @TODO
-  if (isReservedType(componentClass)) {
-    componentClass = primitiveMap[componentClass];
-  } else if (typeof componentClass === 'function') {
-    //暂时忽略 props.children
-    slots = children.slice();
-    slots.isSlot = true;
-    children = [];
-  } else {
-    console.error(componentClass);
-    throw new Error('the compoennt ' + componentClass + ' muse be a PactComponent');
-  }
-
-  var key = props.key;
-  delete props.key;
-
-  var node = {
-    type: componentClass,
-    key: key,
-    instance: null,
-    props: props,
-    children: children,
-    slots: slots,
-    isTop: false
-  };
-
-  return node;
+  startUpdate();
 }
-
-module.exports.Container = Container;
-module.exports.renderTo = renderTo;
-module.exports.PactComponent = PactComponent;
-module.exports.h = h;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8)))
 
 /***/ }),
-/* 8 */
-/***/ (function(module, exports) {
-
-var canvases = {}
-
-var getCanvas = function(key) {
-  return canvases[key]
-}
-
-var setCanvas = function(key, canvas) {
-  canvases[key] = canvas
-}
-module.exports = {
-  getCanvas: getCanvas,
-  setCanvas: setCanvas
-}
-
-
-/***/ }),
-/* 9 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(PIXI) {var _ = __webpack_require__(1)
+/* WEBPACK VAR INJECTION */(function(process) {// Generated by CoffeeScript 1.12.2
+(function() {
+  var getNanoSeconds, hrtime, loadTime, moduleLoadTime, nodeLoadTime, upTime;
 
-var loadedResourceCache = {};
-/**
- *
- * @param config
- *
- * publicPath:'资源加载路径',以/结尾
- *
- * @returns {{load: Function}}
- */
-function createLoader(config) {
-
-  var mySpriteNames = [];
-
-  return {
-
-    load: function load(cb) {
-
-      mySpriteNames.forEach(function (spriteResourceOne) {
-        PIXI.loader.add(
-          spriteResourceOne.key,
-          spriteResourceOne.value
-        );
-      });
-
-      if(mySpriteNames.length > 0){
-
-        mySpriteNames = [];
-
-        PIXI.loader.load(function (loader,loadedResources) {
-
-          loadedResourceCache = _.assign(loadedResourceCache,loadedResources);
-
-          cb(loader,loadedResourceCache);
-        });
-      }else{
-        cb(PIXI.loader,loadedResourceCache);
-      }
-
-      return this;
-    },
-    add: function add(spriteNames,postFix,dir) {
-      if (!postFix) {
-        postFix = 'json'
-      }
-      if(!dir){
-        dir = '';
-      }
-      spriteNames = [].concat(spriteNames).filter(function (spriteNameOne) {
-
-        return !loadedResourceCache[spriteNameOne]
-
-      }).map(function (spriteNameOne) {
-
-        var spriteDir = config.publicPath;
-
-        if(dir){
-          spriteDir += dir + '/';
-        }
-
-        return {
-          key: spriteNameOne,
-          value: spriteDir + spriteNameOne + '/' + spriteNameOne + '.' + postFix
-        }
-      });
-
-      mySpriteNames = mySpriteNames.concat(spriteNames);
-
-      return this;
-    },
-    addMulti : function addMulti(spriteName,nameFormats,postFix){
-      if (!postFix) {
-        postFix = 'json'
-      }
-
-
-      if(typeof nameFormats === 'number'){
-        nameFormats = _.range(nameFormats);
-      }
-
-      mySpriteNames = mySpriteNames.concat(nameFormats.map(function (i) {
-
-        var spriteNameOne = spriteName + i;
-
-        return {
-          key:spriteNameOne,
-          value: config.publicPath + spriteName + '/' + spriteNameOne + '.' + postFix
-        }
-      }).filter(function (spriteObjOne) {
-        return !loadedResourceCache[spriteObjOne.key]
-      }));
-
-      return this;
-    }
-  }
-}
-
-createLoader.getResources = function getResources() {
-  return loadedResourceCache;
-};
-
-module.exports = createLoader;
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(PIXI) {var _ = __webpack_require__(1)
-var canvasManager = __webpack_require__(8)
-var DEFAULT_WIDTH = 640;
-
-var DEFAULT_HEIGHT = 1004;
-/**
- * 创建一个渲染器
- * @param container
- * @param config
- * @returns {Function}
- */
-
-function createRender(container,config) {
-
-  if(!config){
-    config = {};
-  }
-
-  config.w = config.w || DEFAULT_WIDTH;
-  config.h = config.h || DEFAULT_HEIGHT;
-  config.bg = config.bg || '#fff';
-  config.transparent = config.transparent || true
-
-  var renderer = new PIXI.autoDetectRenderer(config.w, config.h, config);
-  if (!renderer.view.parentElement) {
-    container.appendChild(renderer.view);
-  }
-  if (config.canvasKey) {
-    canvasManager.setCanvas(config.canvasKey, renderer.view)
-  }
-  var raf = null;
-
-  return function animate(stage) {
-
-    if(_.isFunction(stage)){
-      stage = stage()
-    }
-
-    cancelAnimationFrame(raf);
-
-    var animate = function (s,cb) {
-
-      raf = requestAnimationFrame(function(){
-        animate(s,cb);
-      });
-
-      if(s.render){
-        s.render();
-      }
-
-      s.children.forEach((function(child){
-        if(child.render){
-          child.render();
-        }
-      }));
-      renderer.render(s);
-
-      cb && cb();
+  if ((typeof performance !== "undefined" && performance !== null) && performance.now) {
+    module.exports = function() {
+      return performance.now();
     };
-
-    animate(stage);
-
-    return {
-      cancel:function animateCancel(){
-        cancelAnimationFrame(raf);
-      },
-      startDuration:function start(duration){
-        animate(stage);
-        if(duration>0){
-          setTimeout(function () {
-            cancelAnimationFrame(raf);
-          },duration)
-        }
-      },
-      startCount:function start(count){
-        var i = 0;
-        animate(stage,function(){
-          i++;
-          if(i > count){
-            cancelAnimationFrame(raf);
-          }
-        });
-      }
-    }
-  }
-}
-
-createRender.DEFAULT_WIDTH = DEFAULT_WIDTH;
-createRender.DEFAULT_HEIGHT = DEFAULT_HEIGHT;
-
-module.exports = createRender;
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 11 */
-/***/ (function(module, exports) {
-
-/**
- * 计算两点间距
- * @param x1
- * @param y1
- * @param x2
- * @param y2
- * @returns {number}
- */
-module.exports = function(x1, y1, x2, y2) {
-  console.log('deprecated:use .math.distance')
-  return Math.pow((Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2)), 0.5);
-}
-
-/***/ }),
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(PIXI) {/**
- * Created by zyg on 16/1/31.
- */
-
-var setConfig = __webpack_require__(5);
-
-module.exports = function getIm(config) {
-  config = Object.assign({},config);
-
-  var textures = config.textures;
-
-  delete config.textures;
-
-  var sp = new PIXI.Sprite(textures);
-
-  sp.renderCount = 0;
-
-  return setConfig(sp,config);
-};
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 13 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Created by zyg on 16/2/29.
- */
-var getMc = __webpack_require__(4);
-
-/**
- *
- * @param config
- * @param actions 截止frame帧数
- *  [4,7,10]
- * @returns {*}
- */
-module.exports = function getSp(config,actions) {
-  if(!actions){
-    actions = []
-  }
-
-  var obj = getMc(config);
-
-  var _render = function(){};
-
-  var onAction = false;
-  /**
-   * 0~4-0
-   * 0-5~7-0
-   * 0-8~10-0
-   * 
-   * isKeepEnd 是否停在最后
-   */
-  obj.playAction = function playAction(index,loop,isKeepEnd) {
-    if(!index){
-      index = 0;
-    }
-
-    if(index < 0 || index > actions.length){
-      return false;
-    }
-
-    var min = (actions[index - 1]+1) || 0;
-    var max = actions[index];
-
-    var backTo = isKeepEnd ? max : 0
-    
-    this.gotoAndPlay(min);
-
-    _render = onAction ? _render : this.render;
-
-    onAction = true;
-
-    this.render = function copyRender() {
-      var cf = this.currentFrame;
-
-      if(cf >= max){
-
-        if(loop){
-          this.gotoAndPlay(min);
-        }else{
-          this.gotoAndStop(backTo);
-          this.render = _render;
-          onAction = false;
-        }
-      }
-
-      _render.call(this);
-    }
-  };
-
-  actions.map(function (ele, i) {
-    obj['playAction'+i] = obj.playAction.bind(obj,i);
-  });
-
-
-  return obj;
-};
-
-/***/ }),
-/* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(PIXI) {/**
- * 加载对应的资源链接，png或json
- * @param resourceUrl
- * @param cb resourceObject
- */
-var count = 0;
-
-module.exports = function loadResource(resourceUrl, cb) {
-  var resourceKey = 'img' + Date.now() + '' + (count++);
-
-  PIXI.loader.add(resourceKey, resourceUrl)
-    .load(function (loader, resources) {
-
-      cb(resources[resourceKey]);
-    });
-};
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 15 */
-/***/ (function(module, exports) {
-
-module.exports = {
-  SPRITE_MC:'mc',
-  SPRITE_MC_ALIAS:'movieClip',
-  SPRITE_IM:'im',
-  SPRITE_IM_ALIAS:'image',
-  SPRITE_SP:'sp',
-};
-
-/***/ }),
-/* 16 */
-/***/ (function(module, exports) {
-
-var g;
-
-// This works in non-strict mode
-g = (function() {
-	return this;
-})();
-
-try {
-	// This works if eval is allowed (see CSP)
-	g = g || Function("return this")() || (1,eval)("this");
-} catch(e) {
-	// This works if the window reference is available
-	if(typeof window === "object")
-		g = window;
-}
-
-// g can still be undefined, but nothing to do about it...
-// We return undefined, instead of nothing here, so it's
-// easier to handle this case. if(!global) { ...}
-
-module.exports = g;
-
-
-/***/ }),
-/* 17 */,
-/* 18 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-exports.isDef = isDef;
-exports.isUndef = isUndef;
-exports.isVNode = isVNode;
-exports.isPixiObj = isPixiObj;
-exports.isEqualObj = isEqualObj;
-exports.equalVNode = equalVNode;
-exports.equalVNodeChildren = equalVNodeChildren;
-exports.compareObject = compareObject;
-exports.log = log;
-
-var _primitive = __webpack_require__(20);
-
-var _primitive2 = _interopRequireDefault(_primitive);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function isDef(v) {
-  return v !== undefined;
-}
-function isUndef(v) {
-  return v === undefined;
-}
-
-function isVNode(obj) {
-  var keys = Object.keys(obj);
-
-  return ['props', 'type', 'children'].every(function (k) {
-    return keys.indexOf(k) !== -1;
-  });
-}
-
-function isPixiObj(obj) {
-  return obj && obj.addChild;
-}
-
-function isEqualObj(obj1, obj2) {}
-
-function equalVNode(obj1, obj2, checkChildren) {
-  if ((typeof obj1 === 'undefined' ? 'undefined' : _typeof(obj1)) !== 'object' || (typeof obj2 === 'undefined' ? 'undefined' : _typeof(obj2)) !== 'object') {
-    return false;
-  }
-
-  var isSameNode;
-
-  if (isDef(obj1.key) || isDef(obj2.key)) {
-    isSameNode = obj1.key === obj2.key;
+  } else if ((typeof process !== "undefined" && process !== null) && process.hrtime) {
+    module.exports = function() {
+      return (getNanoSeconds() - nodeLoadTime) / 1e6;
+    };
+    hrtime = process.hrtime;
+    getNanoSeconds = function() {
+      var hr;
+      hr = hrtime();
+      return hr[0] * 1e9 + hr[1];
+    };
+    moduleLoadTime = getNanoSeconds();
+    upTime = process.uptime() * 1e9;
+    nodeLoadTime = moduleLoadTime - upTime;
+  } else if (Date.now) {
+    module.exports = function() {
+      return Date.now() - loadTime;
+    };
+    loadTime = Date.now();
   } else {
-    if (obj1.type === obj2.type) {
-      isSameNode = compareObject(obj1.props, obj2.props);
-    }
+    module.exports = function() {
+      return new Date().getTime() - loadTime;
+    };
+    loadTime = new Date().getTime();
   }
 
-  if (isSameNode && checkChildren) {}
+}).call(this);
 
-  return isSameNode;
-}
+//# sourceMappingURL=performance-now.js.map
 
-function equalVNodeChildren(obj1, obj2) {
-  var len = obj1.children.length;
-  var isSameNode = len === obj2.children.length;
-  if (isSameNode) {
-    var i = 0;
-    var isSameChild = true;
-
-    while (i < len) {
-      var childObj1 = obj1.children[i];
-      var childObj2 = obj2.children[i];
-
-      isSameChild = equalVNode(childObj1, childObj2);
-      if (!isSameChild) {
-        break;
-      }
-      i++;
-    }
-    isSameNode = isSameChild;
-  }
-  return isSameNode;
-}
-
-function compareObject(obj1, obj2) {
-  var type1 = typeof obj1 === 'undefined' ? 'undefined' : _typeof(obj1);
-  var type2 = typeof obj2 === 'undefined' ? 'undefined' : _typeof(obj2);
-
-  if (obj1 === obj2) {
-    return true;
-  }
-
-  if (type1 === type2) {
-
-    var keys1 = Object.keys(obj1);
-    var keys2 = Object.keys(obj2);
-
-    if (keys1.join('') === keys2.join('')) {
-      return keys1.every(function (k) {
-        var type1 = _typeof(obj1[k]);
-        var type2 = _typeof(obj2[k]);
-
-        if (type1 !== type2) {
-          return false;
-        } else if (type1 === 'object') {
-          return compareObject(obj1[k], obj2[k]);
-        } else if (type1 === 'function') {
-          var r = obj1[k].toString() === obj2[k].toString();
-          return r;
-        }
-        return obj1[k] === obj2[k];
-      });
-    }
-  }
-
-  return false;
-}
-
-function log() {
-  if (['', ''].indexOf(arguments[0]) !== -1) {
-    console.log.apply(console, arguments);
-  }
-}
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23)))
 
 /***/ }),
-/* 19 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var pixiLib = {appendStage:__webpack_require__(22),audioControl:__webpack_require__(24),canvasManager:__webpack_require__(8),createAction:__webpack_require__(25),createLoader:__webpack_require__(9),createRender:__webpack_require__(10),distance:__webpack_require__(11),fixSpriteProperties:__webpack_require__(26),getIm:__webpack_require__(12),getMc:__webpack_require__(4),getSp:__webpack_require__(13),getTextures:__webpack_require__(27),loadResource:__webpack_require__(14),loadSprite:__webpack_require__(28),makeIdentity:__webpack_require__(31),math:__webpack_require__(32),setConfig:__webpack_require__(5),types:__webpack_require__(15),audio:{loadAudio:__webpack_require__(23),}, loading:{basicLoading:__webpack_require__(29),mpLoading:__webpack_require__(30),}, utils:{addStyle:__webpack_require__(2),basicLoading:__webpack_require__(33),matrixManager:__webpack_require__(6),mpLoading:__webpack_require__(34),repeat:__webpack_require__(3),resizeImageData:__webpack_require__(35),shareGuide:__webpack_require__(36),unfoldArray:__webpack_require__(37),},};if( typeof window !== "undefined" ){ 
-window.pixiLib=pixiLib; 
-} 
-if(true ){  
-module.exports= pixiLib; 
-}
-
-/***/ }),
-/* 20 */
-/***/ (function(module, exports) {
-
-
-
-/***/ }),
-/* 21 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -18592,7 +18984,7 @@ module.exports = {
 
 
 /***/ }),
-/* 22 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(PIXI) {/**
@@ -18601,7 +18993,7 @@ module.exports = {
  * @param config
  * @returns {module.exports.Container}
  */
-var createRender = __webpack_require__(10);
+var createRender = __webpack_require__(16);
 
 module.exports = function (container, config) {
 
@@ -18619,7 +19011,7 @@ module.exports = function (container, config) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 23 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -18693,7 +19085,7 @@ module.exports = function (config) {
 };
 
 /***/ }),
-/* 24 */
+/* 29 */
 /***/ (function(module, exports) {
 
 /**
@@ -18726,13 +19118,13 @@ module.exports = function (mp3Url,config) {
 }
 
 /***/ }),
-/* 25 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
  * Created by zyg on 16/2/4.
  */
-var PubSub = __webpack_require__(38);
+var PubSub = __webpack_require__(43);
 
 function createAction(name,action) {
 
@@ -18770,7 +19162,7 @@ createAction.dispatch = PubSub.publish.bind(PubSub);
 module.exports = createAction;
 
 /***/ }),
-/* 26 */
+/* 31 */
 /***/ (function(module, exports) {
 
 /**
@@ -18811,10 +19203,10 @@ module.exports = function fixProperties(settingProperties,finalProperties){
 };
 
 /***/ }),
-/* 27 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var createLoader = __webpack_require__(9);
+var createLoader = __webpack_require__(15);
 
 /**
  * 设定资源或取出资源
@@ -18836,15 +19228,15 @@ module.exports = function(spriteName){
 };
 
 /***/ }),
-/* 28 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var _ = __webpack_require__(1)
-var loadResource = __webpack_require__(14);
-var types = __webpack_require__(15);
-var getMc = __webpack_require__(4);
-var getIm = __webpack_require__(12);
-var getSp = __webpack_require__(13);
+var loadResource = __webpack_require__(20);
+var types = __webpack_require__(21);
+var getMc = __webpack_require__(5);
+var getIm = __webpack_require__(18);
+var getSp = __webpack_require__(19);
 
 var spriteFnMap = {};
 
@@ -18882,7 +19274,7 @@ module.exports = function (resourceUrl,spriteType,properties,actionFrames,cb) {
 };
 
 /***/ }),
-/* 29 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -19049,14 +19441,14 @@ module.exports = function(){
 }
 
 /***/ }),
-/* 30 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
  * Created by zyg on 16/7/20.
  */
 
-var matrixManager = __webpack_require__(6)
+var matrixManager = __webpack_require__(7)
 var repeate = __webpack_require__(3)
 
 var cgrey = 'rgb(169,197,202)',
@@ -19114,7 +19506,7 @@ module.exports = function(){
 }
 
 /***/ }),
-/* 31 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -19122,7 +19514,7 @@ module.exports = function(){
  * @param [a,b]
  * @returns [c,d]
  */
-var distance = __webpack_require__(11);
+var distance = __webpack_require__(17);
 
 module.exports = function(a) {
   console.log('deprecated:use .math.makeIdentity')
@@ -19136,7 +19528,7 @@ module.exports = function(a) {
 };
 
 /***/ }),
-/* 32 */
+/* 37 */
 /***/ (function(module, exports) {
 
 /**
@@ -19208,7 +19600,7 @@ module.exports = {
 }
 
 /***/ }),
-/* 33 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -19378,14 +19770,14 @@ module.exports = function(){
 }
 
 /***/ }),
-/* 34 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
  * Created by zyg on 16/7/20.
  */
 
-var matrixManager = __webpack_require__(6)
+var matrixManager = __webpack_require__(7)
 var repeate = __webpack_require__(3)
 
 var cgrey = 'rgb(169,197,202)',
@@ -19427,7 +19819,7 @@ module.exports = function(){
 }
 
 /***/ }),
-/* 35 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -19490,7 +19882,7 @@ module.exports = function resizeImageData(data,width,resizeX,resizeY,gap){
 }
 
 /***/ }),
-/* 36 */
+/* 41 */
 /***/ (function(module, exports) {
 
 /**
@@ -19540,7 +19932,7 @@ module.exports = function () {
 }
 
 /***/ }),
-/* 37 */
+/* 42 */
 /***/ (function(module, exports) {
 
 /**
@@ -19566,7 +19958,7 @@ function unfoldArray(fromArr,arr) {
 module.exports = unfoldArray;
 
 /***/ }),
-/* 38 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*
@@ -19831,7 +20223,7 @@ https://github.com/mroderick/PubSubJS
 
 
 /***/ }),
-/* 39 */
+/* 44 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
