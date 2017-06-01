@@ -1,14 +1,14 @@
 import * as utils from './utils.js';
 const {isUndef, isDef,log} = utils;
 
-export function mountComponent(node, parentComponent) {
-  if(typeof node === 'string'){
-    return node;
+export function mountComponent(parentNode, parentComponent) {
+  if(typeof parentNode === 'string'){
+    return parentNode;
   } else {
-    const instance = new node.type(node.props, node.slots);
+    const instance = new parentNode.type(parentNode.props, parentNode.slots);
     const vNode = instance.render();
 
-    node.instance = instance;
+    parentNode.instance = instance;
 
     if(utils.isPixiObj(vNode)){
       instance.pixiEl = vNode;
@@ -27,11 +27,13 @@ export function mountComponent(node, parentComponent) {
       throw new Error('mountComponent 卧槽');
     }
 
-    node.children.map(childNode => {
+    parentNode.children.map(childNode => {
 
       const childInstance = mountComponent(childNode, instance);
       instance.children.push(childInstance);
     });
+
+    instance.didMounted();
 
     return instance;
   }

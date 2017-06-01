@@ -35,6 +35,7 @@ function addVNode(parentVNode, newVNode, targetIndex) {
 }
 
 function removeVNode(parentVNode, removeFromIndex) {
+  parentVNode.instance.children[removeFromIndex].unmount();
 
   parentVNode.instance.children.splice(removeFromIndex, 1);
   parentVNode.children.splice(removeFromIndex, 1);

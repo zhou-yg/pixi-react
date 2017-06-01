@@ -52,7 +52,7 @@ export class PactComponent {
   }
   removeChild (pactObj) {
   }
-  didMount () {
+  didMounted () {
 
   }
   unmount () {

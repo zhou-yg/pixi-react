@@ -17758,14 +17758,14 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 var isUndef = utils.isUndef,
     isDef = utils.isDef,
     log = utils.log;
-function mountComponent(node, parentComponent) {
-  if (typeof node === 'string') {
-    return node;
+function mountComponent(parentNode, parentComponent) {
+  if (typeof parentNode === 'string') {
+    return parentNode;
   } else {
-    var instance = new node.type(node.props, node.slots);
+    var instance = new parentNode.type(parentNode.props, parentNode.slots);
     var vNode = instance.render();
 
-    node.instance = instance;
+    parentNode.instance = instance;
 
     if (utils.isPixiObj(vNode)) {
       instance.pixiEl = vNode;
@@ -17782,11 +17782,13 @@ function mountComponent(node, parentComponent) {
       throw new Error('mountComponent 卧槽');
     }
 
-    node.children.map(function (childNode) {
+    parentNode.children.map(function (childNode) {
 
       var childInstance = mountComponent(childNode, instance);
       instance.children.push(childInstance);
     });
+
+    instance.didMounted();
 
     return instance;
   }
@@ -17876,8 +17878,8 @@ var PactComponent = exports.PactComponent = function () {
     key: 'removeChild',
     value: function removeChild(pactObj) {}
   }, {
-    key: 'didMount',
-    value: function didMount() {}
+    key: 'didMounted',
+    value: function didMounted() {}
   }, {
     key: 'unmount',
     value: function unmount() {}
@@ -18701,6 +18703,7 @@ function addVNode(parentVNode, newVNode, targetIndex) {
 }
 
 function removeVNode(parentVNode, removeFromIndex) {
+  parentVNode.instance.children[removeFromIndex].unmount();
 
   parentVNode.instance.children.splice(removeFromIndex, 1);
   parentVNode.children.splice(removeFromIndex, 1);
