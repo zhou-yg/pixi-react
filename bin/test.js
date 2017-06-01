@@ -17479,8 +17479,8 @@ var PactComponent = function () {
     key: 'removeChild',
     value: function removeChild(pactObj) {}
   }, {
-    key: 'didMount',
-    value: function didMount() {}
+    key: 'didMounted',
+    value: function didMounted() {}
   }, {
     key: 'unmount',
     value: function unmount() {}
