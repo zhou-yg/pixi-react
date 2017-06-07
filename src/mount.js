@@ -1,7 +1,7 @@
 import * as utils from './utils.js';
 const {isUndef, isDef,log} = utils;
 
-export function mountComponent(parentNode, parentComponent, contextComponent) {
+export function mountComponent(parentNode, parentComponent, contextComponent, contextParent) {
   if(typeof parentNode === 'string'){
     return parentNode;
   } else {
@@ -34,7 +34,7 @@ export function mountComponent(parentNode, parentComponent, contextComponent) {
         contextComponent.refs[ref] = instance;
       }
 
-      const rootInstance = mountComponent(vNode, instance, instance);
+      const rootInstance = mountComponent(vNode, instance, instance, contextComponent);
 
     }else{
       throw new Error('mountComponent 卧槽');
@@ -42,7 +42,19 @@ export function mountComponent(parentNode, parentComponent, contextComponent) {
 
     parentNode.children.map(childNode => {
 
-      const childInstance = mountComponent(childNode, instance, parentComponent);
+      var childContextComponent;
+      var childContextParent;
+
+      if(childNode.isSlot){
+        childContextComponent = contextParent;
+        childContextParent = null;
+      }else{
+        childContextComponent = contextComponent;
+        childContextParent = contextParent;
+      }
+
+      const childInstance = mountComponent(childNode, instance, childContextComponent, childContextParent);
+
       instance.children.push(childInstance);
     });
 

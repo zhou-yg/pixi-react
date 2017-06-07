@@ -17693,7 +17693,7 @@ function h(componentClass, props) {
   children = children.filter(function (child) {
     return (typeof child === 'undefined' ? 'undefined' : _typeof(child)) === 'object' || typeof child === 'string';
   }).reduce(function (prev, next) {
-    // 带slots情况下,children是个二维数组
+    // 带slots情况下,children是个二维数组, 需要用isSlot区分
     if (true) {
       if (Array.isArray(next) && !next.isSlot && !next.every(function (node) {
         return !!node.key;
@@ -17715,6 +17715,9 @@ function h(componentClass, props) {
     //暂时忽略 props.children
     slots = children.slice();
     slots.isSlot = true;
+    slots.map(function (slotNode) {
+      slotNode.isSlot = true;
+    });
     children = [];
   } else {
     console.error(componentClass);
@@ -17731,6 +17734,7 @@ function h(componentClass, props) {
     props: props,
     children: children,
     slots: slots,
+    isSlot: false,
     isTop: false
   };
 
@@ -17760,7 +17764,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 var isUndef = utils.isUndef,
     isDef = utils.isDef,
     log = utils.log;
-function mountComponent(parentNode, parentComponent, contextComponent) {
+function mountComponent(parentNode, parentComponent, contextComponent, contextParent) {
   if (typeof parentNode === 'string') {
     return parentNode;
   } else {
@@ -17793,14 +17797,26 @@ function mountComponent(parentNode, parentComponent, contextComponent) {
         contextComponent.refs[ref] = instance;
       }
 
-      var rootInstance = mountComponent(vNode, instance, instance);
+      var rootInstance = mountComponent(vNode, instance, instance, contextComponent);
     } else {
       throw new Error('mountComponent 卧槽');
     }
 
     parentNode.children.map(function (childNode) {
 
-      var childInstance = mountComponent(childNode, instance, parentComponent);
+      var childContextComponent;
+      var childContextParent;
+
+      if (childNode.isSlot) {
+        childContextComponent = contextParent;
+        childContextParent = null;
+      } else {
+        childContextComponent = contextComponent;
+        childContextParent = contextParent;
+      }
+
+      var childInstance = mountComponent(childNode, instance, childContextComponent, childContextParent);
+
       instance.children.push(childInstance);
     });
 
@@ -20833,18 +20849,43 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var T = function (_PactComponent) {
-  _inherits(T, _PactComponent);
+var MyComponent = function (_PactComponent) {
+  _inherits(MyComponent, _PactComponent);
+
+  function MyComponent() {
+    _classCallCheck(this, MyComponent);
+
+    return _possibleConstructorReturn(this, (MyComponent.__proto__ || Object.getPrototypeOf(MyComponent)).apply(this, arguments));
+  }
+
+  _createClass(MyComponent, [{
+    key: 'render',
+    value: function render() {
+      return (0, _pixiReact.h)(
+        'c',
+        { key: 'myComponent', ref: 'rootInComponent' },
+        (0, _pixiReact.h)('c', { keyName: 'm0' }),
+        this.slots,
+        (0, _pixiReact.h)('c', { keyName: 'm3' })
+      );
+    }
+  }]);
+
+  return MyComponent;
+}(_pixiReact.PactComponent);
+
+var T = function (_PactComponent2) {
+  _inherits(T, _PactComponent2);
 
   function T() {
     _classCallCheck(this, T);
 
-    var _this = _possibleConstructorReturn(this, (T.__proto__ || Object.getPrototypeOf(T)).call(this, {}));
+    var _this2 = _possibleConstructorReturn(this, (T.__proto__ || Object.getPrototypeOf(T)).call(this, {}));
 
-    _this.state = {
+    _this2.state = {
       list: ['name', 'xx']
     };
-    return _this;
+    return _this2;
   }
 
   _createClass(T, [{
@@ -20858,7 +20899,12 @@ var T = function (_PactComponent) {
         null,
         list.map(function (name) {
           return (0, _pixiReact.h)('c', { key: name, name: name });
-        })
+        }),
+        (0, _pixiReact.h)(
+          MyComponent,
+          { ref: 'myComponent' },
+          (0, _pixiReact.h)('c', { ref: 'childInComponent', name: 'childIn' })
+        )
       );
     }
   }]);
@@ -20866,19 +20912,36 @@ var T = function (_PactComponent) {
   return T;
 }(_pixiReact.PactComponent);
 
-describe('数组子节点', function () {
+describe('组件特性', function () {
 
-  describe('初始化', function () {
-    var tVNode = (0, _pixiReact.h)(T);
-    var topContainer = new PIXI.Container();
-    var tInstance = (0, _pixiReact.renderTo)(tVNode, topContainer);
+  var tVNode;
+  var topContainer;
+  var tInstance;
+
+  beforeEach(function () {
+    tVNode = (0, _pixiReact.h)(T);
+    topContainer = new PIXI.Container();
+    tInstance = (0, _pixiReact.renderTo)(tVNode, topContainer);
+  });
+
+  describe('数组子节点', function () {
 
     it('vNode', function () {
 
       (0, _assert.equal)(tInstance.vNode.type, _pixiReact.Container, '顶层vNode的type类型');
-      (0, _assert.equal)(tInstance.vNode.children.length, 2, 'vNode的儿子们的长度');
+      (0, _assert.equal)(tInstance.vNode.children.length, 3, 'vNode的儿子们的长度');
       (0, _assert.equal)(tInstance.vNode.children[0].props.name, 'name', '第1个vNode的名字');
       (0, _assert.equal)(tInstance.vNode.children[1].props.name, 'xx', '第2个vNode的名字');
+    });
+  });
+
+  describe('ref特性', function () {
+    it('实例refs', function () {
+      var myComponentInst = tInstance.vNode.instance.children[2];
+
+      (0, _assert.equal)(tInstance.refs.myComponent, myComponentInst, '自定义组件的ref为组件实例');
+      (0, _assert.equal)(myComponentInst.refs.rootInComponent, myComponentInst.vNode.instance.pixiEl, 'pixi组件的ref为pixi对象');
+      (0, _assert.equal)(tInstance.refs.childInComponent, myComponentInst.vNode.instance.children[1].pixiEl, '嵌套组件的ref在 声明时所在的实例下');
     });
   });
 });

@@ -41,7 +41,7 @@ function h(componentClass, props, ...children) {
   children = children.filter(child => {
     return typeof child === 'object' || typeof child === 'string';
   }).reduce((prev, next) => {
-    // 带slots情况下,children是个二维数组
+    // 带slots情况下,children是个二维数组, 需要用isSlot区分
     if(__ENV__ === 'dev'){
       if(Array.isArray(next) && !next.isSlot && !next.every(node => {
         return !!node.key;
@@ -63,6 +63,9 @@ function h(componentClass, props, ...children) {
     //暂时忽略 props.children
     slots = children.slice();
     slots.isSlot = true;
+    slots.map(slotNode => {
+      slotNode.isSlot = true;
+    });
     children = [];
   } else {
     console.error(componentClass);
@@ -79,6 +82,7 @@ function h(componentClass, props, ...children) {
     props,
     children,
     slots,
+    isSlot: false,
     isTop: false,
   };
 

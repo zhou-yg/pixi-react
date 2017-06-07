@@ -17693,7 +17693,7 @@ function h(componentClass, props) {
   children = children.filter(function (child) {
     return (typeof child === 'undefined' ? 'undefined' : _typeof(child)) === 'object' || typeof child === 'string';
   }).reduce(function (prev, next) {
-    // 带slots情况下,children是个二维数组
+    // 带slots情况下,children是个二维数组, 需要用isSlot区分
     if (true) {
       if (Array.isArray(next) && !next.isSlot && !next.every(function (node) {
         return !!node.key;
@@ -17715,6 +17715,9 @@ function h(componentClass, props) {
     //暂时忽略 props.children
     slots = children.slice();
     slots.isSlot = true;
+    slots.map(function (slotNode) {
+      slotNode.isSlot = true;
+    });
     children = [];
   } else {
     console.error(componentClass);
@@ -17731,6 +17734,7 @@ function h(componentClass, props) {
     props: props,
     children: children,
     slots: slots,
+    isSlot: false,
     isTop: false
   };
 
@@ -17760,7 +17764,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 var isUndef = utils.isUndef,
     isDef = utils.isDef,
     log = utils.log;
-function mountComponent(parentNode, parentComponent, contextComponent) {
+function mountComponent(parentNode, parentComponent, contextComponent, contextParent) {
   if (typeof parentNode === 'string') {
     return parentNode;
   } else {
@@ -17793,14 +17797,26 @@ function mountComponent(parentNode, parentComponent, contextComponent) {
         contextComponent.refs[ref] = instance;
       }
 
-      var rootInstance = mountComponent(vNode, instance, instance);
+      var rootInstance = mountComponent(vNode, instance, instance, contextComponent);
     } else {
       throw new Error('mountComponent 卧槽');
     }
 
     parentNode.children.map(function (childNode) {
 
-      var childInstance = mountComponent(childNode, instance, parentComponent);
+      var childContextComponent;
+      var childContextParent;
+
+      if (childNode.isSlot) {
+        childContextComponent = contextParent;
+        childContextParent = null;
+      } else {
+        childContextComponent = contextComponent;
+        childContextParent = contextParent;
+      }
+
+      var childInstance = mountComponent(childNode, instance, childContextComponent, childContextParent);
+
       instance.children.push(childInstance);
     });
 
