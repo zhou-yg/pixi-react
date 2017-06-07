@@ -2,7 +2,7 @@
   "name": "pixi-react",
   "version": "0.0.2",
   "description": "set/get data structure",
-  "main": "./bin/index.js",
+  "main": "./src/pixi-react.js",
   "scripts": {
     "build": "webpack --progress --display-error-details",
     "build-w": "webpack --progress --display-error-details --watch",

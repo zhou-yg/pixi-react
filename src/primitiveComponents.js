@@ -19,6 +19,7 @@ export class PactComponent {
     this.children = []; //子PactComponent对象
     this.slots = slots || []; //插槽
     this.isTop = false; //是否为顶级
+    this.refs = {}; // 引用
   }
   setState (obj) {
 
@@ -37,7 +38,7 @@ export class PactComponent {
       if(newProps.member){
         if(newProps.member.play === false){
           this.pixiEl.stop();
-        }else{
+        }else if(newProps.member.play === true){
           this.pixiEl.play();
         }
       }
@@ -76,28 +77,31 @@ class PixiComponent extends PactComponent{
     this.texture = props.texture;
   }
   setMember (pixiObj) {
-    pixiLib.setConfig(pixiObj,this.props.member);
+    const {member} = this.props;
+    if(member){
+      pixiLib.setConfig(pixiObj,member);
 
-    eventsArr.forEach(eventName => {
-      const fn = this.props[eventName];
+      eventsArr.forEach(eventName => {
+        const fn = this.props[eventName];
 
-      if(fn){
-        pixiObj.interactive = true;
+        if(fn){
+          pixiObj.interactive = true;
 
-        eventName = eventName.replace(/^on/, '').toLowerCase();
+          eventName = eventName.replace(/^on/, '').toLowerCase();
 
-        const oldFn = this.eventFnMap.get(pixiObj);
+          const oldFn = this.eventFnMap.get(pixiObj);
 
-        if(oldFn){
-          if(oldFn !== fn){
-            pixiObj.off(eventName, oldFn);
+          if(oldFn){
+            if(oldFn !== fn){
+              pixiObj.off(eventName, oldFn);
+              pixiObj.on(eventName, fn);
+            }
+          }else{
             pixiObj.on(eventName, fn);
           }
-        }else{
-          pixiObj.on(eventName, fn);
         }
-      }
-    })
+      });
+    }
   }
 }
 
@@ -149,12 +153,18 @@ class Rect extends PixiComponent {
     super(props)
   }
   render () {
-    const {color, x = 0, y =0, w, h} = this.props;
+    const {color, strokeWidth, strokeColor, x = 0, y =0, w, h} = this.props;
 
     const g = new PIXI.Graphics();
+
     g.beginFill(color);
+    if(strokeWidth > 0){
+      g.lineStyle(strokeWidth, strokeColor, 1);
+    }
     g.drawRect(x,y,w,h);
     g.endFill();
+
+    this.setMember(g);
 
     return g;
   }

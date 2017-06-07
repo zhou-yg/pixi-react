@@ -26,7 +26,9 @@ function renderTo(node, pixiContainer) {
   instance.pixiEl = pixiContainer;
   instance.vNode = instanceVNode;
 
-  const rootInstance = mountComponent(instanceVNode, instance);
+  const rootInstance = mountComponent(instanceVNode, instance, instance);
+  rootInstance.didMounted();
+  instance.didMounted();
 
   return instance;
 }

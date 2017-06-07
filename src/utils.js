@@ -75,7 +75,7 @@ export function compareObject(obj1, obj2) {
     return true;
   }
 
-  if(type1 === type2){
+  if(type1 === type2 && obj1 && obj2){
 
     const keys1 = Object.keys(obj1);
     const keys2 = Object.keys(obj2);
@@ -87,7 +87,7 @@ export function compareObject(obj1, obj2) {
 
         if(type1 !== type2){
           return false;
-        } else if(type1 === 'object'){
+        } else if(type1 === 'object' && obj1 && obj2){
           return compareObject(obj1[k], obj2[k]);
         } else if(type1 === 'function'){
           let r = obj1[k].toString() === obj2[k].toString();

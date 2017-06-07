@@ -17293,7 +17293,7 @@ function compareObject(obj1, obj2) {
     return true;
   }
 
-  if (type1 === type2) {
+  if (type1 === type2 && obj1 && obj2) {
 
     var keys1 = Object.keys(obj1);
     var keys2 = Object.keys(obj2);
@@ -17305,7 +17305,7 @@ function compareObject(obj1, obj2) {
 
         if (type1 !== type2) {
           return false;
-        } else if (type1 === 'object') {
+        } else if (type1 === 'object' && obj1 && obj2) {
           return compareObject(obj1[k], obj2[k]);
         } else if (type1 === 'function') {
           var r = obj1[k].toString() === obj2[k].toString();
@@ -17675,7 +17675,9 @@ function renderTo(node, pixiContainer) {
   instance.pixiEl = pixiContainer;
   instance.vNode = instanceVNode;
 
-  var rootInstance = (0, _mount.mountComponent)(instanceVNode, instance);
+  var rootInstance = (0, _mount.mountComponent)(instanceVNode, instance, instance);
+  rootInstance.didMounted();
+  instance.didMounted();
 
   return instance;
 }
@@ -17758,33 +17760,47 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 var isUndef = utils.isUndef,
     isDef = utils.isDef,
     log = utils.log;
-function mountComponent(parentNode, parentComponent) {
+function mountComponent(parentNode, parentComponent, contextComponent) {
   if (typeof parentNode === 'string') {
     return parentNode;
   } else {
+    var props = parentNode.props;
+    var ref = props.ref;
+
+
     var instance = new parentNode.type(parentNode.props, parentNode.slots);
     var vNode = instance.render();
 
     parentNode.instance = instance;
 
+    // console.log('mountComponent 0', parentComponent, contextComponent);
+
     if (utils.isPixiObj(vNode)) {
       instance.pixiEl = vNode;
       instance.isMounted = true;
       parentComponent.pixiEl.addChild(vNode);
+
+      if (ref) {
+        contextComponent.refs[ref] = vNode;
+      }
     } else if (utils.isVNode(vNode)) {
 
       instance.vNode = vNode;
       instance.pixiEl = parentComponent.pixiEl;
       instance.isMounted = true;
 
-      var rootInstance = mountComponent(vNode, instance);
+      if (ref) {
+        contextComponent.refs[ref] = instance;
+      }
+
+      var rootInstance = mountComponent(vNode, instance, instance);
     } else {
       throw new Error('mountComponent 卧槽');
     }
 
     parentNode.children.map(function (childNode) {
 
-      var childInstance = mountComponent(childNode, instance);
+      var childInstance = mountComponent(childNode, instance, parentComponent);
       instance.children.push(childInstance);
     });
 
@@ -17838,6 +17854,7 @@ var PactComponent = exports.PactComponent = function () {
     this.children = []; //子PactComponent对象
     this.slots = slots || []; //插槽
     this.isTop = false; //是否为顶级
+    this.refs = {}; // 引用
   }
 
   _createClass(PactComponent, [{
@@ -17860,7 +17877,7 @@ var PactComponent = exports.PactComponent = function () {
         if (newProps.member) {
           if (newProps.member.play === false) {
             this.pixiEl.stop();
-          } else {
+          } else if (newProps.member.play === true) {
             this.pixiEl.play();
           }
         }
@@ -17915,28 +17932,32 @@ var PixiComponent = function (_PactComponent) {
     value: function setMember(pixiObj) {
       var _this2 = this;
 
-      _pixiLib2.default.setConfig(pixiObj, this.props.member);
+      var member = this.props.member;
 
-      eventsArr.forEach(function (eventName) {
-        var fn = _this2.props[eventName];
+      if (member) {
+        _pixiLib2.default.setConfig(pixiObj, member);
 
-        if (fn) {
-          pixiObj.interactive = true;
+        eventsArr.forEach(function (eventName) {
+          var fn = _this2.props[eventName];
 
-          eventName = eventName.replace(/^on/, '').toLowerCase();
+          if (fn) {
+            pixiObj.interactive = true;
 
-          var oldFn = _this2.eventFnMap.get(pixiObj);
+            eventName = eventName.replace(/^on/, '').toLowerCase();
 
-          if (oldFn) {
-            if (oldFn !== fn) {
-              pixiObj.off(eventName, oldFn);
+            var oldFn = _this2.eventFnMap.get(pixiObj);
+
+            if (oldFn) {
+              if (oldFn !== fn) {
+                pixiObj.off(eventName, oldFn);
+                pixiObj.on(eventName, fn);
+              }
+            } else {
               pixiObj.on(eventName, fn);
             }
-          } else {
-            pixiObj.on(eventName, fn);
           }
-        }
-      });
+        });
+      }
     }
   }]);
 
@@ -18033,6 +18054,8 @@ var Rect = function (_PixiComponent4) {
     value: function render() {
       var _props = this.props,
           color = _props.color,
+          strokeWidth = _props.strokeWidth,
+          strokeColor = _props.strokeColor,
           _props$x = _props.x,
           x = _props$x === undefined ? 0 : _props$x,
           _props$y = _props.y,
@@ -18042,9 +18065,15 @@ var Rect = function (_PixiComponent4) {
 
 
       var g = new PIXI.Graphics();
+
       g.beginFill(color);
+      if (strokeWidth > 0) {
+        g.lineStyle(strokeWidth, strokeColor, 1);
+      }
       g.drawRect(x, y, w, h);
       g.endFill();
+
+      this.setMember(g);
 
       return g;
     }
