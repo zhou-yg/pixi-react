@@ -108,7 +108,7 @@ export function isReservedType(name) {
 }
 
 export function log(){
-  if(['',''].indexOf(arguments[0]) !== -1) {
+  if(['updateComponent',''].indexOf(arguments[0]) !== -1) {
     console.log.apply(console,arguments);
   }
 }

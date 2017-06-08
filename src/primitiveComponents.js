@@ -66,7 +66,7 @@ export class PactComponent {
 }
 
 // 支持的事件
-const eventsArr = ['onMouseDown', 'onTouch'];
+const eventsArr = ['onMouseDown', 'onTouchStart'];
 
 class PixiComponent extends PactComponent{
   constructor(props) {
@@ -80,28 +80,27 @@ class PixiComponent extends PactComponent{
     const {member} = this.props;
     if(member){
       pixiLib.setConfig(pixiObj,member);
+    }
+    eventsArr.forEach(eventName => {
+      const fn = this.props[eventName];
 
-      eventsArr.forEach(eventName => {
-        const fn = this.props[eventName];
+      if(fn){
+        pixiObj.interactive = true;
 
-        if(fn){
-          pixiObj.interactive = true;
+        eventName = eventName.replace(/^on/, '').toLowerCase();
 
-          eventName = eventName.replace(/^on/, '').toLowerCase();
+        const oldFn = this.eventFnMap.get(pixiObj);
 
-          const oldFn = this.eventFnMap.get(pixiObj);
-
-          if(oldFn){
-            if(oldFn !== fn){
-              pixiObj.off(eventName, oldFn);
-              pixiObj.on(eventName, fn);
-            }
-          }else{
+        if(oldFn){
+          if(oldFn !== fn){
+            pixiObj.off(eventName, oldFn);
             pixiObj.on(eventName, fn);
           }
+        }else{
+          pixiObj.on(eventName, fn);
         }
-      });
-    }
+      }
+    });
   }
 }
 
@@ -161,9 +160,10 @@ class Rect extends PixiComponent {
     if(strokeWidth > 0){
       g.lineStyle(strokeWidth, strokeColor, 1);
     }
-    g.drawRect(x,y,w,h);
+    g.drawRect(0,0,w,h);
     g.endFill();
-
+    g.x = x;
+    g.y = y;
     this.setMember(g);
 
     return g;

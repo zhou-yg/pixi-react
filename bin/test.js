@@ -17326,7 +17326,7 @@ function isReservedType(name) {
 }
 
 function log() {
-  if (['', ''].indexOf(arguments[0]) !== -1) {
+  if (['updateComponent', ''].indexOf(arguments[0]) !== -1) {
     console.log.apply(console, arguments);
   }
 }
@@ -17927,7 +17927,7 @@ var PactComponent = exports.PactComponent = function () {
 // 支持的事件
 
 
-var eventsArr = ['onMouseDown', 'onTouch'];
+var eventsArr = ['onMouseDown', 'onTouchStart'];
 
 var PixiComponent = function (_PactComponent) {
   _inherits(PixiComponent, _PactComponent);
@@ -17952,28 +17952,27 @@ var PixiComponent = function (_PactComponent) {
 
       if (member) {
         _pixiLib2.default.setConfig(pixiObj, member);
+      }
+      eventsArr.forEach(function (eventName) {
+        var fn = _this2.props[eventName];
 
-        eventsArr.forEach(function (eventName) {
-          var fn = _this2.props[eventName];
+        if (fn) {
+          pixiObj.interactive = true;
 
-          if (fn) {
-            pixiObj.interactive = true;
+          eventName = eventName.replace(/^on/, '').toLowerCase();
 
-            eventName = eventName.replace(/^on/, '').toLowerCase();
+          var oldFn = _this2.eventFnMap.get(pixiObj);
 
-            var oldFn = _this2.eventFnMap.get(pixiObj);
-
-            if (oldFn) {
-              if (oldFn !== fn) {
-                pixiObj.off(eventName, oldFn);
-                pixiObj.on(eventName, fn);
-              }
-            } else {
+          if (oldFn) {
+            if (oldFn !== fn) {
+              pixiObj.off(eventName, oldFn);
               pixiObj.on(eventName, fn);
             }
+          } else {
+            pixiObj.on(eventName, fn);
           }
-        });
-      }
+        }
+      });
     }
   }]);
 
@@ -18086,9 +18085,10 @@ var Rect = function (_PixiComponent4) {
       if (strokeWidth > 0) {
         g.lineStyle(strokeWidth, strokeColor, 1);
       }
-      g.drawRect(x, y, w, h);
+      g.drawRect(0, 0, w, h);
       g.endFill();
-
+      g.x = x;
+      g.y = y;
       this.setMember(g);
 
       return g;
