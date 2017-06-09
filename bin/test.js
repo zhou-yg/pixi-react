@@ -17392,6 +17392,7 @@ module.exports = function(object,config){
   return object;
 };
 
+
 /***/ }),
 /* 7 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -17886,18 +17887,6 @@ var PactComponent = exports.PactComponent = function () {
     value: function setProps(newProps) {
 
       this.props = _.merge(_.cloneDeep(this.props), newProps);
-
-      if (this.pixiEl) {
-        _pixiLib2.default.setConfig(this.pixiEl, newProps.member);
-
-        if (newProps.member) {
-          if (newProps.member.play === false) {
-            this.pixiEl.stop();
-          } else if (newProps.member.play === true) {
-            this.pixiEl.play();
-          }
-        }
-      }
     }
   }, {
     key: 'update',
@@ -17944,6 +17933,15 @@ var PixiComponent = function (_PactComponent) {
   }
 
   _createClass(PixiComponent, [{
+    key: 'setProps',
+    value: function setProps(newProps) {
+      this.props = _.merge(_.cloneDeep(this.props), newProps);
+
+      if (this.pixiEl) {
+        this.setMember(this.pixiEl);
+      }
+    }
+  }, {
     key: 'setMember',
     value: function setMember(pixiObj) {
       var _this2 = this;
@@ -17952,6 +17950,12 @@ var PixiComponent = function (_PactComponent) {
 
       if (member) {
         _pixiLib2.default.setConfig(pixiObj, member);
+
+        if (member.play === false) {
+          pixiObj.stop();
+        } else if (member.play === true) {
+          pixiObj.play();
+        }
       }
       eventsArr.forEach(function (eventName) {
         var fn = _this2.props[eventName];
@@ -19382,7 +19386,7 @@ function updateChildren(instanceParentVnode, newParentVnode) {
 }
 
 function patchVnode(oldVNode, newVNode) {
-  // 完全等价的节点，不同替换。但props可能变化
+  // 完全等价的节点，不用替换。但props可能变化
   // 非顶级
   if (!utils.compareObject(oldVNode.props, newVNode.props)) {
     syncProps(oldVNode, newVNode);
@@ -19411,11 +19415,12 @@ function updateComponent(instance) {
     var isEquivalentNode = utils.equalVNode(instance.vNode, newVNode);
     log('updateComponent', instance.vNode.props, newVNode.props, isEquivalentNode);
     log('updateComponent', instance.vNode.key, newVNode.key);
+
     if (isEquivalentNode) {
       patchVnode(instance.vNode, newVNode);
     } else {
       //...
-      syncProps(instance.vNode, newVNode);
+      // syncProps(instance.vNode, newVNode);
     }
   }
   // debugger;

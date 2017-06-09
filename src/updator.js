@@ -172,7 +172,7 @@ function updateChildren(instanceParentVnode, newParentVnode) {
 }
 
 function patchVnode(oldVNode, newVNode) {
-  // 完全等价的节点，不同替换。但props可能变化
+  // 完全等价的节点，不用替换。但props可能变化
   // 非顶级
   if(!utils.compareObject(oldVNode.props, newVNode.props)){
     syncProps(oldVNode, newVNode);
@@ -204,11 +204,12 @@ function updateComponent(instance) {
     var isEquivalentNode = utils.equalVNode(instance.vNode, newVNode);
     log(`updateComponent`,instance.vNode.props, newVNode.props, isEquivalentNode);
     log(`updateComponent`,instance.vNode.key, newVNode.key);
+
     if (isEquivalentNode){
       patchVnode(instance.vNode, newVNode)
     } else {
       //...
-      syncProps(instance.vNode, newVNode);
+      // syncProps(instance.vNode, newVNode);
     }
   }
   // debugger;

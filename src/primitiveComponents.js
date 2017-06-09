@@ -31,18 +31,6 @@ export class PactComponent {
   setProps (newProps) {
 
     this.props = _.merge(_.cloneDeep(this.props),newProps);
-
-    if(this.pixiEl){
-      pixiLib.setConfig(this.pixiEl, newProps.member);
-
-      if(newProps.member){
-        if(newProps.member.play === false){
-          this.pixiEl.stop();
-        }else if(newProps.member.play === true){
-          this.pixiEl.play();
-        }
-      }
-    }
   }
 
   update () {
@@ -76,10 +64,25 @@ class PixiComponent extends PactComponent{
 
     this.texture = props.texture;
   }
+
+  setProps (newProps) {
+    this.props = _.merge(_.cloneDeep(this.props),newProps);
+
+    if(this.pixiEl){
+      this.setMember(this.pixiEl);
+    }
+  }
+
   setMember (pixiObj) {
     const {member} = this.props;
     if(member){
       pixiLib.setConfig(pixiObj,member);
+
+      if(member.play === false){
+        pixiObj.stop();
+      }else if(member.play === true){
+        pixiObj.play();
+      }
     }
     eventsArr.forEach(eventName => {
       const fn = this.props[eventName];
