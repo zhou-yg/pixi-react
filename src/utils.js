@@ -1,6 +1,6 @@
 'use strict';
 import {primitiveMap} from './primitiveComponents.js';
-
+import chalk from 'chalk';
 export function isDef(v) {
   return v !== undefined;
 }
@@ -108,7 +108,14 @@ export function isReservedType(name) {
 }
 
 export function log(){
-  if(['replaceVNode',''].indexOf(arguments[0]) !== -1) {
-    console.log.apply(console,arguments);
+  if([
+      // 'replaceVNode',
+      // 'updateComponent',
+      // 'updateChildren',
+      // 'syncProps',
+      // 'patchVnode',
+    ].indexOf(arguments[0]) !== -1) {
+    const args = [...arguments];
+    console.log.apply(console,[chalk.green(args[0])].concat(args.slice(1)));
   }
 }

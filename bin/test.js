@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 46);
+/******/ 	return __webpack_require__(__webpack_require__.s = 53);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -73,7 +73,7 @@
 /**
  * Created by zyg on 16/7/15.
  */
-module.exports = __webpack_require__(26)
+module.exports = __webpack_require__(32)
 
 /***/ }),
 /* 1 */
@@ -17165,10 +17165,37 @@ module.exports = __webpack_require__(26)
   }
 }.call(this));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9), __webpack_require__(44)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2), __webpack_require__(25)(module)))
 
 /***/ }),
 /* 2 */
+/***/ (function(module, exports) {
+
+var g;
+
+// This works in non-strict mode
+g = (function() {
+	return this;
+})();
+
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || Function("return this")() || (1,eval)("this");
+} catch(e) {
+	// This works if the window reference is available
+	if(typeof window === "object")
+		g = window;
+}
+
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
+
+module.exports = g;
+
+
+/***/ }),
+/* 3 */
 /***/ (function(module, exports) {
 
 /**
@@ -17181,7 +17208,7 @@ module.exports = function addStyle(ele, styleObj) {
 }
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -17197,7 +17224,193 @@ module.exports = function(value,num){
 }
 
 /***/ }),
-/* 4 */
+/* 5 */
+/***/ (function(module, exports) {
+
+// shim for using process in browser
+var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+(function () {
+    try {
+        if (typeof setTimeout === 'function') {
+            cachedSetTimeout = setTimeout;
+        } else {
+            cachedSetTimeout = defaultSetTimout;
+        }
+    } catch (e) {
+        cachedSetTimeout = defaultSetTimout;
+    }
+    try {
+        if (typeof clearTimeout === 'function') {
+            cachedClearTimeout = clearTimeout;
+        } else {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    } catch (e) {
+        cachedClearTimeout = defaultClearTimeout;
+    }
+} ())
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+
+
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+
+
+
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
+
+/***/ }),
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17220,7 +17433,13 @@ exports.compareObject = compareObject;
 exports.isReservedType = isReservedType;
 exports.log = log;
 
-var _primitiveComponents = __webpack_require__(12);
+var _primitiveComponents = __webpack_require__(13);
+
+var _chalk = __webpack_require__(28);
+
+var _chalk2 = _interopRequireDefault(_chalk);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function isDef(v) {
   return v !== undefined;
@@ -17326,19 +17545,149 @@ function isReservedType(name) {
 }
 
 function log() {
-  if (['replaceVNode', ''].indexOf(arguments[0]) !== -1) {
-    console.log.apply(console, arguments);
+  if ([
+    // 'replaceVNode',
+    // 'updateComponent',
+    // 'updateChildren',
+    // 'syncProps',
+    // 'patchVnode',
+  ].indexOf(arguments[0]) !== -1) {
+    var args = [].concat(Array.prototype.slice.call(arguments));
+    console.log.apply(console, [_chalk2.default.green(args[0])].concat(args.slice(1)));
   }
 }
 
 /***/ }),
-/* 5 */
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+//import PIXI from 'pixi.js'
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var _pixiLib = __webpack_require__(14);
+
+var _pixiLib2 = _interopRequireDefault(_pixiLib);
+
+var _utils = __webpack_require__(6);
+
+var utils = _interopRequireWildcard(_utils);
+
+var _lodash = __webpack_require__(1);
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var _mount = __webpack_require__(12);
+
+var _primitiveComponents = __webpack_require__(13);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var isUndef = utils.isUndef,
+    isDef = utils.isDef,
+    log = utils.log;
+
+/**
+
+node -> inst -> node2 -> inst2
+
+**/
+
+function renderTo(node, pixiContainer) {
+  var instance = new node.type(node.props, node.slots);
+  var instanceVNode = instance.render();
+
+  node.instance = instance;
+
+  node.isTop = true;
+  instance.isTop = true;
+
+  instance.pixiEl = pixiContainer;
+  instance.vNode = instanceVNode;
+
+  var rootInstance = (0, _mount.mountComponent)(instanceVNode, instance, instance);
+  rootInstance.didMounted();
+  instance.didMounted();
+
+  return instance;
+}
+
+function h(componentClass, props) {
+  for (var _len = arguments.length, children = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+    children[_key - 2] = arguments[_key];
+  }
+
+  if (!props) {
+    props = {};
+  }
+  children = children.filter(function (child) {
+    return (typeof child === 'undefined' ? 'undefined' : _typeof(child)) === 'object' || typeof child === 'string';
+  }).reduce(function (prev, next) {
+    // 带slots情况下,children是个二维数组, 需要用isSlot区分
+    if (true) {
+      if (Array.isArray(next) && !next.isSlot && !next.every(function (node) {
+        return !!node.key;
+      })) {
+
+        throw new Error('数组返回的每个节点必须含有key');
+      }
+    }
+
+    return prev.concat(next);
+  }, []);
+
+  var slots = [];
+
+  // @TODO
+  if (utils.isReservedType(componentClass)) {
+    componentClass = _primitiveComponents.primitiveMap[componentClass];
+  } else if (typeof componentClass === 'function') {
+    //暂时忽略 props.children
+    slots = children.slice();
+    slots.isSlot = true;
+    slots.map(function (slotNode) {
+      slotNode.isSlot = true;
+    });
+    children = [];
+  } else {
+    console.error(componentClass);
+    throw new Error('the compoennt ' + componentClass + ' muse be a PactComponent');
+  }
+
+  var key = props.key;
+  delete props.key;
+
+  var node = {
+    type: componentClass,
+    key: key,
+    instance: null,
+    props: props,
+    children: children,
+    slots: slots,
+    isSlot: false,
+    isTop: false,
+    contextInstance: null };
+
+  return node;
+}
+
+module.exports.renderTo = renderTo;
+module.exports.PactComponent = _primitiveComponents.PactComponent;
+module.exports.Container = _primitiveComponents.primitiveMap.c;
+module.exports.h = h;
+
+/***/ }),
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(PIXI) {/**
  * Created by zyg on 16/1/31.
  */
-var setConfig = __webpack_require__(6);
+var setConfig = __webpack_require__(9);
 
 module.exports = function getMc(config) {
 
@@ -17364,7 +17713,7 @@ module.exports = function getMc(config) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 6 */
+/* 9 */
 /***/ (function(module, exports) {
 
 /**
@@ -17394,14 +17743,14 @@ module.exports = function(object,config){
 
 
 /***/ }),
-/* 7 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(requestAnimationFrame) {/**
  * Created by zyg on 16/7/20.
  */
 
-var addStyle = __webpack_require__(2)
+var addStyle = __webpack_require__(3)
 
 function blockStyle(bgc) {
   return {
@@ -17516,13 +17865,13 @@ module.exports = function(dataArr){
     }
   }
 }
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11)))
 
 /***/ }),
-/* 8 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(global) {var now = __webpack_require__(25)
+/* WEBPACK VAR INJECTION */(function(global) {var now = __webpack_require__(31)
   , root = typeof window === 'undefined' ? global : window
   , vendors = ['moz', 'webkit']
   , suffix = 'AnimationFrame'
@@ -17595,160 +17944,10 @@ module.exports.polyfill = function() {
   root.cancelAnimationFrame = caf
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ }),
-/* 9 */
-/***/ (function(module, exports) {
-
-var g;
-
-// This works in non-strict mode
-g = (function() {
-	return this;
-})();
-
-try {
-	// This works if eval is allowed (see CSP)
-	g = g || Function("return this")() || (1,eval)("this");
-} catch(e) {
-	// This works if the window reference is available
-	if(typeof window === "object")
-		g = window;
-}
-
-// g can still be undefined, but nothing to do about it...
-// We return undefined, instead of nothing here, so it's
-// easier to handle this case. if(!global) { ...}
-
-module.exports = g;
-
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-//import PIXI from 'pixi.js'
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-var _pixiLib = __webpack_require__(13);
-
-var _pixiLib2 = _interopRequireDefault(_pixiLib);
-
-var _utils = __webpack_require__(4);
-
-var utils = _interopRequireWildcard(_utils);
-
-var _lodash = __webpack_require__(1);
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
-var _mount = __webpack_require__(11);
-
-var _primitiveComponents = __webpack_require__(12);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var isUndef = utils.isUndef,
-    isDef = utils.isDef,
-    log = utils.log;
-
-/**
-
-node -> inst -> node2 -> inst2
-
-**/
-
-function renderTo(node, pixiContainer) {
-  var instance = new node.type(node.props, node.slots);
-  var instanceVNode = instance.render();
-
-  node.instance = instance;
-
-  node.isTop = true;
-  instance.isTop = true;
-
-  instance.pixiEl = pixiContainer;
-  instance.vNode = instanceVNode;
-
-  var rootInstance = (0, _mount.mountComponent)(instanceVNode, instance, instance);
-  rootInstance.didMounted();
-  instance.didMounted();
-
-  return instance;
-}
-
-function h(componentClass, props) {
-  for (var _len = arguments.length, children = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
-    children[_key - 2] = arguments[_key];
-  }
-
-  if (!props) {
-    props = {};
-  }
-  children = children.filter(function (child) {
-    return (typeof child === 'undefined' ? 'undefined' : _typeof(child)) === 'object' || typeof child === 'string';
-  }).reduce(function (prev, next) {
-    // 带slots情况下,children是个二维数组, 需要用isSlot区分
-    if (true) {
-      if (Array.isArray(next) && !next.isSlot && !next.every(function (node) {
-        return !!node.key;
-      })) {
-
-        throw new Error('数组返回的每个节点必须含有key');
-      }
-    }
-
-    return prev.concat(next);
-  }, []);
-
-  var slots = [];
-
-  // @TODO
-  if (utils.isReservedType(componentClass)) {
-    componentClass = _primitiveComponents.primitiveMap[componentClass];
-  } else if (typeof componentClass === 'function') {
-    //暂时忽略 props.children
-    slots = children.slice();
-    slots.isSlot = true;
-    slots.map(function (slotNode) {
-      slotNode.isSlot = true;
-    });
-    children = [];
-  } else {
-    console.error(componentClass);
-    throw new Error('the compoennt ' + componentClass + ' muse be a PactComponent');
-  }
-
-  var key = props.key;
-  delete props.key;
-
-  var node = {
-    type: componentClass,
-    key: key,
-    instance: null,
-    props: props,
-    children: children,
-    slots: slots,
-    isSlot: false,
-    isTop: false,
-    contextInstance: null };
-
-  return node;
-}
-
-module.exports.renderTo = renderTo;
-module.exports.PactComponent = _primitiveComponents.PactComponent;
-module.exports.Container = _primitiveComponents.primitiveMap.c;
-module.exports.h = h;
-
-/***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -17756,7 +17955,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.mountComponent = mountComponent;
 
-var _utils = __webpack_require__(4);
+var _utils = __webpack_require__(6);
 
 var utils = _interopRequireWildcard(_utils);
 
@@ -17777,6 +17976,12 @@ function mountComponent(parentNode, parentComponent, contextComponent, contextPa
     var vNode = instance.render();
 
     parentNode.instance = instance;
+
+    if (parentNode.isSlot) {
+      parentNode.contextInstance = contextComponent;
+    } else {
+      parentNode.contextInstance = parentComponent;
+    }
 
     // console.log('mountComponent 0', parentComponent, contextComponent);
 
@@ -17806,17 +18011,14 @@ function mountComponent(parentNode, parentComponent, contextComponent, contextPa
     parentNode.children.map(function (childNode) {
 
       var childContextComponent;
-      var childContextParent;
 
       if (childNode.isSlot) {
         childContextComponent = contextParent;
-        childContextParent = null;
       } else {
         childContextComponent = contextComponent;
-        childContextParent = contextParent;
       }
 
-      var childInstance = mountComponent(childNode, instance, childContextComponent, childContextParent);
+      var childInstance = mountComponent(childNode, instance, childContextComponent, contextParent);
 
       instance.children.push(childInstance);
     });
@@ -17828,7 +18030,7 @@ function mountComponent(parentNode, parentComponent, contextComponent, contextPa
 }
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(PIXI) {Object.defineProperty(exports, "__esModule", {
@@ -17838,7 +18040,7 @@ exports.primitiveMap = exports.PactComponent = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _pixiLib = __webpack_require__(13);
+var _pixiLib = __webpack_require__(14);
 
 var _pixiLib2 = _interopRequireDefault(_pixiLib);
 
@@ -17846,7 +18048,7 @@ var _lodash = __webpack_require__(1);
 
 var _lodash2 = _interopRequireDefault(_lodash);
 
-var _updator = __webpack_require__(24);
+var _updator = __webpack_require__(27);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -18118,10 +18320,10 @@ var primitiveMap = exports.primitiveMap = {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var pixiLib = {appendStage:__webpack_require__(27),audioControl:__webpack_require__(29),canvasManager:__webpack_require__(14),createAction:__webpack_require__(30),createLoader:__webpack_require__(15),createRender:__webpack_require__(16),distance:__webpack_require__(17),fixSpriteProperties:__webpack_require__(31),getIm:__webpack_require__(18),getMc:__webpack_require__(5),getSp:__webpack_require__(19),getTextures:__webpack_require__(32),loadResource:__webpack_require__(20),loadSprite:__webpack_require__(33),makeIdentity:__webpack_require__(36),math:__webpack_require__(37),setConfig:__webpack_require__(6),types:__webpack_require__(21),audio:{loadAudio:__webpack_require__(28),}, loading:{basicLoading:__webpack_require__(34),mpLoading:__webpack_require__(35),}, utils:{addStyle:__webpack_require__(2),basicLoading:__webpack_require__(38),matrixManager:__webpack_require__(7),mpLoading:__webpack_require__(39),repeat:__webpack_require__(3),resizeImageData:__webpack_require__(40),shareGuide:__webpack_require__(41),unfoldArray:__webpack_require__(42),},};if( typeof window !== "undefined" ){ 
+var pixiLib = {appendStage:__webpack_require__(33),audioControl:__webpack_require__(35),canvasManager:__webpack_require__(17),createAction:__webpack_require__(36),createLoader:__webpack_require__(18),createRender:__webpack_require__(19),distance:__webpack_require__(20),fixSpriteProperties:__webpack_require__(37),getIm:__webpack_require__(21),getMc:__webpack_require__(8),getSp:__webpack_require__(22),getTextures:__webpack_require__(38),loadResource:__webpack_require__(23),loadSprite:__webpack_require__(39),makeIdentity:__webpack_require__(42),math:__webpack_require__(43),setConfig:__webpack_require__(9),types:__webpack_require__(24),audio:{loadAudio:__webpack_require__(34),}, loading:{basicLoading:__webpack_require__(40),mpLoading:__webpack_require__(41),}, utils:{addStyle:__webpack_require__(3),basicLoading:__webpack_require__(44),matrixManager:__webpack_require__(10),mpLoading:__webpack_require__(45),repeat:__webpack_require__(4),resizeImageData:__webpack_require__(46),shareGuide:__webpack_require__(47),unfoldArray:__webpack_require__(48),},};if( typeof window !== "undefined" ){ 
 window.pixiLib=pixiLib; 
 } 
 if(true ){  
@@ -18129,389 +18331,18 @@ module.exports= pixiLib;
 }
 
 /***/ }),
-/* 14 */
-/***/ (function(module, exports) {
-
-var canvases = {}
-
-var getCanvas = function(key) {
-  return canvases[key]
-}
-
-var setCanvas = function(key, canvas) {
-  canvases[key] = canvas
-}
-module.exports = {
-  getCanvas: getCanvas,
-  setCanvas: setCanvas
-}
-
-
-/***/ }),
 /* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(PIXI) {var _ = __webpack_require__(1)
+"use strict";
 
-var loadedResourceCache = {};
-/**
- *
- * @param config
- *
- * publicPath:'资源加载路径',以/结尾
- *
- * @returns {{load: Function}}
- */
-function createLoader(config) {
-
-  var mySpriteNames = [];
-
-  return {
-
-    load: function load(cb) {
-
-      mySpriteNames.forEach(function (spriteResourceOne) {
-        PIXI.loader.add(
-          spriteResourceOne.key,
-          spriteResourceOne.value
-        );
-      });
-
-      if(mySpriteNames.length > 0){
-
-        mySpriteNames = [];
-
-        PIXI.loader.load(function (loader,loadedResources) {
-
-          loadedResourceCache = _.assign(loadedResourceCache,loadedResources);
-
-          cb(loader,loadedResourceCache);
-        });
-      }else{
-        cb(PIXI.loader,loadedResourceCache);
-      }
-
-      return this;
-    },
-    add: function add(spriteNames,postFix,dir) {
-      if (!postFix) {
-        postFix = 'json'
-      }
-      if(!dir){
-        dir = '';
-      }
-      spriteNames = [].concat(spriteNames).filter(function (spriteNameOne) {
-
-        return !loadedResourceCache[spriteNameOne]
-
-      }).map(function (spriteNameOne) {
-
-        var spriteDir = config.publicPath;
-
-        if(dir){
-          spriteDir += dir + '/';
-        }
-
-        return {
-          key: spriteNameOne,
-          value: spriteDir + spriteNameOne + '/' + spriteNameOne + '.' + postFix
-        }
-      });
-
-      mySpriteNames = mySpriteNames.concat(spriteNames);
-
-      return this;
-    },
-    addMulti : function addMulti(spriteName,nameFormats,postFix){
-      if (!postFix) {
-        postFix = 'json'
-      }
-
-
-      if(typeof nameFormats === 'number'){
-        nameFormats = _.range(nameFormats);
-      }
-
-      mySpriteNames = mySpriteNames.concat(nameFormats.map(function (i) {
-
-        var spriteNameOne = spriteName + i;
-
-        return {
-          key:spriteNameOne,
-          value: config.publicPath + spriteName + '/' + spriteNameOne + '.' + postFix
-        }
-      }).filter(function (spriteObjOne) {
-        return !loadedResourceCache[spriteObjOne.key]
-      }));
-
-      return this;
-    }
-  }
-}
-
-createLoader.getResources = function getResources() {
-  return loadedResourceCache;
+module.exports = function () {
+	return /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-PRZcf-nqry=><]/g;
 };
 
-module.exports = createLoader;
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
 /* 16 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(PIXI, requestAnimationFrame) {var _ = __webpack_require__(1)
-var canvasManager = __webpack_require__(14)
-var DEFAULT_WIDTH = 640;
-
-var DEFAULT_HEIGHT = 1004;
-/**
- * 创建一个渲染器
- * @param container
- * @param config
- * @returns {Function}
- */
-
-function createRender(container,config) {
-
-  if(!config){
-    config = {};
-  }
-
-  config.w = config.w || DEFAULT_WIDTH;
-  config.h = config.h || DEFAULT_HEIGHT;
-  config.bg = config.bg || '#fff';
-  config.transparent = config.transparent || true
-
-  var renderer = new PIXI.autoDetectRenderer(config.w, config.h, config);
-  if (!renderer.view.parentElement) {
-    container.appendChild(renderer.view);
-  }
-  if (config.canvasKey) {
-    canvasManager.setCanvas(config.canvasKey, renderer.view)
-  }
-  var raf = null;
-
-  return function animate(stage) {
-
-    if(_.isFunction(stage)){
-      stage = stage()
-    }
-
-    cancelAnimationFrame(raf);
-
-    var animate = function (s,cb) {
-
-      raf = requestAnimationFrame(function(){
-        animate(s,cb);
-      });
-
-      if(s.render){
-        s.render();
-      }
-
-      s.children.forEach((function(child){
-        if(child.render){
-          child.render();
-        }
-      }));
-      renderer.render(s);
-
-      cb && cb();
-    };
-
-    animate(stage);
-
-    return {
-      cancel:function animateCancel(){
-        cancelAnimationFrame(raf);
-      },
-      startDuration:function start(duration){
-        animate(stage);
-        if(duration>0){
-          setTimeout(function () {
-            cancelAnimationFrame(raf);
-          },duration)
-        }
-      },
-      startCount:function start(count){
-        var i = 0;
-        animate(stage,function(){
-          i++;
-          if(i > count){
-            cancelAnimationFrame(raf);
-          }
-        });
-      }
-    }
-  }
-}
-
-createRender.DEFAULT_WIDTH = DEFAULT_WIDTH;
-createRender.DEFAULT_HEIGHT = DEFAULT_HEIGHT;
-
-module.exports = createRender;
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0), __webpack_require__(8)))
-
-/***/ }),
-/* 17 */
-/***/ (function(module, exports) {
-
-/**
- * 计算两点间距
- * @param x1
- * @param y1
- * @param x2
- * @param y2
- * @returns {number}
- */
-module.exports = function(x1, y1, x2, y2) {
-  console.log('deprecated:use .math.distance')
-  return Math.pow((Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2)), 0.5);
-}
-
-/***/ }),
-/* 18 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(PIXI) {/**
- * Created by zyg on 16/1/31.
- */
-
-var setConfig = __webpack_require__(6);
-
-module.exports = function getIm(config) {
-  config = Object.assign({},config);
-
-  var textures = config.textures;
-
-  delete config.textures;
-
-  var sp = new PIXI.Sprite(textures);
-
-  sp.renderCount = 0;
-
-  return setConfig(sp,config);
-};
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 19 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Created by zyg on 16/2/29.
- */
-var getMc = __webpack_require__(5);
-
-/**
- *
- * @param config
- * @param actions 截止frame帧数
- *  [4,7,10]
- * @returns {*}
- */
-module.exports = function getSp(config,actions) {
-  if(!actions){
-    actions = []
-  }
-
-  var obj = getMc(config);
-
-  var _render = function(){};
-
-  var onAction = false;
-  /**
-   * 0~4-0
-   * 0-5~7-0
-   * 0-8~10-0
-   * 
-   * isKeepEnd 是否停在最后
-   */
-  obj.playAction = function playAction(index,loop,isKeepEnd) {
-    if(!index){
-      index = 0;
-    }
-
-    if(index < 0 || index > actions.length){
-      return false;
-    }
-
-    var min = (actions[index - 1]+1) || 0;
-    var max = actions[index];
-
-    var backTo = isKeepEnd ? max : 0
-    
-    this.gotoAndPlay(min);
-
-    _render = onAction ? _render : this.render;
-
-    onAction = true;
-
-    this.render = function copyRender() {
-      var cf = this.currentFrame;
-
-      if(cf >= max){
-
-        if(loop){
-          this.gotoAndPlay(min);
-        }else{
-          this.gotoAndStop(backTo);
-          this.render = _render;
-          onAction = false;
-        }
-      }
-
-      _render.call(this);
-    }
-  };
-
-  actions.map(function (ele, i) {
-    obj['playAction'+i] = obj.playAction.bind(obj,i);
-  });
-
-
-  return obj;
-};
-
-/***/ }),
-/* 20 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(PIXI) {/**
- * 加载对应的资源链接，png或json
- * @param resourceUrl
- * @param cb resourceObject
- */
-var count = 0;
-
-module.exports = function loadResource(resourceUrl, cb) {
-  var resourceKey = 'img' + Date.now() + '' + (count++);
-
-  PIXI.loader.add(resourceKey, resourceUrl)
-    .load(function (loader, resources) {
-
-      cb(resources[resourceKey]);
-    });
-};
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 21 */
-/***/ (function(module, exports) {
-
-module.exports = {
-  SPRITE_MC:'mc',
-  SPRITE_MC_ALIAS:'movieClip',
-  SPRITE_IM:'im',
-  SPRITE_IM_ALIAS:'image',
-  SPRITE_SP:'sp',
-};
-
-/***/ }),
-/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -18583,7 +18414,7 @@ function isBuffer(b) {
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-var util = __webpack_require__(53);
+var util = __webpack_require__(61);
 var hasOwn = Object.prototype.hasOwnProperty;
 var pSlice = Array.prototype.slice;
 var functionsHaveNames = (function () {
@@ -19006,196 +18837,493 @@ var objectKeys = Object.keys || function (obj) {
   return keys;
 };
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports) {
+
+var canvases = {}
+
+var getCanvas = function(key) {
+  return canvases[key]
+}
+
+var setCanvas = function(key, canvas) {
+  canvases[key] = canvas
+}
+module.exports = {
+  getCanvas: getCanvas,
+  setCanvas: setCanvas
+}
+
+
+/***/ }),
+/* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(PIXI) {var _ = __webpack_require__(1)
+
+var loadedResourceCache = {};
+/**
+ *
+ * @param config
+ *
+ * publicPath:'资源加载路径',以/结尾
+ *
+ * @returns {{load: Function}}
+ */
+function createLoader(config) {
+
+  var mySpriteNames = [];
+
+  return {
+
+    load: function load(cb) {
+
+      mySpriteNames.forEach(function (spriteResourceOne) {
+        PIXI.loader.add(
+          spriteResourceOne.key,
+          spriteResourceOne.value
+        );
+      });
+
+      if(mySpriteNames.length > 0){
+
+        mySpriteNames = [];
+
+        PIXI.loader.load(function (loader,loadedResources) {
+
+          loadedResourceCache = _.assign(loadedResourceCache,loadedResources);
+
+          cb(loader,loadedResourceCache);
+        });
+      }else{
+        cb(PIXI.loader,loadedResourceCache);
+      }
+
+      return this;
+    },
+    add: function add(spriteNames,postFix,dir) {
+      if (!postFix) {
+        postFix = 'json'
+      }
+      if(!dir){
+        dir = '';
+      }
+      spriteNames = [].concat(spriteNames).filter(function (spriteNameOne) {
+
+        return !loadedResourceCache[spriteNameOne]
+
+      }).map(function (spriteNameOne) {
+
+        var spriteDir = config.publicPath;
+
+        if(dir){
+          spriteDir += dir + '/';
+        }
+
+        return {
+          key: spriteNameOne,
+          value: spriteDir + spriteNameOne + '/' + spriteNameOne + '.' + postFix
+        }
+      });
+
+      mySpriteNames = mySpriteNames.concat(spriteNames);
+
+      return this;
+    },
+    addMulti : function addMulti(spriteName,nameFormats,postFix){
+      if (!postFix) {
+        postFix = 'json'
+      }
+
+
+      if(typeof nameFormats === 'number'){
+        nameFormats = _.range(nameFormats);
+      }
+
+      mySpriteNames = mySpriteNames.concat(nameFormats.map(function (i) {
+
+        var spriteNameOne = spriteName + i;
+
+        return {
+          key:spriteNameOne,
+          value: config.publicPath + spriteName + '/' + spriteNameOne + '.' + postFix
+        }
+      }).filter(function (spriteObjOne) {
+        return !loadedResourceCache[spriteObjOne.key]
+      }));
+
+      return this;
+    }
+  }
+}
+
+createLoader.getResources = function getResources() {
+  return loadedResourceCache;
+};
+
+module.exports = createLoader;
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(PIXI, requestAnimationFrame) {var _ = __webpack_require__(1)
+var canvasManager = __webpack_require__(17)
+var DEFAULT_WIDTH = 640;
+
+var DEFAULT_HEIGHT = 1004;
+/**
+ * 创建一个渲染器
+ * @param container
+ * @param config
+ * @returns {Function}
+ */
+
+function createRender(container,config) {
+
+  if(!config){
+    config = {};
+  }
+
+  config.w = config.w || DEFAULT_WIDTH;
+  config.h = config.h || DEFAULT_HEIGHT;
+  config.bg = config.bg || '#fff';
+  config.transparent = config.transparent || true
+
+  var renderer = new PIXI.autoDetectRenderer(config.w, config.h, config);
+  if (!renderer.view.parentElement) {
+    container.appendChild(renderer.view);
+  }
+  if (config.canvasKey) {
+    canvasManager.setCanvas(config.canvasKey, renderer.view)
+  }
+  var raf = null;
+
+  return function animate(stage) {
+
+    if(_.isFunction(stage)){
+      stage = stage()
+    }
+
+    cancelAnimationFrame(raf);
+
+    var animate = function (s,cb) {
+
+      raf = requestAnimationFrame(function(){
+        animate(s,cb);
+      });
+
+      if(s.render){
+        s.render();
+      }
+
+      s.children.forEach((function(child){
+        if(child.render){
+          child.render();
+        }
+      }));
+      renderer.render(s);
+
+      cb && cb();
+    };
+
+    animate(stage);
+
+    return {
+      cancel:function animateCancel(){
+        cancelAnimationFrame(raf);
+      },
+      startDuration:function start(duration){
+        animate(stage);
+        if(duration>0){
+          setTimeout(function () {
+            cancelAnimationFrame(raf);
+          },duration)
+        }
+      },
+      startCount:function start(count){
+        var i = 0;
+        animate(stage,function(){
+          i++;
+          if(i > count){
+            cancelAnimationFrame(raf);
+          }
+        });
+      }
+    }
+  }
+}
+
+createRender.DEFAULT_WIDTH = DEFAULT_WIDTH;
+createRender.DEFAULT_HEIGHT = DEFAULT_HEIGHT;
+
+module.exports = createRender;
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0), __webpack_require__(11)))
+
+/***/ }),
+/* 20 */
+/***/ (function(module, exports) {
+
+/**
+ * 计算两点间距
+ * @param x1
+ * @param y1
+ * @param x2
+ * @param y2
+ * @returns {number}
+ */
+module.exports = function(x1, y1, x2, y2) {
+  console.log('deprecated:use .math.distance')
+  return Math.pow((Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2)), 0.5);
+}
+
+/***/ }),
+/* 21 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(PIXI) {/**
+ * Created by zyg on 16/1/31.
+ */
+
+var setConfig = __webpack_require__(9);
+
+module.exports = function getIm(config) {
+  config = Object.assign({},config);
+
+  var textures = config.textures;
+
+  delete config.textures;
+
+  var sp = new PIXI.Sprite(textures);
+
+  sp.renderCount = 0;
+
+  return setConfig(sp,config);
+};
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 22 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Created by zyg on 16/2/29.
+ */
+var getMc = __webpack_require__(8);
+
+/**
+ *
+ * @param config
+ * @param actions 截止frame帧数
+ *  [4,7,10]
+ * @returns {*}
+ */
+module.exports = function getSp(config,actions) {
+  if(!actions){
+    actions = []
+  }
+
+  var obj = getMc(config);
+
+  var _render = function(){};
+
+  var onAction = false;
+  /**
+   * 0~4-0
+   * 0-5~7-0
+   * 0-8~10-0
+   * 
+   * isKeepEnd 是否停在最后
+   */
+  obj.playAction = function playAction(index,loop,isKeepEnd) {
+    if(!index){
+      index = 0;
+    }
+
+    if(index < 0 || index > actions.length){
+      return false;
+    }
+
+    var min = (actions[index - 1]+1) || 0;
+    var max = actions[index];
+
+    var backTo = isKeepEnd ? max : 0
+    
+    this.gotoAndPlay(min);
+
+    _render = onAction ? _render : this.render;
+
+    onAction = true;
+
+    this.render = function copyRender() {
+      var cf = this.currentFrame;
+
+      if(cf >= max){
+
+        if(loop){
+          this.gotoAndPlay(min);
+        }else{
+          this.gotoAndStop(backTo);
+          this.render = _render;
+          onAction = false;
+        }
+      }
+
+      _render.call(this);
+    }
+  };
+
+  actions.map(function (ele, i) {
+    obj['playAction'+i] = obj.playAction.bind(obj,i);
+  });
+
+
+  return obj;
+};
 
 /***/ }),
 /* 23 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-// shim for using process in browser
-var process = module.exports = {};
+/* WEBPACK VAR INJECTION */(function(PIXI) {/**
+ * 加载对应的资源链接，png或json
+ * @param resourceUrl
+ * @param cb resourceObject
+ */
+var count = 0;
 
-// cached from whatever global is present so that test runners that stub it
-// don't break things.  But we need to wrap it in a try catch in case it is
-// wrapped in strict mode code which doesn't define any globals.  It's inside a
-// function because try/catches deoptimize in certain engines.
+module.exports = function loadResource(resourceUrl, cb) {
+  var resourceKey = 'img' + Date.now() + '' + (count++);
 
-var cachedSetTimeout;
-var cachedClearTimeout;
+  PIXI.loader.add(resourceKey, resourceUrl)
+    .load(function (loader, resources) {
 
-function defaultSetTimout() {
-    throw new Error('setTimeout has not been defined');
-}
-function defaultClearTimeout () {
-    throw new Error('clearTimeout has not been defined');
-}
-(function () {
-    try {
-        if (typeof setTimeout === 'function') {
-            cachedSetTimeout = setTimeout;
-        } else {
-            cachedSetTimeout = defaultSetTimout;
-        }
-    } catch (e) {
-        cachedSetTimeout = defaultSetTimout;
-    }
-    try {
-        if (typeof clearTimeout === 'function') {
-            cachedClearTimeout = clearTimeout;
-        } else {
-            cachedClearTimeout = defaultClearTimeout;
-        }
-    } catch (e) {
-        cachedClearTimeout = defaultClearTimeout;
-    }
-} ())
-function runTimeout(fun) {
-    if (cachedSetTimeout === setTimeout) {
-        //normal enviroments in sane situations
-        return setTimeout(fun, 0);
-    }
-    // if setTimeout wasn't available but was latter defined
-    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
-        cachedSetTimeout = setTimeout;
-        return setTimeout(fun, 0);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedSetTimeout(fun, 0);
-    } catch(e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
-            return cachedSetTimeout.call(null, fun, 0);
-        } catch(e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
-            return cachedSetTimeout.call(this, fun, 0);
-        }
-    }
-
-
-}
-function runClearTimeout(marker) {
-    if (cachedClearTimeout === clearTimeout) {
-        //normal enviroments in sane situations
-        return clearTimeout(marker);
-    }
-    // if clearTimeout wasn't available but was latter defined
-    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
-        cachedClearTimeout = clearTimeout;
-        return clearTimeout(marker);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedClearTimeout(marker);
-    } catch (e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
-            return cachedClearTimeout.call(null, marker);
-        } catch (e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
-            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
-            return cachedClearTimeout.call(this, marker);
-        }
-    }
-
-
-
-}
-var queue = [];
-var draining = false;
-var currentQueue;
-var queueIndex = -1;
-
-function cleanUpNextTick() {
-    if (!draining || !currentQueue) {
-        return;
-    }
-    draining = false;
-    if (currentQueue.length) {
-        queue = currentQueue.concat(queue);
-    } else {
-        queueIndex = -1;
-    }
-    if (queue.length) {
-        drainQueue();
-    }
-}
-
-function drainQueue() {
-    if (draining) {
-        return;
-    }
-    var timeout = runTimeout(cleanUpNextTick);
-    draining = true;
-
-    var len = queue.length;
-    while(len) {
-        currentQueue = queue;
-        queue = [];
-        while (++queueIndex < len) {
-            if (currentQueue) {
-                currentQueue[queueIndex].run();
-            }
-        }
-        queueIndex = -1;
-        len = queue.length;
-    }
-    currentQueue = null;
-    draining = false;
-    runClearTimeout(timeout);
-}
-
-process.nextTick = function (fun) {
-    var args = new Array(arguments.length - 1);
-    if (arguments.length > 1) {
-        for (var i = 1; i < arguments.length; i++) {
-            args[i - 1] = arguments[i];
-        }
-    }
-    queue.push(new Item(fun, args));
-    if (queue.length === 1 && !draining) {
-        runTimeout(drainQueue);
-    }
+      cb(resources[resourceKey]);
+    });
 };
-
-// v8 likes predictible objects
-function Item(fun, array) {
-    this.fun = fun;
-    this.array = array;
-}
-Item.prototype.run = function () {
-    this.fun.apply(null, this.array);
-};
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-process.version = ''; // empty string to avoid regexp issues
-process.versions = {};
-
-function noop() {}
-
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-};
-
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-process.umask = function() { return 0; };
-
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
 /* 24 */
+/***/ (function(module, exports) {
+
+module.exports = {
+  SPRITE_MC:'mc',
+  SPRITE_MC_ALIAS:'movieClip',
+  SPRITE_IM:'im',
+  SPRITE_IM_ALIAS:'image',
+  SPRITE_SP:'sp',
+};
+
+/***/ }),
+/* 25 */
+/***/ (function(module, exports) {
+
+module.exports = function(module) {
+	if(!module.webpackPolyfill) {
+		module.deprecate = function() {};
+		module.paths = [];
+		// module.parent = undefined by default
+		if(!module.children) module.children = [];
+		Object.defineProperty(module, "loaded", {
+			enumerable: true,
+			get: function() {
+				return module.l;
+			}
+		});
+		Object.defineProperty(module, "id", {
+			enumerable: true,
+			get: function() {
+				return module.i;
+			}
+		});
+		module.webpackPolyfill = 1;
+	}
+	return module;
+};
+
+
+/***/ }),
+/* 26 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(module) {
+
+function assembleStyles () {
+	var styles = {
+		modifiers: {
+			reset: [0, 0],
+			bold: [1, 22], // 21 isn't widely supported and 22 does the same thing
+			dim: [2, 22],
+			italic: [3, 23],
+			underline: [4, 24],
+			inverse: [7, 27],
+			hidden: [8, 28],
+			strikethrough: [9, 29]
+		},
+		colors: {
+			black: [30, 39],
+			red: [31, 39],
+			green: [32, 39],
+			yellow: [33, 39],
+			blue: [34, 39],
+			magenta: [35, 39],
+			cyan: [36, 39],
+			white: [37, 39],
+			gray: [90, 39]
+		},
+		bgColors: {
+			bgBlack: [40, 49],
+			bgRed: [41, 49],
+			bgGreen: [42, 49],
+			bgYellow: [43, 49],
+			bgBlue: [44, 49],
+			bgMagenta: [45, 49],
+			bgCyan: [46, 49],
+			bgWhite: [47, 49]
+		}
+	};
+
+	// fix humans
+	styles.colors.grey = styles.colors.gray;
+
+	Object.keys(styles).forEach(function (groupName) {
+		var group = styles[groupName];
+
+		Object.keys(group).forEach(function (styleName) {
+			var style = group[styleName];
+
+			styles[styleName] = group[styleName] = {
+				open: '\u001b[' + style[0] + 'm',
+				close: '\u001b[' + style[1] + 'm'
+			};
+		});
+
+		Object.defineProperty(styles, groupName, {
+			value: group,
+			enumerable: false
+		});
+	});
+
+	return styles;
+}
+
+Object.defineProperty(module, 'exports', {
+	enumerable: true,
+	get: assembleStyles
+});
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(25)(module)))
+
+/***/ }),
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(requestAnimationFrame) {Object.defineProperty(exports, "__esModule", {
@@ -19207,7 +19335,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 exports.updateComponentSync = updateComponentSync;
 exports.updateComponentAsync = updateComponentAsync;
 
-var _utils = __webpack_require__(4);
+var _utils = __webpack_require__(6);
 
 var utils = _interopRequireWildcard(_utils);
 
@@ -19215,7 +19343,7 @@ var _lodash = __webpack_require__(1);
 
 var _lodash2 = _interopRequireDefault(_lodash);
 
-var _mount = __webpack_require__(11);
+var _mount = __webpack_require__(12);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -19229,10 +19357,21 @@ var isUndef = utils.isUndef,
 var updateQueue = []; //等待更新
 
 function syncProps(oldVNode, newVNode) {
-  oldVNode.props = _lodash2.default.merge(_lodash2.default.cloneDeep(oldVNode.props), newVNode.props);
+  log('syncProps', oldVNode);
+  log('syncProps', newVNode);
+
+  if (oldVNode.props.ref) {
+    delete oldVNode.contextInstance.refs[oldVNode.props.ref];
+  }
+
+  oldVNode.props = _lodash2.default.cloneDeep(newVNode.props);
   oldVNode.instance.setProps(oldVNode.props);
 
-  var rootVNode = oldVNode.instance.render();
+  updateComponent(oldVNode.instance);
+
+  if (newVNode.props.ref) {
+    oldVNode.contextInstance.refs[newVNode.props.ref] = oldVNode.instance.pixiEl ? oldVNode.instance.pixiEl : oldVNode;
+  }
 }
 
 function replaceVNode(parentVNode, newVNode, replaceIndex) {
@@ -19241,11 +19380,6 @@ function replaceVNode(parentVNode, newVNode, replaceIndex) {
   //...@TODO
   var newInstance = (0, _mount.mountComponent)(newVNode, parentVNode.instance, parentVNode.instance, parentVNode.instance);
   var oldVNode = parentVNode.children[replaceIndex];
-
-  log('replaceVNode', 'old', oldVNode);
-  if (oldVNode.props && oldVNode.props.ref) {
-    delete parentVNode.instance.refs[oldVNode.props.ref];
-  }
 
   parentVNode.instance.children[replaceIndex] = newInstance;
   parentVNode.children[replaceIndex] = newVNode;
@@ -19277,86 +19411,12 @@ function removeVNode(parentVNode, removeFromIndex) {
   }
 }
 
-// function updateChildren(instanceParentVnode, newParentVnode) {
-//   const oldCh = instanceParentVnode.children.slice();
-//   const newCh = newParentVnode.children.slice();
-//
-//   const oldLen = oldCh.length;
-//   const newLen = newCh.length;
-//
-//   var oldStartIndex = 0;
-//   var oldEndIndex = 0;
-//   var oldStartVnode = oldCh[0];
-//   var oldEndVnode = oldCh[oldLen - 1];
-//
-//   var newStartIndex = 0;
-//   var newEndIndex = newLen -1;
-//   var newStartVnode = newCh[0];
-//   var newEndVnode = newCh[newLen-1];
-//
-//   var patchedIndexArr = [];
-//   var addedNum = 0;
-//   //newCh [new1, new2, new3...]
-//   while (newStartIndex <= newEndIndex) {
-//     if(patchedIndexArr.indexOf(newStartIndex) !== -1){
-//       newStartIndex++;
-//       continue;
-//     }
-//     //...diff
-//     let newVNode = newCh[newStartIndex];
-//     let oldChIndex = oldStartIndex;
-//     let finalMatchOldNode = false;
-//
-//     //oldCh [old1, old2, old3....]
-//     while(oldChIndex <= oldLen - 1){
-//       let oldVNode = oldCh[oldChIndex];
-//
-//       if(utils.equalVNode(oldVNode, newVNode)){
-//         oldStartIndex = oldChIndex+1;
-//
-//         patchVnode(oldVNode, newVNode);
-//         finalMatchOldNode = true;
-//         break;
-//       }else{
-//         let findOldVNode = false;
-//         let otherNewIndex = newStartIndex + 1;
-//         let newVNode2 = null;
-//
-//         //newCh [new2, new3...]
-//         while (otherNewIndex <= newEndIndex) {
-//           newVNode2 = newCh[otherNewIndex];
-//           if(utils.equalVNode(oldVNode, newVNode2)){
-//             patchedIndexArr.push(otherNewIndex);
-//             findOldVNode = true;
-//             break;
-//           }
-//           otherNewIndex++;
-//         }
-//
-//         if(findOldVNode){
-//           oldStartIndex = oldChIndex + 1;
-//           patchVnode(oldVNode, newVNode2);
-//           break;
-//         }else{
-//           removeVNode(instanceParentVnode, oldVNode, oldChIndex + addedNum);
-//           addedNum--;
-//           oldChIndex++;
-//           oldStartIndex++;
-//         }
-//       }
-//     }
-//
-//     if(!finalMatchOldNode){
-//       addVNode(instanceParentVnode, newVNode, oldChIndex);
-//       addedNum++;
-//     }
-//     newStartIndex++;
-//   }
-// }
-
 function updateChildren(instanceParentVnode, newParentVnode) {
   var oldCh = instanceParentVnode.children.slice();
   var newCh = newParentVnode.children.slice();
+
+  log('updateChildren', 'old', oldCh);
+  log('updateChildren', 'newCh', newCh);
 
   var oldLen = oldCh.length;
   var newLen = newCh.length;
@@ -19408,7 +19468,6 @@ function patchVnode(oldVNode, newVNode) {
   // 非顶级
   if (!utils.compareObject(oldVNode.props, newVNode.props)) {
     syncProps(oldVNode, newVNode);
-    updateComponent(oldVNode.instance);
   }
 
   var isEquivalentNodeWithChildren = utils.equalVNodeChildren(oldVNode, newVNode);
@@ -19431,7 +19490,20 @@ function patchVnode(oldVNode, newVNode) {
 
 function updateComponent(instance) {
   var newVNode = instance.render();
-  if (utils.isPixiObj(newVNode)) {} else if (utils.isVNode(newVNode)) {
+  if (utils.isPixiObj(newVNode)) {
+
+    log('updateComponent', 'inst', instance);
+    log('updateComponent', 'pixiEl', instance.pixiEl);
+
+    var parent = instance.pixiEl.parent;
+
+    if (parent) {
+      var pixiElIndex = parent.getChildIndex(instance.pixiEl);
+      parent.removeChildAt(pixiElIndex);
+      parent.addChildAt(newVNode, pixiElIndex);
+    }
+    instance.pixiEl = newVNode;
+  } else if (utils.isVNode(newVNode)) {
 
     // var isEquivalentNode = utils.equalVNode(instance.vNode, newVNode);
     log('updateComponent', instance.vNode.props, newVNode.props);
@@ -19476,10 +19548,163 @@ function updateComponentAsync(componentInstance) {
 
   startUpdate();
 }
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11)))
 
 /***/ }),
-/* 25 */
+/* 28 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(process) {
+var escapeStringRegexp = __webpack_require__(29);
+var ansiStyles = __webpack_require__(26);
+var stripAnsi = __webpack_require__(50);
+var hasAnsi = __webpack_require__(30);
+var supportsColor = __webpack_require__(51);
+var defineProps = Object.defineProperties;
+var isSimpleWindowsTerm = process.platform === 'win32' && !/^xterm/i.test(process.env.TERM);
+
+function Chalk(options) {
+	// detect mode if not set manually
+	this.enabled = !options || options.enabled === undefined ? supportsColor : options.enabled;
+}
+
+// use bright blue on Windows as the normal blue color is illegible
+if (isSimpleWindowsTerm) {
+	ansiStyles.blue.open = '\u001b[94m';
+}
+
+var styles = (function () {
+	var ret = {};
+
+	Object.keys(ansiStyles).forEach(function (key) {
+		ansiStyles[key].closeRe = new RegExp(escapeStringRegexp(ansiStyles[key].close), 'g');
+
+		ret[key] = {
+			get: function () {
+				return build.call(this, this._styles.concat(key));
+			}
+		};
+	});
+
+	return ret;
+})();
+
+var proto = defineProps(function chalk() {}, styles);
+
+function build(_styles) {
+	var builder = function () {
+		return applyStyle.apply(builder, arguments);
+	};
+
+	builder._styles = _styles;
+	builder.enabled = this.enabled;
+	// __proto__ is used because we must return a function, but there is
+	// no way to create a function with a different prototype.
+	/* eslint-disable no-proto */
+	builder.__proto__ = proto;
+
+	return builder;
+}
+
+function applyStyle() {
+	// support varags, but simply cast to string in case there's only one arg
+	var args = arguments;
+	var argsLen = args.length;
+	var str = argsLen !== 0 && String(arguments[0]);
+
+	if (argsLen > 1) {
+		// don't slice `arguments`, it prevents v8 optimizations
+		for (var a = 1; a < argsLen; a++) {
+			str += ' ' + args[a];
+		}
+	}
+
+	if (!this.enabled || !str) {
+		return str;
+	}
+
+	var nestedStyles = this._styles;
+	var i = nestedStyles.length;
+
+	// Turns out that on Windows dimmed gray text becomes invisible in cmd.exe,
+	// see https://github.com/chalk/chalk/issues/58
+	// If we're on Windows and we're dealing with a gray color, temporarily make 'dim' a noop.
+	var originalDim = ansiStyles.dim.open;
+	if (isSimpleWindowsTerm && (nestedStyles.indexOf('gray') !== -1 || nestedStyles.indexOf('grey') !== -1)) {
+		ansiStyles.dim.open = '';
+	}
+
+	while (i--) {
+		var code = ansiStyles[nestedStyles[i]];
+
+		// Replace any instances already present with a re-opening code
+		// otherwise only the part of the string until said closing code
+		// will be colored, and the rest will simply be 'plain'.
+		str = code.open + str.replace(code.closeRe, code.open) + code.close;
+	}
+
+	// Reset the original 'dim' if we changed it to work around the Windows dimmed gray issue.
+	ansiStyles.dim.open = originalDim;
+
+	return str;
+}
+
+function init() {
+	var ret = {};
+
+	Object.keys(styles).forEach(function (name) {
+		ret[name] = {
+			get: function () {
+				return build.call(this, [name]);
+			}
+		};
+	});
+
+	return ret;
+}
+
+defineProps(Chalk.prototype, init());
+
+module.exports = new Chalk();
+module.exports.styles = ansiStyles;
+module.exports.hasColor = hasAnsi;
+module.exports.stripColor = stripAnsi;
+module.exports.supportsColor = supportsColor;
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
+
+/***/ }),
+/* 29 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var matchOperatorsRe = /[|\\{}()[\]^$+*?.]/g;
+
+module.exports = function (str) {
+	if (typeof str !== 'string') {
+		throw new TypeError('Expected a string');
+	}
+
+	return str.replace(matchOperatorsRe, '\\$&');
+};
+
+
+/***/ }),
+/* 30 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var ansiRegex = __webpack_require__(15);
+var re = new RegExp(ansiRegex().source); // remove the `g` flag
+module.exports = re.test.bind(re);
+
+
+/***/ }),
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(process) {// Generated by CoffeeScript 1.12.2
@@ -19519,10 +19744,10 @@ function updateComponentAsync(componentInstance) {
 
 //# sourceMappingURL=performance-now.js.map
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
 
 /***/ }),
-/* 26 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -19535,18 +19760,21 @@ var n=0;
 
 class Container {
   constructor(props) {
-    this.name = n++;
-    this.props = props;
+    this.name = `pixi-fake-${n++}`;
     this.children = [];
   }
   addChild(c){
-    this.children.push(c)
+    this.children.push(c);
+    c.parent = this;
+  }
+  removeChildAt(i){
+    this.children.splice(i, 1);
   }
   addChildAt(c,i){
     this.children.splice(i,0,c);
   }
-  removeChildAt(i){
-    this.children.splice(i,1);
+  getChildIndex(c){
+    return this.children.indexOf(c);
   }
 }
 
@@ -19557,7 +19785,7 @@ module.exports = {
 
 
 /***/ }),
-/* 27 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(PIXI) {/**
@@ -19566,7 +19794,7 @@ module.exports = {
  * @param config
  * @returns {module.exports.Container}
  */
-var createRender = __webpack_require__(16);
+var createRender = __webpack_require__(19);
 
 module.exports = function (container, config) {
 
@@ -19584,7 +19812,7 @@ module.exports = function (container, config) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 28 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -19658,7 +19886,7 @@ module.exports = function (config) {
 };
 
 /***/ }),
-/* 29 */
+/* 35 */
 /***/ (function(module, exports) {
 
 /**
@@ -19691,13 +19919,13 @@ module.exports = function (mp3Url,config) {
 }
 
 /***/ }),
-/* 30 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
  * Created by zyg on 16/2/4.
  */
-var PubSub = __webpack_require__(43);
+var PubSub = __webpack_require__(49);
 
 function createAction(name,action) {
 
@@ -19735,7 +19963,7 @@ createAction.dispatch = PubSub.publish.bind(PubSub);
 module.exports = createAction;
 
 /***/ }),
-/* 31 */
+/* 37 */
 /***/ (function(module, exports) {
 
 /**
@@ -19776,10 +20004,10 @@ module.exports = function fixProperties(settingProperties,finalProperties){
 };
 
 /***/ }),
-/* 32 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var createLoader = __webpack_require__(15);
+var createLoader = __webpack_require__(18);
 
 /**
  * 设定资源或取出资源
@@ -19801,15 +20029,15 @@ module.exports = function(spriteName){
 };
 
 /***/ }),
-/* 33 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var _ = __webpack_require__(1)
-var loadResource = __webpack_require__(20);
-var types = __webpack_require__(21);
-var getMc = __webpack_require__(5);
-var getIm = __webpack_require__(18);
-var getSp = __webpack_require__(19);
+var loadResource = __webpack_require__(23);
+var types = __webpack_require__(24);
+var getMc = __webpack_require__(8);
+var getIm = __webpack_require__(21);
+var getSp = __webpack_require__(22);
 
 var spriteFnMap = {};
 
@@ -19847,14 +20075,14 @@ module.exports = function (resourceUrl,spriteType,properties,actionFrames,cb) {
 };
 
 /***/ }),
-/* 34 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
  * Created by zyg on 16/7/5.
  */
 
-var addStyle = __webpack_require__(2)
+var addStyle = __webpack_require__(3)
 
 var cw = 100;
 var ch = 100;
@@ -20014,15 +20242,15 @@ module.exports = function(){
 }
 
 /***/ }),
-/* 35 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
  * Created by zyg on 16/7/20.
  */
 
-var matrixManager = __webpack_require__(7)
-var repeate = __webpack_require__(3)
+var matrixManager = __webpack_require__(10)
+var repeate = __webpack_require__(4)
 
 var cgrey = 'rgb(169,197,202)',
   cyellow = 'rgb(245,207,56)',
@@ -20079,7 +20307,7 @@ module.exports = function(){
 }
 
 /***/ }),
-/* 36 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -20087,7 +20315,7 @@ module.exports = function(){
  * @param [a,b]
  * @returns [c,d]
  */
-var distance = __webpack_require__(17);
+var distance = __webpack_require__(20);
 
 module.exports = function(a) {
   console.log('deprecated:use .math.makeIdentity')
@@ -20101,7 +20329,7 @@ module.exports = function(a) {
 };
 
 /***/ }),
-/* 37 */
+/* 43 */
 /***/ (function(module, exports) {
 
 /**
@@ -20173,14 +20401,14 @@ module.exports = {
 }
 
 /***/ }),
-/* 38 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
  * Created by zyg on 16/7/5.
  */
 
-var addStyle = __webpack_require__(2)
+var addStyle = __webpack_require__(3)
 
 var cw = 100;
 var ch = 100;
@@ -20343,15 +20571,15 @@ module.exports = function(){
 }
 
 /***/ }),
-/* 39 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
  * Created by zyg on 16/7/20.
  */
 
-var matrixManager = __webpack_require__(7)
-var repeate = __webpack_require__(3)
+var matrixManager = __webpack_require__(10)
+var repeate = __webpack_require__(4)
 
 var cgrey = 'rgb(169,197,202)',
   cyellow = 'rgb(245,207,56)',
@@ -20392,13 +20620,13 @@ module.exports = function(){
 }
 
 /***/ }),
-/* 40 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
  * Created by zyg on 16/7/25.
  */
-var repeat = __webpack_require__(3)
+var repeat = __webpack_require__(4)
 
 /**
  *
@@ -20455,7 +20683,7 @@ module.exports = function resizeImageData(data,width,resizeX,resizeY,gap){
 }
 
 /***/ }),
-/* 41 */
+/* 47 */
 /***/ (function(module, exports) {
 
 /**
@@ -20505,7 +20733,7 @@ module.exports = function () {
 }
 
 /***/ }),
-/* 42 */
+/* 48 */
 /***/ (function(module, exports) {
 
 /**
@@ -20531,7 +20759,7 @@ function unfoldArray(fromArr,arr) {
 module.exports = unfoldArray;
 
 /***/ }),
-/* 43 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*
@@ -20796,43 +21024,86 @@ https://github.com/mroderick/PubSubJS
 
 
 /***/ }),
-/* 44 */
-/***/ (function(module, exports) {
+/* 50 */
+/***/ (function(module, exports, __webpack_require__) {
 
-module.exports = function(module) {
-	if(!module.webpackPolyfill) {
-		module.deprecate = function() {};
-		module.paths = [];
-		// module.parent = undefined by default
-		if(!module.children) module.children = [];
-		Object.defineProperty(module, "loaded", {
-			enumerable: true,
-			get: function() {
-				return module.l;
-			}
-		});
-		Object.defineProperty(module, "id", {
-			enumerable: true,
-			get: function() {
-				return module.i;
-			}
-		});
-		module.webpackPolyfill = 1;
-	}
-	return module;
+"use strict";
+
+var ansiRegex = __webpack_require__(15)();
+
+module.exports = function (str) {
+	return typeof str === 'string' ? str.replace(ansiRegex, '') : str;
 };
 
 
 /***/ }),
-/* 45 */
+/* 51 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(process) {
+var argv = process.argv;
+
+var terminator = argv.indexOf('--');
+var hasFlag = function (flag) {
+	flag = '--' + flag;
+	var pos = argv.indexOf(flag);
+	return pos !== -1 && (terminator !== -1 ? pos < terminator : true);
+};
+
+module.exports = (function () {
+	if ('FORCE_COLOR' in process.env) {
+		return true;
+	}
+
+	if (hasFlag('no-color') ||
+		hasFlag('no-colors') ||
+		hasFlag('color=false')) {
+		return false;
+	}
+
+	if (hasFlag('color') ||
+		hasFlag('colors') ||
+		hasFlag('color=true') ||
+		hasFlag('color=always')) {
+		return true;
+	}
+
+	if (process.stdout && !process.stdout.isTTY) {
+		return false;
+	}
+
+	if (process.platform === 'win32') {
+		return true;
+	}
+
+	if ('COLORTERM' in process.env) {
+		return true;
+	}
+
+	if (process.env.TERM === 'dumb') {
+		return false;
+	}
+
+	if (/^screen|^xterm|^vt100|color|ansi|cygwin|linux/i.test(process.env.TERM)) {
+		return true;
+	}
+
+	return false;
+})();
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
+
+/***/ }),
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var map = {
-	"./mapChildren_test.js": 47,
-	"./ref_test.js": 54,
-	"./updateChildrenComponent_test.js": 48,
-	"./updateChildren_test.js": 49,
-	"./updateProps_test.js": 50
+	"./mapChildren_test.js": 54,
+	"./ref_test.js": 55,
+	"./updateChildrenComponent_test.js": 56,
+	"./updateChildren_test.js": 57,
+	"./updateProps_test.js": 58
 };
 function webpackContext(req) {
 	return __webpack_require__(webpackContextResolve(req));
@@ -20848,19 +21119,19 @@ webpackContext.keys = function webpackContextKeys() {
 };
 webpackContext.resolve = webpackContextResolve;
 module.exports = webpackContext;
-webpackContext.id = 45;
+webpackContext.id = 52;
 
 /***/ }),
-/* 46 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var testsContext = __webpack_require__(45);
+var testsContext = __webpack_require__(52);
 testsContext.keys().forEach(function (k) {
   testsContext(k);
 });
 
 /***/ }),
-/* 47 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -20872,9 +21143,9 @@ var _pixiFake = __webpack_require__(0);
 
 var _pixiFake2 = _interopRequireDefault(_pixiFake);
 
-var _assert = __webpack_require__(22);
+var _assert = __webpack_require__(16);
 
-var _pixiReact = __webpack_require__(10);
+var _pixiReact = __webpack_require__(7);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -20945,7 +21216,7 @@ var T = function (_PactComponent2) {
   return T;
 }(_pixiReact.PactComponent);
 
-describe('组件特性', function () {
+describe('组件特性:数组', function () {
 
   var tVNode;
   var topContainer;
@@ -20968,10 +21239,10 @@ describe('组件特性', function () {
     });
   });
 });
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ }),
-/* 48 */
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -20983,9 +21254,139 @@ var _pixiFake = __webpack_require__(0);
 
 var _pixiFake2 = _interopRequireDefault(_pixiFake);
 
-var _assert = __webpack_require__(22);
+var _assert = __webpack_require__(16);
 
-var _pixiReact = __webpack_require__(10);
+var _pixiReact = __webpack_require__(7);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+global.PIXI = _pixiFake2.default;
+global.__ENV__ = true;
+
+var MyComponent = function (_PactComponent) {
+  _inherits(MyComponent, _PactComponent);
+
+  function MyComponent() {
+    _classCallCheck(this, MyComponent);
+
+    return _possibleConstructorReturn(this, (MyComponent.__proto__ || Object.getPrototypeOf(MyComponent)).apply(this, arguments));
+  }
+
+  _createClass(MyComponent, [{
+    key: 'render',
+    value: function render() {
+      return (0, _pixiReact.h)(
+        'c',
+        { key: 'myComponent', ref: 'rootInComponent' },
+        (0, _pixiReact.h)('c', { keyName: 'm0' }),
+        this.slots,
+        (0, _pixiReact.h)('c', { keyName: 'm3' })
+      );
+    }
+  }]);
+
+  return MyComponent;
+}(_pixiReact.PactComponent);
+
+var T = function (_PactComponent2) {
+  _inherits(T, _PactComponent2);
+
+  function T() {
+    _classCallCheck(this, T);
+
+    var _this2 = _possibleConstructorReturn(this, (T.__proto__ || Object.getPrototypeOf(T)).call(this, {}));
+
+    _this2.state = {
+      childInComponent: true
+    };
+    return _this2;
+  }
+
+  _createClass(T, [{
+    key: 'render',
+    value: function render() {
+      var _state = this.state,
+          list = _state.list,
+          childInComponent = _state.childInComponent;
+
+
+      return (0, _pixiReact.h)(
+        'c',
+        null,
+        (0, _pixiReact.h)(
+          MyComponent,
+          { ref: 'myComponent' },
+          childInComponent ? (0, _pixiReact.h)('c', { ref: 'childInComponent', name: 'childIn' }) : (0, _pixiReact.h)('c', { ref: 'childInComponent2', name: 'childIn2' })
+        )
+      );
+    }
+  }]);
+
+  return T;
+}(_pixiReact.PactComponent);
+
+describe('功能特性:ref', function () {
+
+  var tVNode;
+  var topContainer;
+  var tInstance;
+
+  beforeEach(function () {
+    tVNode = (0, _pixiReact.h)(T);
+    topContainer = new _pixiFake2.default.Container();
+    tInstance = (0, _pixiReact.renderTo)(tVNode, topContainer);
+  });
+
+  describe('ref特性', function () {
+    it('实例refs', function () {
+      var myComponentInst = tInstance.vNode.instance.children[0];
+
+      (0, _assert.equal)(tInstance.refs.myComponent, myComponentInst, '自定义组件的ref为组件实例');
+      (0, _assert.equal)(myComponentInst.refs.rootInComponent, myComponentInst.vNode.instance.pixiEl, 'pixi组件的ref为pixi对象');
+      (0, _assert.equal)(tInstance.refs.childInComponent, myComponentInst.vNode.instance.children[1].pixiEl, '嵌套组件的ref在 声明时所在的实例下');
+    });
+  });
+
+  describe('ref特性更新', function () {
+
+    it('实例refs', function () {
+      tInstance.setState({
+        childInComponent: false
+      });
+
+      var myComponentInst = tInstance.vNode.instance.children[0];
+
+      (0, _assert.equal)(tInstance.vNode.children[0].slots[0].props.name, 'childIn2', '变换');
+      (0, _assert.equal)(tInstance.refs.myComponent, myComponentInst, '自定义组件的ref为组件实例');
+      (0, _assert.equal)(myComponentInst.refs.rootInComponent, myComponentInst.vNode.instance.pixiEl, 'pixi组件的ref为pixi对象');
+      (0, _assert.equal)(tInstance.refs.childInComponent2, myComponentInst.vNode.instance.children[1].pixiEl, '嵌套组件的ref在 声明时所在的实例下');
+    });
+  });
+});
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
+
+/***/ }),
+/* 56 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(global) {
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _pixiFake = __webpack_require__(0);
+
+var _pixiFake2 = _interopRequireDefault(_pixiFake);
+
+var _assert = __webpack_require__(16);
+
+var _pixiReact = __webpack_require__(7);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -21224,10 +21625,10 @@ describe('复杂嵌套的组件', function () {
     });
   });
 });
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ }),
-/* 49 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -21239,9 +21640,9 @@ var _pixiFake = __webpack_require__(0);
 
 var _pixiFake2 = _interopRequireDefault(_pixiFake);
 
-var _assert = __webpack_require__(22);
+var _assert = __webpack_require__(16);
 
-var _pixiReact = __webpack_require__(10);
+var _pixiReact = __webpack_require__(7);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -21419,10 +21820,10 @@ describe('基础组件', function () {
     });
   });
 });
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ }),
-/* 50 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -21434,9 +21835,9 @@ var _pixiFake = __webpack_require__(0);
 
 var _pixiFake2 = _interopRequireDefault(_pixiFake);
 
-var _assert = __webpack_require__(22);
+var _assert = __webpack_require__(16);
 
-var _pixiReact = __webpack_require__(10);
+var _pixiReact = __webpack_require__(7);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -21600,10 +22001,10 @@ describe('更新props', function () {
     });
   });
 });
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ }),
-/* 51 */
+/* 59 */
 /***/ (function(module, exports) {
 
 if (typeof Object.create === 'function') {
@@ -21632,7 +22033,7 @@ if (typeof Object.create === 'function') {
 
 
 /***/ }),
-/* 52 */
+/* 60 */
 /***/ (function(module, exports) {
 
 module.exports = function isBuffer(arg) {
@@ -21643,7 +22044,7 @@ module.exports = function isBuffer(arg) {
 }
 
 /***/ }),
-/* 53 */
+/* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, process) {// Copyright Joyent, Inc. and other Node contributors.
@@ -22171,7 +22572,7 @@ function isPrimitive(arg) {
 }
 exports.isPrimitive = isPrimitive;
 
-exports.isBuffer = __webpack_require__(52);
+exports.isBuffer = __webpack_require__(60);
 
 function objectToString(o) {
   return Object.prototype.toString.call(o);
@@ -22215,7 +22616,7 @@ exports.log = function() {
  *     prototype.
  * @param {function} superCtor Constructor function to inherit prototype from.
  */
-exports.inherits = __webpack_require__(51);
+exports.inherits = __webpack_require__(59);
 
 exports._extend = function(origin, add) {
   // Don't do anything if add isn't an object
@@ -22233,140 +22634,7 @@ function hasOwnProperty(obj, prop) {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9), __webpack_require__(23)))
-
-/***/ }),
-/* 54 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(global) {
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _pixiFake = __webpack_require__(0);
-
-var _pixiFake2 = _interopRequireDefault(_pixiFake);
-
-var _assert = __webpack_require__(22);
-
-var _pixiReact = __webpack_require__(10);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-global.PIXI = _pixiFake2.default;
-global.__ENV__ = true;
-
-var MyComponent = function (_PactComponent) {
-  _inherits(MyComponent, _PactComponent);
-
-  function MyComponent() {
-    _classCallCheck(this, MyComponent);
-
-    return _possibleConstructorReturn(this, (MyComponent.__proto__ || Object.getPrototypeOf(MyComponent)).apply(this, arguments));
-  }
-
-  _createClass(MyComponent, [{
-    key: 'render',
-    value: function render() {
-      return (0, _pixiReact.h)(
-        'c',
-        { key: 'myComponent', ref: 'rootInComponent' },
-        (0, _pixiReact.h)('c', { keyName: 'm0' }),
-        this.slots,
-        (0, _pixiReact.h)('c', { keyName: 'm3' })
-      );
-    }
-  }]);
-
-  return MyComponent;
-}(_pixiReact.PactComponent);
-
-var T = function (_PactComponent2) {
-  _inherits(T, _PactComponent2);
-
-  function T() {
-    _classCallCheck(this, T);
-
-    var _this2 = _possibleConstructorReturn(this, (T.__proto__ || Object.getPrototypeOf(T)).call(this, {}));
-
-    _this2.state = {
-      childInComponent: true
-    };
-    return _this2;
-  }
-
-  _createClass(T, [{
-    key: 'render',
-    value: function render() {
-      var _state = this.state,
-          list = _state.list,
-          childInComponent = _state.childInComponent;
-
-
-      return (0, _pixiReact.h)(
-        'c',
-        null,
-        (0, _pixiReact.h)(
-          MyComponent,
-          { ref: 'myComponent' },
-          childInComponent ? (0, _pixiReact.h)('c', { ref: 'childInComponent', name: 'childIn' }) : (0, _pixiReact.h)('c', { ref: 'childInComponent2', name: 'childIn2' })
-        )
-      );
-    }
-  }]);
-
-  return T;
-}(_pixiReact.PactComponent);
-
-describe('组件特性', function () {
-
-  var tVNode;
-  var topContainer;
-  var tInstance;
-
-  beforeEach(function () {
-    tVNode = (0, _pixiReact.h)(T);
-    topContainer = new _pixiFake2.default.Container();
-    tInstance = (0, _pixiReact.renderTo)(tVNode, topContainer);
-  });
-
-  describe('ref特性', function () {
-    it('实例refs', function () {
-      var myComponentInst = tInstance.vNode.instance.children[0];
-
-      (0, _assert.equal)(tInstance.refs.myComponent, myComponentInst, '自定义组件的ref为组件实例');
-      (0, _assert.equal)(myComponentInst.refs.rootInComponent, myComponentInst.vNode.instance.pixiEl, 'pixi组件的ref为pixi对象');
-      (0, _assert.equal)(tInstance.refs.childInComponent, myComponentInst.vNode.instance.children[1].pixiEl, '嵌套组件的ref在 声明时所在的实例下');
-    });
-  });
-
-  describe('ref特性更新', function () {
-
-    it('实例refs', function () {
-      tInstance.setState({
-        childInComponent: false
-      });
-
-      var myComponentInst = tInstance.vNode.instance.children[0];
-
-      console.log(tInstance.refs);
-      console.log(myComponentInst.refs);
-
-      (0, _assert.equal)(tInstance.vNode.children[0].slots[0].props.name, 'childIn2', '变换');
-      (0, _assert.equal)(tInstance.refs.myComponent, myComponentInst, '自定义组件的ref为组件实例');
-      (0, _assert.equal)(myComponentInst.refs.rootInComponent, myComponentInst.vNode.instance.pixiEl, 'pixi组件的ref为pixi对象');
-      (0, _assert.equal)(tInstance.refs.childInComponent2, myComponentInst.vNode.instance.children[1].pixiEl, '嵌套组件的ref在 声明时所在的实例下');
-    });
-  });
-});
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2), __webpack_require__(5)))
 
 /***/ })
 /******/ ]);

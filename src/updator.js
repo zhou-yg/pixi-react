@@ -6,11 +6,21 @@ import {mountComponent} from './mount.js';
 const updateQueue = []; //等待更新
 
 function syncProps(oldVNode, newVNode) {
-  oldVNode.props = _.merge(_.cloneDeep(oldVNode.props), newVNode.props);
+  log('syncProps', oldVNode)
+  log('syncProps', newVNode);
+
+  if(oldVNode.props.ref){
+    delete oldVNode.contextInstance.refs[oldVNode.props.ref];
+  }
+
+  oldVNode.props = _.cloneDeep(newVNode.props);
   oldVNode.instance.setProps(oldVNode.props);
 
-  const rootVNode = oldVNode.instance.render();
+  updateComponent(oldVNode.instance);
 
+  if(newVNode.props.ref){
+    oldVNode.contextInstance.refs[newVNode.props.ref] = oldVNode.instance.pixiEl ? oldVNode.instance.pixiEl : oldVNode;
+  }
 }
 
 function replaceVNode(parentVNode, newVNode, replaceIndex) {
@@ -19,11 +29,6 @@ function replaceVNode(parentVNode, newVNode, replaceIndex) {
   //...@TODO
   const newInstance = mountComponent(newVNode, parentVNode.instance, parentVNode.instance, parentVNode.instance);
   const oldVNode = parentVNode.children[replaceIndex];
-
-  log(`replaceVNode`,'old',oldVNode);
-  if(oldVNode.props && oldVNode.props.ref){
-    delete parentVNode.instance.refs[oldVNode.props.ref];
-  }
 
   parentVNode.instance.children[replaceIndex] = newInstance;
   parentVNode.children[replaceIndex] = newVNode;
@@ -55,86 +60,12 @@ function removeVNode(parentVNode, removeFromIndex) {
   }
 }
 
-// function updateChildren(instanceParentVnode, newParentVnode) {
-//   const oldCh = instanceParentVnode.children.slice();
-//   const newCh = newParentVnode.children.slice();
-//
-//   const oldLen = oldCh.length;
-//   const newLen = newCh.length;
-//
-//   var oldStartIndex = 0;
-//   var oldEndIndex = 0;
-//   var oldStartVnode = oldCh[0];
-//   var oldEndVnode = oldCh[oldLen - 1];
-//
-//   var newStartIndex = 0;
-//   var newEndIndex = newLen -1;
-//   var newStartVnode = newCh[0];
-//   var newEndVnode = newCh[newLen-1];
-//
-//   var patchedIndexArr = [];
-//   var addedNum = 0;
-//   //newCh [new1, new2, new3...]
-//   while (newStartIndex <= newEndIndex) {
-//     if(patchedIndexArr.indexOf(newStartIndex) !== -1){
-//       newStartIndex++;
-//       continue;
-//     }
-//     //...diff
-//     let newVNode = newCh[newStartIndex];
-//     let oldChIndex = oldStartIndex;
-//     let finalMatchOldNode = false;
-//
-//     //oldCh [old1, old2, old3....]
-//     while(oldChIndex <= oldLen - 1){
-//       let oldVNode = oldCh[oldChIndex];
-//
-//       if(utils.equalVNode(oldVNode, newVNode)){
-//         oldStartIndex = oldChIndex+1;
-//
-//         patchVnode(oldVNode, newVNode);
-//         finalMatchOldNode = true;
-//         break;
-//       }else{
-//         let findOldVNode = false;
-//         let otherNewIndex = newStartIndex + 1;
-//         let newVNode2 = null;
-//
-//         //newCh [new2, new3...]
-//         while (otherNewIndex <= newEndIndex) {
-//           newVNode2 = newCh[otherNewIndex];
-//           if(utils.equalVNode(oldVNode, newVNode2)){
-//             patchedIndexArr.push(otherNewIndex);
-//             findOldVNode = true;
-//             break;
-//           }
-//           otherNewIndex++;
-//         }
-//
-//         if(findOldVNode){
-//           oldStartIndex = oldChIndex + 1;
-//           patchVnode(oldVNode, newVNode2);
-//           break;
-//         }else{
-//           removeVNode(instanceParentVnode, oldVNode, oldChIndex + addedNum);
-//           addedNum--;
-//           oldChIndex++;
-//           oldStartIndex++;
-//         }
-//       }
-//     }
-//
-//     if(!finalMatchOldNode){
-//       addVNode(instanceParentVnode, newVNode, oldChIndex);
-//       addedNum++;
-//     }
-//     newStartIndex++;
-//   }
-// }
-
 function updateChildren(instanceParentVnode, newParentVnode) {
   const oldCh = instanceParentVnode.children.slice();
   const newCh = newParentVnode.children.slice();
+
+  log('updateChildren', 'old',oldCh);
+  log('updateChildren', 'newCh',newCh);
 
   const oldLen = oldCh.length;
   const newLen = newCh.length;
@@ -186,7 +117,6 @@ function patchVnode(oldVNode, newVNode) {
   // 非顶级
   if(!utils.compareObject(oldVNode.props, newVNode.props)){
     syncProps(oldVNode, newVNode);
-    updateComponent(oldVNode.instance);
   }
 
   let isEquivalentNodeWithChildren = utils.equalVNodeChildren(oldVNode, newVNode);
@@ -211,6 +141,19 @@ function updateComponent(instance) {
   const newVNode = instance.render();
   if(utils.isPixiObj(newVNode)){
 
+    log('updateComponent', 'inst', instance);
+    log('updateComponent', 'pixiEl', instance.pixiEl);
+
+    const parent = instance.pixiEl.parent;
+
+    if(parent){
+      const pixiElIndex = parent.getChildIndex(instance.pixiEl);
+      parent.removeChildAt(pixiElIndex);
+      parent.addChildAt(newVNode, pixiElIndex);
+
+    }
+    instance.pixiEl = newVNode;
+
   } else if(utils.isVNode(newVNode)){
 
     // var isEquivalentNode = utils.equalVNode(instance.vNode, newVNode);
@@ -224,7 +167,7 @@ function updateComponent(instance) {
     //   // syncProps(instance.vNode, newVNode);
     //   log(`updateComponent`, instance.vNode, newVNode);
     // }
-    patchVnode(instance.vNode, newVNode)
+    patchVnode(instance.vNode, newVNode);
   }
   // debugger;
   instance.children.forEach(childInstance => {

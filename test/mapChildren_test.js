@@ -55,7 +55,7 @@ class T extends PactComponent {
   }
 }
 
-describe('组件特性', function () {
+describe('组件特性:数组', function () {
 
   var tVNode;
   var topContainer;

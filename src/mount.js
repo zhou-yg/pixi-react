@@ -13,6 +13,12 @@ export function mountComponent(parentNode, parentComponent, contextComponent, co
 
     parentNode.instance = instance;
 
+    if(parentNode.isSlot){
+      parentNode.contextInstance = contextComponent;
+    }else{
+      parentNode.contextInstance = parentComponent;
+    }
+
     // console.log('mountComponent 0', parentComponent, contextComponent);
 
     if(utils.isPixiObj(vNode)){
@@ -43,17 +49,14 @@ export function mountComponent(parentNode, parentComponent, contextComponent, co
     parentNode.children.map(childNode => {
 
       var childContextComponent;
-      var childContextParent;
 
       if(childNode.isSlot){
         childContextComponent = contextParent;
-        childContextParent = null;
       }else{
         childContextComponent = contextComponent;
-        childContextParent = contextParent;
       }
 
-      const childInstance = mountComponent(childNode, instance, childContextComponent, childContextParent);
+      const childInstance = mountComponent(childNode, instance, childContextComponent, contextParent);
 
       instance.children.push(childInstance);
     });
