@@ -18724,13 +18724,15 @@ var updateQueue = []; //等待更新
 function syncProps(oldVNode, newVNode) {
   oldVNode.props = _.merge(_.cloneDeep(oldVNode.props), newVNode.props);
   oldVNode.instance.setProps(oldVNode.props);
+
+  var rootVNode = oldVNode.instance.render();
 }
 
 function replaceVNode(parentVNode, newVNode, replaceIndex) {
   log('replaceVNode', replaceIndex);
   log('replaceVNode', parentVNode.children[replaceIndex], newVNode);
   //...@TODO
-  var newInstance = (0, _mount.mountComponent)(newVNode, parentVNode.instance);
+  var newInstance = (0, _mount.mountComponent)(newVNode, parentVNode.instance, parentVNode.instance, parentVNode.instance);
 
   parentVNode.instance.children[replaceIndex] = newInstance;
   parentVNode.children[replaceIndex] = newVNode;
@@ -18741,7 +18743,7 @@ function replaceVNode(parentVNode, newVNode, replaceIndex) {
   }
 }
 function addVNode(parentVNode, newVNode, targetIndex) {
-  var newInstance = (0, _mount.mountComponent)(newVNode, parentVNode.instance);
+  var newInstance = (0, _mount.mountComponent)(newVNode, parentVNode.instance, parentVNode.instance, parentVNode.instance);
 
   parentVNode.instance.children.splice(targetIndex, 0, newInstance);
   parentVNode.children.splice(targetIndex, 0, newVNode);
@@ -18915,16 +18917,18 @@ function updateComponent(instance) {
   var newVNode = instance.render();
   if (utils.isPixiObj(newVNode)) {} else if (utils.isVNode(newVNode)) {
 
-    var isEquivalentNode = utils.equalVNode(instance.vNode, newVNode);
-    log('updateComponent', instance.vNode.props, newVNode.props, isEquivalentNode);
+    // var isEquivalentNode = utils.equalVNode(instance.vNode, newVNode);
+    log('updateComponent', instance.vNode.props, newVNode.props);
     log('updateComponent', instance.vNode.key, newVNode.key);
 
-    if (isEquivalentNode) {
-      patchVnode(instance.vNode, newVNode);
-    } else {
-      //...
-      // syncProps(instance.vNode, newVNode);
-    }
+    // if (isEquivalentNode){
+    //   syncProps(instance.vNode, newVNode);
+    // } else {
+    //   //...
+    //   // syncProps(instance.vNode, newVNode);
+    //   log(`updateComponent`, instance.vNode, newVNode);
+    // }
+    patchVnode(instance.vNode, newVNode);
   }
   // debugger;
   instance.children.forEach(function (childInstance) {

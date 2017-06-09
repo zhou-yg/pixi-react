@@ -83,8 +83,6 @@ describe('基础组件', function() {
       a: true
     });
 
-    // console.log('===============================组件更新-添加=====================================')
-
     it('添加的vNode', function() {
       // body...
       equal(tInstance2.vNode.type, Container, '顶层vNode的type类型');
@@ -116,7 +114,6 @@ describe('基础组件', function() {
       a: true,
       c2: false
     });
-    console.log('==============================组建更新-替换======================================')
 
     // body...
     it('替换的VNode', function() {
@@ -147,7 +144,6 @@ describe('基础组件', function() {
       c2: false,
       c4: false,
     });
-    console.log('==============================组建更新-删除======================================')
 
     it('删除的VNode', function() {
       // body...

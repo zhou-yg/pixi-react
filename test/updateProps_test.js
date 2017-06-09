@@ -102,8 +102,6 @@ describe('更新props', function() {
     const oldSecondVNode = tInstance.vNode.instance.children[1].vNode.children[3];
     const oldSecondInst = tInstance.vNode.instance.children[1].vNode.instance.children[3];
 
-    console.log('==========更新name==========');
-
     tInstance.setState({
       name1: 'newName1',
       name2: 'newName2',

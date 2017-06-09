@@ -62,8 +62,6 @@ describe('复杂嵌套的组件', function() {
     const topContainer = new PIXI.Container();
     const tInstance = renderTo(tVNode, topContainer);
 
-    console.log('===============================Compoennt组件更新-初始化=====================================')
-
     it('vNode', function() {
       // body...
       equal(tInstance.vNode.type, Container, '顶层vNode的type类型');
@@ -127,7 +125,6 @@ describe('复杂嵌套的组件', function() {
       a: true
     });
 
-    console.log('===============================Compoennt组件更新-添加=====================================')
 
     it('添加的vNode', function() {
       // body...
@@ -162,7 +159,6 @@ describe('复杂嵌套的组件', function() {
       a: true,
       c2: false
     });
-    console.log('==============================Compoennt组建更新-替换======================================')
 
     // body...
     it('替换的VNode', function() {
@@ -196,7 +192,6 @@ describe('复杂嵌套的组件', function() {
       c2: false,
       c4: false,
     });
-    console.log('==============================Compoennt组建更新-删除======================================')
 
     it('删除的VNode', function() {
       // body...
