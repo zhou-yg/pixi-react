@@ -17326,7 +17326,7 @@ function isReservedType(name) {
 }
 
 function log() {
-  if (['updateComponent', ''].indexOf(arguments[0]) !== -1) {
+  if (['replaceVNode', ''].indexOf(arguments[0]) !== -1) {
     console.log.apply(console, arguments);
   }
 }
@@ -17736,8 +17736,8 @@ function h(componentClass, props) {
     children: children,
     slots: slots,
     isSlot: false,
-    isTop: false
-  };
+    isTop: false,
+    contextInstance: null };
 
   return node;
 }
@@ -17842,6 +17842,10 @@ var _pixiLib = __webpack_require__(13);
 
 var _pixiLib2 = _interopRequireDefault(_pixiLib);
 
+var _lodash = __webpack_require__(1);
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
 var _updator = __webpack_require__(24);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -17861,7 +17865,7 @@ var PactComponent = exports.PactComponent = function () {
     this.state = {};
     this.props = {};
 
-    this.props = _.cloneDeep(props);
+    this.props = _lodash2.default.cloneDeep(props);
 
     this.displayName = 'PactComponent.' + PactComponentI++;
     this.isMounted = false;
@@ -17878,7 +17882,7 @@ var PactComponent = exports.PactComponent = function () {
     key: 'setState',
     value: function setState(obj) {
 
-      this.state = _.merge(_.cloneDeep(this.state), obj);
+      this.state = _lodash2.default.merge(_lodash2.default.cloneDeep(this.state), obj);
       //@TODO 同步更新组件
       (0, _updator.updateComponentSync)(this);
     }
@@ -17886,7 +17890,7 @@ var PactComponent = exports.PactComponent = function () {
     key: 'setProps',
     value: function setProps(newProps) {
 
-      this.props = _.merge(_.cloneDeep(this.props), newProps);
+      this.props = _lodash2.default.merge(_lodash2.default.cloneDeep(this.props), newProps);
     }
   }, {
     key: 'update',
@@ -17935,7 +17939,7 @@ var PixiComponent = function (_PactComponent) {
   _createClass(PixiComponent, [{
     key: 'setProps',
     value: function setProps(newProps) {
-      this.props = _.merge(_.cloneDeep(this.props), newProps);
+      this.props = _lodash2.default.merge(_lodash2.default.cloneDeep(this.props), newProps);
 
       if (this.pixiEl) {
         this.setMember(this.pixiEl);
@@ -19207,7 +19211,13 @@ var _utils = __webpack_require__(4);
 
 var utils = _interopRequireWildcard(_utils);
 
+var _lodash = __webpack_require__(1);
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
 var _mount = __webpack_require__(11);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -19219,7 +19229,7 @@ var isUndef = utils.isUndef,
 var updateQueue = []; //等待更新
 
 function syncProps(oldVNode, newVNode) {
-  oldVNode.props = _.merge(_.cloneDeep(oldVNode.props), newVNode.props);
+  oldVNode.props = _lodash2.default.merge(_lodash2.default.cloneDeep(oldVNode.props), newVNode.props);
   oldVNode.instance.setProps(oldVNode.props);
 
   var rootVNode = oldVNode.instance.render();
@@ -19227,9 +19237,15 @@ function syncProps(oldVNode, newVNode) {
 
 function replaceVNode(parentVNode, newVNode, replaceIndex) {
   log('replaceVNode', replaceIndex);
-  log('replaceVNode', parentVNode.children[replaceIndex], newVNode);
+  log('replaceVNode', 'new', newVNode);
   //...@TODO
   var newInstance = (0, _mount.mountComponent)(newVNode, parentVNode.instance, parentVNode.instance, parentVNode.instance);
+  var oldVNode = parentVNode.children[replaceIndex];
+
+  log('replaceVNode', 'old', oldVNode);
+  if (oldVNode.props && oldVNode.props.ref) {
+    delete parentVNode.instance.refs[oldVNode.props.ref];
+  }
 
   parentVNode.instance.children[replaceIndex] = newInstance;
   parentVNode.children[replaceIndex] = newVNode;
@@ -19404,6 +19420,9 @@ function patchVnode(oldVNode, newVNode) {
     // 继续检查子节点
     oldVNode.children.slice().forEach(function (oldChildVNode, i) {
       patchVnode(oldChildVNode, newVNode.children[i]);
+    });
+    oldVNode.slots.slice().forEach(function (oldSlotVNode, i) {
+      patchVnode(oldSlotVNode, newVNode.slots[i]);
     });
   } else {
     updateChildren(oldVNode, newVNode);
@@ -20845,19 +20864,28 @@ testsContext.keys().forEach(function (k) {
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(PIXI) {
+/* WEBPACK VAR INJECTION */(function(global) {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _pixiFake = __webpack_require__(0);
+
+var _pixiFake2 = _interopRequireDefault(_pixiFake);
 
 var _assert = __webpack_require__(22);
 
 var _pixiReact = __webpack_require__(10);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+global.PIXI = _pixiFake2.default;
+global.__ENV__ = true;
 
 var MyComponent = function (_PactComponent) {
   _inherits(MyComponent, _PactComponent);
@@ -20925,7 +20953,7 @@ describe('组件特性', function () {
 
   beforeEach(function () {
     tVNode = (0, _pixiReact.h)(T);
-    topContainer = new PIXI.Container();
+    topContainer = new _pixiFake2.default.Container();
     tInstance = (0, _pixiReact.renderTo)(tVNode, topContainer);
   });
 
@@ -20940,26 +20968,35 @@ describe('组件特性', function () {
     });
   });
 });
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
 
 /***/ }),
 /* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(PIXI) {
+/* WEBPACK VAR INJECTION */(function(global) {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _pixiFake = __webpack_require__(0);
+
+var _pixiFake2 = _interopRequireDefault(_pixiFake);
 
 var _assert = __webpack_require__(22);
 
 var _pixiReact = __webpack_require__(10);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+global.PIXI = _pixiFake2.default;
+global.__ENV__ = true;
 
 var MyComponent = function (_PactComponent) {
   _inherits(MyComponent, _PactComponent);
@@ -21036,7 +21073,7 @@ describe('复杂嵌套的组件', function () {
 
   describe('初始化', function () {
     var tVNode = (0, _pixiReact.h)(T);
-    var topContainer = new PIXI.Container();
+    var topContainer = new _pixiFake2.default.Container();
     var tInstance = (0, _pixiReact.renderTo)(tVNode, topContainer);
 
     it('vNode', function () {
@@ -21092,7 +21129,7 @@ describe('复杂嵌套的组件', function () {
   describe('组件更新-添加', function () {
     var tVNode = (0, _pixiReact.h)(T);
 
-    var topContainer2 = new PIXI.Container();
+    var topContainer2 = new _pixiFake2.default.Container();
     var tInstance2 = (0, _pixiReact.renderTo)(tVNode, topContainer2);
 
     // body...
@@ -21127,7 +21164,7 @@ describe('复杂嵌套的组件', function () {
   describe('组建更新-替换', function () {
     var tVNode = (0, _pixiReact.h)(T);
 
-    var topContainer3 = new PIXI.Container();
+    var topContainer3 = new _pixiFake2.default.Container();
     var tInstance = (0, _pixiReact.renderTo)(tVNode, topContainer3);
 
     var oldCh = tInstance.vNode.instance.children.slice();
@@ -21159,7 +21196,7 @@ describe('复杂嵌套的组件', function () {
   describe('组建更新-删除', function () {
     var tVNode = (0, _pixiReact.h)(T);
 
-    var topContainer3 = new PIXI.Container();
+    var topContainer3 = new _pixiFake2.default.Container();
     var tInstance = (0, _pixiReact.renderTo)(tVNode, topContainer3);
 
     var oldCh = tInstance.vNode.instance.children.slice();
@@ -21187,26 +21224,35 @@ describe('复杂嵌套的组件', function () {
     });
   });
 });
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
 
 /***/ }),
 /* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(PIXI) {
+/* WEBPACK VAR INJECTION */(function(global) {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _pixiFake = __webpack_require__(0);
+
+var _pixiFake2 = _interopRequireDefault(_pixiFake);
 
 var _assert = __webpack_require__(22);
 
 var _pixiReact = __webpack_require__(10);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+global.PIXI = _pixiFake2.default;
+global.__ENV__ = true;
 
 var T = function (_PactComponent) {
   _inherits(T, _PactComponent);
@@ -21254,7 +21300,7 @@ describe('基础组件', function () {
 
   describe('初始化', function () {
     var tVNode = (0, _pixiReact.h)(T);
-    var topContainer = new PIXI.Container();
+    var topContainer = new _pixiFake2.default.Container();
     var tInstance = (0, _pixiReact.renderTo)(tVNode, topContainer);
 
     it('vNode', function () {
@@ -21283,7 +21329,7 @@ describe('基础组件', function () {
   describe('组件更新-添加', function () {
     var tVNode = (0, _pixiReact.h)(T);
 
-    var topContainer2 = new PIXI.Container();
+    var topContainer2 = new _pixiFake2.default.Container();
     var tInstance2 = (0, _pixiReact.renderTo)(tVNode, topContainer2);
     // body...
     var oldCh = tInstance2.vNode.instance.children.slice();
@@ -21315,7 +21361,7 @@ describe('基础组件', function () {
   describe('组建更新-替换', function () {
     var tVNode = (0, _pixiReact.h)(T);
 
-    var topContainer3 = new PIXI.Container();
+    var topContainer3 = new _pixiFake2.default.Container();
     var tInstance = (0, _pixiReact.renderTo)(tVNode, topContainer3);
 
     var oldCh = tInstance.vNode.instance.children.slice();
@@ -21344,7 +21390,7 @@ describe('基础组件', function () {
   describe('组建更新-删除', function () {
     var tVNode = (0, _pixiReact.h)(T);
 
-    var topContainer3 = new PIXI.Container();
+    var topContainer3 = new _pixiFake2.default.Container();
     var tInstance = (0, _pixiReact.renderTo)(tVNode, topContainer3);
 
     var oldCh = tInstance.vNode.instance.children.slice();
@@ -21373,26 +21419,35 @@ describe('基础组件', function () {
     });
   });
 });
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
 
 /***/ }),
 /* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(PIXI) {
+/* WEBPACK VAR INJECTION */(function(global) {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _pixiFake = __webpack_require__(0);
+
+var _pixiFake2 = _interopRequireDefault(_pixiFake);
 
 var _assert = __webpack_require__(22);
 
 var _pixiReact = __webpack_require__(10);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+global.PIXI = _pixiFake2.default;
+global.__ENV__ = true;
 
 var SecondComponent = function (_PactComponent) {
   _inherits(SecondComponent, _PactComponent);
@@ -21494,7 +21549,7 @@ describe('更新props', function () {
 
   describe('初始化', function () {
     var tVNode = (0, _pixiReact.h)(T);
-    var topContainer = new PIXI.Container();
+    var topContainer = new _pixiFake2.default.Container();
     var tInstance = (0, _pixiReact.renderTo)(tVNode, topContainer);
     var childrenLen = 4;
 
@@ -21515,7 +21570,7 @@ describe('更新props', function () {
   });
   describe('更新name', function () {
     var tVNode = (0, _pixiReact.h)(T);
-    var topContainer = new PIXI.Container();
+    var topContainer = new _pixiFake2.default.Container();
     var tInstance = (0, _pixiReact.renderTo)(tVNode, topContainer);
     var childrenLen = 4;
 
@@ -21545,7 +21600,7 @@ describe('更新props', function () {
     });
   });
 });
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
 
 /***/ }),
 /* 51 */
@@ -22185,19 +22240,28 @@ function hasOwnProperty(obj, prop) {
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(PIXI) {
+/* WEBPACK VAR INJECTION */(function(global) {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _pixiFake = __webpack_require__(0);
+
+var _pixiFake2 = _interopRequireDefault(_pixiFake);
 
 var _assert = __webpack_require__(22);
 
 var _pixiReact = __webpack_require__(10);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+global.PIXI = _pixiFake2.default;
+global.__ENV__ = true;
 
 var MyComponent = function (_PactComponent) {
   _inherits(MyComponent, _PactComponent);
@@ -22269,7 +22333,7 @@ describe('组件特性', function () {
 
   beforeEach(function () {
     tVNode = (0, _pixiReact.h)(T);
-    topContainer = new PIXI.Container();
+    topContainer = new _pixiFake2.default.Container();
     tInstance = (0, _pixiReact.renderTo)(tVNode, topContainer);
   });
 
@@ -22294,17 +22358,15 @@ describe('组件特性', function () {
 
       console.log(tInstance.refs);
       console.log(myComponentInst.refs);
-      console.log(tInstance.state);
-      console.log(tInstance.vNode.children[0].slots[0].props);
 
-      (0, _assert.equal)(tInstance.vNode.children[0].props.name, 'childIn2', '变换');
+      (0, _assert.equal)(tInstance.vNode.children[0].slots[0].props.name, 'childIn2', '变换');
       (0, _assert.equal)(tInstance.refs.myComponent, myComponentInst, '自定义组件的ref为组件实例');
       (0, _assert.equal)(myComponentInst.refs.rootInComponent, myComponentInst.vNode.instance.pixiEl, 'pixi组件的ref为pixi对象');
       (0, _assert.equal)(tInstance.refs.childInComponent2, myComponentInst.vNode.instance.children[1].pixiEl, '嵌套组件的ref在 声明时所在的实例下');
     });
   });
 });
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
 
 /***/ })
 /******/ ]);

@@ -108,7 +108,7 @@ export function isReservedType(name) {
 }
 
 export function log(){
-  if(['updateComponent',''].indexOf(arguments[0]) !== -1) {
+  if(['replaceVNode',''].indexOf(arguments[0]) !== -1) {
     console.log.apply(console,arguments);
   }
 }

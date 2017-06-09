@@ -84,6 +84,7 @@ function h(componentClass, props, ...children) {
     slots,
     isSlot: false,
     isTop: false,
+    contextInstance: null, // 所在render函数的组件对象
   };
 
   return node;

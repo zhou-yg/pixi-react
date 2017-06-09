@@ -1,4 +1,8 @@
 'use strict';
+import PIXI from 'pixi-fake.js';
+global.PIXI = PIXI;
+global.__ENV__ = true;
+
 import {
   equal,
   notEqual,
@@ -81,10 +85,8 @@ describe('组件特性', function () {
 
       console.log(tInstance.refs);
       console.log(myComponentInst.refs);
-      console.log(tInstance.state);
-      console.log(tInstance.vNode.children[0].slots[0].props);
 
-      equal(tInstance.vNode.children[0].props.name, 'childIn2', '变换');
+      equal(tInstance.vNode.children[0].slots[0].props.name, 'childIn2', '变换');
       equal(tInstance.refs.myComponent, myComponentInst, '自定义组件的ref为组件实例');
       equal(myComponentInst.refs.rootInComponent, myComponentInst.vNode.instance.pixiEl , 'pixi组件的ref为pixi对象');
       equal(tInstance.refs.childInComponent2, myComponentInst.vNode.instance.children[1].pixiEl , '嵌套组件的ref在 声明时所在的实例下');

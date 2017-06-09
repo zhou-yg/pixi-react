@@ -1,4 +1,5 @@
 import * as utils from './utils.js';
+import _ from 'lodash';
 const {isUndef, isDef,log} = utils;
 import {mountComponent} from './mount.js';
 
@@ -14,9 +15,15 @@ function syncProps(oldVNode, newVNode) {
 
 function replaceVNode(parentVNode, newVNode, replaceIndex) {
   log(`replaceVNode`, replaceIndex);
-  log(`replaceVNode`, parentVNode.children[replaceIndex], newVNode);
+  log(`replaceVNode`,'new',newVNode);
   //...@TODO
   const newInstance = mountComponent(newVNode, parentVNode.instance, parentVNode.instance, parentVNode.instance);
+  const oldVNode = parentVNode.children[replaceIndex];
+
+  log(`replaceVNode`,'old',oldVNode);
+  if(oldVNode.props && oldVNode.props.ref){
+    delete parentVNode.instance.refs[oldVNode.props.ref];
+  }
 
   parentVNode.instance.children[replaceIndex] = newInstance;
   parentVNode.children[replaceIndex] = newVNode;
@@ -191,6 +198,9 @@ function patchVnode(oldVNode, newVNode) {
     // 继续检查子节点
     oldVNode.children.slice().forEach((oldChildVNode, i) => {
       patchVnode(oldChildVNode, newVNode.children[i]);
+    });
+    oldVNode.slots.slice().forEach((oldSlotVNode, i) => {
+      patchVnode(oldSlotVNode, newVNode.slots[i]);
     });
   } else {
     updateChildren(oldVNode, newVNode);

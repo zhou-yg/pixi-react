@@ -1,5 +1,5 @@
 import pixiLib from 'pixi-lib';
-
+import _ from 'lodash';
 import {updateComponentSync} from './updator';
 
 var PactComponentI = 0;

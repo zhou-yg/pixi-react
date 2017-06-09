@@ -17326,7 +17326,7 @@ function isReservedType(name) {
 }
 
 function log() {
-  if (['updateComponent', ''].indexOf(arguments[0]) !== -1) {
+  if (['replaceVNode', ''].indexOf(arguments[0]) !== -1) {
     console.log.apply(console, arguments);
   }
 }
@@ -17736,8 +17736,8 @@ function h(componentClass, props) {
     children: children,
     slots: slots,
     isSlot: false,
-    isTop: false
-  };
+    isTop: false,
+    contextInstance: null };
 
   return node;
 }
@@ -17842,6 +17842,10 @@ var _pixiLib = __webpack_require__(13);
 
 var _pixiLib2 = _interopRequireDefault(_pixiLib);
 
+var _lodash = __webpack_require__(1);
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
 var _updator = __webpack_require__(24);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -17861,7 +17865,7 @@ var PactComponent = exports.PactComponent = function () {
     this.state = {};
     this.props = {};
 
-    this.props = _.cloneDeep(props);
+    this.props = _lodash2.default.cloneDeep(props);
 
     this.displayName = 'PactComponent.' + PactComponentI++;
     this.isMounted = false;
@@ -17878,7 +17882,7 @@ var PactComponent = exports.PactComponent = function () {
     key: 'setState',
     value: function setState(obj) {
 
-      this.state = _.merge(_.cloneDeep(this.state), obj);
+      this.state = _lodash2.default.merge(_lodash2.default.cloneDeep(this.state), obj);
       //@TODO 同步更新组件
       (0, _updator.updateComponentSync)(this);
     }
@@ -17886,7 +17890,7 @@ var PactComponent = exports.PactComponent = function () {
     key: 'setProps',
     value: function setProps(newProps) {
 
-      this.props = _.merge(_.cloneDeep(this.props), newProps);
+      this.props = _lodash2.default.merge(_lodash2.default.cloneDeep(this.props), newProps);
     }
   }, {
     key: 'update',
@@ -17935,7 +17939,7 @@ var PixiComponent = function (_PactComponent) {
   _createClass(PixiComponent, [{
     key: 'setProps',
     value: function setProps(newProps) {
-      this.props = _.merge(_.cloneDeep(this.props), newProps);
+      this.props = _lodash2.default.merge(_lodash2.default.cloneDeep(this.props), newProps);
 
       if (this.pixiEl) {
         this.setMember(this.pixiEl);
@@ -18710,7 +18714,13 @@ var _utils = __webpack_require__(4);
 
 var utils = _interopRequireWildcard(_utils);
 
+var _lodash = __webpack_require__(1);
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
 var _mount = __webpack_require__(11);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -18722,7 +18732,7 @@ var isUndef = utils.isUndef,
 var updateQueue = []; //等待更新
 
 function syncProps(oldVNode, newVNode) {
-  oldVNode.props = _.merge(_.cloneDeep(oldVNode.props), newVNode.props);
+  oldVNode.props = _lodash2.default.merge(_lodash2.default.cloneDeep(oldVNode.props), newVNode.props);
   oldVNode.instance.setProps(oldVNode.props);
 
   var rootVNode = oldVNode.instance.render();
@@ -18730,9 +18740,15 @@ function syncProps(oldVNode, newVNode) {
 
 function replaceVNode(parentVNode, newVNode, replaceIndex) {
   log('replaceVNode', replaceIndex);
-  log('replaceVNode', parentVNode.children[replaceIndex], newVNode);
+  log('replaceVNode', 'new', newVNode);
   //...@TODO
   var newInstance = (0, _mount.mountComponent)(newVNode, parentVNode.instance, parentVNode.instance, parentVNode.instance);
+  var oldVNode = parentVNode.children[replaceIndex];
+
+  log('replaceVNode', 'old', oldVNode);
+  if (oldVNode.props && oldVNode.props.ref) {
+    delete parentVNode.instance.refs[oldVNode.props.ref];
+  }
 
   parentVNode.instance.children[replaceIndex] = newInstance;
   parentVNode.children[replaceIndex] = newVNode;
@@ -18907,6 +18923,9 @@ function patchVnode(oldVNode, newVNode) {
     // 继续检查子节点
     oldVNode.children.slice().forEach(function (oldChildVNode, i) {
       patchVnode(oldChildVNode, newVNode.children[i]);
+    });
+    oldVNode.slots.slice().forEach(function (oldSlotVNode, i) {
+      patchVnode(oldSlotVNode, newVNode.slots[i]);
     });
   } else {
     updateChildren(oldVNode, newVNode);

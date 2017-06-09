@@ -1,4 +1,8 @@
 'use strict';
+import PIXI from 'pixi-fake.js';
+global.PIXI = PIXI;
+global.__ENV__ = true;
+
 import {
   equal,
   ok,
