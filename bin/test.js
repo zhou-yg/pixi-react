@@ -19378,9 +19378,15 @@ function replaceVNode(parentVNode, newVNode, replaceIndex) {
   log('replaceVNode', replaceIndex);
   log('replaceVNode', 'new', newVNode);
   //...@TODO
-  var newInstance = (0, _mount.mountComponent)(newVNode, parentVNode.instance, parentVNode.instance, parentVNode.instance);
+  var newInstance = (0, _mount.mountComponent)(newVNode, parentVNode.instance, parentVNode.contextInstance, parentVNode.contextInstance);
   var oldVNode = parentVNode.children[replaceIndex];
 
+  if (oldVNode.props && oldVNode.props.ref) {
+    delete oldVNode.contextInstance.refs[oldVNode.props.ref];
+  }
+  if (newVNode.props && newVNode.props.ref) {
+    newVNode.contextInstance.refs[newVNode.props.ref] = newInstance.pixiEl ? newInstance.pixiEl : newInstance;
+  }
   parentVNode.instance.children[replaceIndex] = newInstance;
   parentVNode.children[replaceIndex] = newVNode;
 
@@ -19390,7 +19396,11 @@ function replaceVNode(parentVNode, newVNode, replaceIndex) {
   }
 }
 function addVNode(parentVNode, newVNode, targetIndex) {
-  var newInstance = (0, _mount.mountComponent)(newVNode, parentVNode.instance, parentVNode.instance, parentVNode.instance);
+  var newInstance = (0, _mount.mountComponent)(newVNode, parentVNode.instance, parentVNode.contextInstance, parentVNode.contextInstance);
+
+  if (newVNode.props && newVNode.props.ref) {
+    newVNode.contextInstance.refs[newVNode.props.ref] = newInstance.pixiEl ? newInstance.pixiEl : newInstance;
+  }
 
   parentVNode.instance.children.splice(targetIndex, 0, newInstance);
   parentVNode.children.splice(targetIndex, 0, newVNode);
@@ -19401,6 +19411,12 @@ function addVNode(parentVNode, newVNode, targetIndex) {
 }
 
 function removeVNode(parentVNode, removeFromIndex) {
+  var removeVNode = parentVNode.children[removeFromIndex];
+
+  if (removeVNode.props && removeVNode.props.ref) {
+    delete removeVNode.contextInstance.refs[removeVNode.props.ref];
+  }
+
   parentVNode.instance.children[removeFromIndex].unmount();
 
   parentVNode.instance.children.splice(removeFromIndex, 1);
