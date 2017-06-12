@@ -21115,6 +21115,7 @@ module.exports = (function () {
 var map = {
 	"./mapChildren_test.js": 54,
 	"./ref_test.js": 55,
+	"./slot_test.js": 62,
 	"./updateChildrenComponent_test.js": 56,
 	"./updateChildren_test.js": 57,
 	"./updateProps_test.js": 58
@@ -22649,6 +22650,12 @@ function hasOwnProperty(obj, prop) {
 }
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2), __webpack_require__(5)))
+
+/***/ }),
+/* 62 */
+/***/ (function(module, exports) {
+
+throw new Error("Module build failed: SyntaxError: case is a reserved word (39:6)\n\n\u001b[0m \u001b[90m 37 | \u001b[39m  render() {\n \u001b[90m 38 | \u001b[39m    \u001b[36mconst\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 39 | \u001b[39m      \u001b[36mcase\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m    | \u001b[39m      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 40 | \u001b[39m    } \u001b[33m=\u001b[39m \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mstate\u001b[33m;\u001b[39m\n \u001b[90m 41 | \u001b[39m\n \u001b[90m 42 | \u001b[39m    \u001b[36mreturn\u001b[39m (\u001b[0m\n");
 
 /***/ })
 /******/ ]);
