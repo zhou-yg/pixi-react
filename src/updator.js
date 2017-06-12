@@ -5,37 +5,43 @@ import {mountComponent} from './mount.js';
 
 const updateQueue = []; //等待更新
 
+function removeRef(vNode){
+  if(typeof vNode === 'object' && vNode.props.ref) {
+    delete vNode.contextInstance.refs[vNode.props.ref];
+  }
+}
+
+function appendRef(vNode){
+  if(typeof vNode === 'object' && vNode.props.ref){
+    vNode.contextInstance.refs[vNode.props.ref] = vNode.instance.pixiEl ? vNode.instance.pixiEl : vNode;
+  }
+}
+
 function syncProps(oldVNode, newVNode) {
   log('syncProps', oldVNode)
   log('syncProps', newVNode);
 
-  if(oldVNode.props.ref){
-    delete oldVNode.contextInstance.refs[oldVNode.props.ref];
-  }
+  removeRef(oldVNode);
 
   oldVNode.props = _.cloneDeep(newVNode.props);
   oldVNode.instance.setProps(oldVNode.props);
 
   updateComponent(oldVNode.instance);
 
-  if(newVNode.props.ref){
-    oldVNode.contextInstance.refs[newVNode.props.ref] = oldVNode.instance.pixiEl ? oldVNode.instance.pixiEl : oldVNode;
-  }
+  appendRef(oldVNode);
 }
 
 function replaceVNode(parentVNode, newVNode, replaceIndex) {
   log(`replaceVNode`, replaceIndex);
   log(`replaceVNode`,'new',newVNode);
-  //...@TODO
+
   const newInstance = mountComponent(newVNode, parentVNode.instance, parentVNode.contextInstance, parentVNode.contextInstance);
   const oldVNode = parentVNode.children[replaceIndex];
 
-  if(oldVNode.props && oldVNode.props.ref){
-    delete oldVNode.contextInstance.refs[oldVNode.props.ref];
-  }
-  if(newVNode.props && newVNode.props.ref){
-    newVNode.contextInstance.refs[newVNode.props.ref] = newInstance.pixiEl ? newInstance.pixiEl : newInstance;
-  }
+  removeRef(oldVNode);
+
+  appendRef(newVNode);
+
   parentVNode.instance.children[replaceIndex] = newInstance;
   parentVNode.children[replaceIndex] = newVNode;
 
@@ -47,9 +53,7 @@ function replaceVNode(parentVNode, newVNode, replaceIndex) {
 function addVNode(parentVNode, newVNode, targetIndex) {
   const newInstance = mountComponent(newVNode, parentVNode.instance, parentVNode.contextInstance, parentVNode.contextInstance);
 
-  if(newVNode.props && newVNode.props.ref){
-    newVNode.contextInstance.refs[newVNode.props.ref] = newInstance.pixiEl ? newInstance.pixiEl : newInstance;
-  }
+  appendRef(newVNode);
 
   parentVNode.instance.children.splice(targetIndex, 0 , newInstance);
   parentVNode.children.splice(targetIndex,0 , newVNode);
@@ -60,13 +64,11 @@ function addVNode(parentVNode, newVNode, targetIndex) {
 }
 
 function removeVNode(parentVNode, removeFromIndex) {
-  const removeVNode = parentVNode.children[removeFromIndex];
+  const removedVNode = parentVNode.children[removeFromIndex];
 
-  if(removeVNode.props && removeVNode.props.ref){
-    delete removeVNode.contextInstance.refs[removeVNode.props.ref];
-  }
+  removeRef(removedVNode);
 
-  parentVNode.instance.children[removeFromIndex].unmount();
+  removedVNode.unmount();
 
   parentVNode.instance.children.splice(removeFromIndex, 1);
   parentVNode.children.splice(removeFromIndex, 1);
@@ -80,8 +82,8 @@ function updateChildren(instanceParentVnode, newParentVnode) {
   const oldCh = instanceParentVnode.children.slice();
   const newCh = newParentVnode.children.slice();
 
-  log('updateChildren', 'old',oldCh);
-  log('updateChildren', 'newCh',newCh);
+  log('updateChildren', 'old', oldCh);
+  log('updateChildren', 'newCh', newCh);
 
   const oldLen = oldCh.length;
   const newLen = newCh.length;
