@@ -18,7 +18,7 @@ function appendRef(vNode){
 }
 
 function syncProps(oldVNode, newVNode) {
-  log('syncProps', oldVNode)
+  log('syncProps', oldVNode);
   log('syncProps', newVNode);
 
   removeRef(oldVNode);
@@ -165,9 +165,15 @@ function updateComponent(instance) {
     const parent = instance.pixiEl.parent;
 
     if(parent){
-      const pixiElIndex = parent.getChildIndex(instance.pixiEl);
+      const oldPixiEl = instance.pixiEl;
+      const pixiElIndex = parent.getChildIndex(oldPixiEl);
+
       parent.removeChildAt(pixiElIndex);
       parent.addChildAt(newVNode, pixiElIndex);
+
+      oldPixiEl.children.slice().forEach((child , i)=> {
+        newVNode.addChild(child);
+      });
 
     }
     instance.pixiEl = newVNode;

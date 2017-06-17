@@ -17741,6 +17741,7 @@ module.exports = function(object,config){
   return object;
 };
 
+
 /***/ }),
 /* 10 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -19515,9 +19516,15 @@ function updateComponent(instance) {
     var parent = instance.pixiEl.parent;
 
     if (parent) {
-      var pixiElIndex = parent.getChildIndex(instance.pixiEl);
+      var oldPixiEl = instance.pixiEl;
+      var pixiElIndex = parent.getChildIndex(oldPixiEl);
+
       parent.removeChildAt(pixiElIndex);
       parent.addChildAt(newVNode, pixiElIndex);
+
+      oldPixiEl.children.slice().forEach(function (child, i) {
+        newVNode.addChild(child);
+      });
     }
     instance.pixiEl = newVNode;
   } else if (utils.isVNode(newVNode)) {
@@ -19777,18 +19784,21 @@ var n=0;
 
 class Container {
   constructor(props) {
-    this.name = n++;
-    this.props = props;
+    this.name = `pixi-fake-${n++}`;
     this.children = [];
   }
   addChild(c){
-    this.children.push(c)
+    this.children.push(c);
+    c.parent = this;
+  }
+  removeChildAt(i){
+    this.children.splice(i, 1);
   }
   addChildAt(c,i){
     this.children.splice(i,0,c);
   }
-  removeChildAt(i){
-    this.children.splice(i,1);
+  getChildIndex(c){
+    return this.children.indexOf(c);
   }
 }
 
