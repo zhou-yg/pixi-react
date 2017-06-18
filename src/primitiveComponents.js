@@ -113,7 +113,7 @@ class Container extends PixiComponent {
     super(props);
   }
   render () {
-    const c = new PIXI.Container(this.texture);
+    const c = new PIXI.Container();
     this.setMember(c);
     return c;
   }
@@ -178,7 +178,7 @@ class Graphics extends PixiComponent {
       pointes.slice(1).forEach((point) => {
         g.lineTo(point[0], point[1]);
       });
-      g.endFill();      
+      g.endFill();
     }
 
     g.x = x;
@@ -187,6 +187,21 @@ class Graphics extends PixiComponent {
     this.setMember(g);
 
     return g;
+  }
+}
+
+class Text extends PixiComponent {
+  constructor(props){
+    super(props);
+  }
+  render(){
+    const {text, style} = this.props;
+
+    const t = new PIXI.Text(text, style);
+
+    this.setMember(t);
+
+    return t;
   }
 }
 
@@ -224,4 +239,7 @@ export const primitiveMap = {
 
   graphics: Graphics,
   g: Graphics,
+
+  t: Text,
+  text: Text,
 }

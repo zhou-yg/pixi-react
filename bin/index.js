@@ -18203,7 +18203,7 @@ var Container = function (_PixiComponent) {
   _createClass(Container, [{
     key: 'render',
     value: function render() {
-      var c = new PIXI.Container(this.texture);
+      var c = new PIXI.Container();
       this.setMember(c);
       return c;
     }
@@ -18321,8 +18321,36 @@ var Graphics = function (_PixiComponent4) {
   return Graphics;
 }(PixiComponent);
 
-var Rect = function (_PixiComponent5) {
-  _inherits(Rect, _PixiComponent5);
+var Text = function (_PixiComponent5) {
+  _inherits(Text, _PixiComponent5);
+
+  function Text(props) {
+    _classCallCheck(this, Text);
+
+    return _possibleConstructorReturn(this, (Text.__proto__ || Object.getPrototypeOf(Text)).call(this, props));
+  }
+
+  _createClass(Text, [{
+    key: 'render',
+    value: function render() {
+      var _props2 = this.props,
+          text = _props2.text,
+          style = _props2.style;
+
+
+      var t = new PIXI.Text(text, style);
+
+      this.setMember(t);
+
+      return t;
+    }
+  }]);
+
+  return Text;
+}(PixiComponent);
+
+var Rect = function (_PixiComponent6) {
+  _inherits(Rect, _PixiComponent6);
 
   function Rect(props) {
     _classCallCheck(this, Rect);
@@ -18333,16 +18361,16 @@ var Rect = function (_PixiComponent5) {
   _createClass(Rect, [{
     key: 'render',
     value: function render() {
-      var _props2 = this.props,
-          color = _props2.color,
-          strokeWidth = _props2.strokeWidth,
-          strokeColor = _props2.strokeColor,
-          _props2$x = _props2.x,
-          x = _props2$x === undefined ? 0 : _props2$x,
-          _props2$y = _props2.y,
-          y = _props2$y === undefined ? 0 : _props2$y,
-          w = _props2.w,
-          h = _props2.h;
+      var _props3 = this.props,
+          color = _props3.color,
+          strokeWidth = _props3.strokeWidth,
+          strokeColor = _props3.strokeColor,
+          _props3$x = _props3.x,
+          x = _props3$x === undefined ? 0 : _props3$x,
+          _props3$y = _props3.y,
+          y = _props3$y === undefined ? 0 : _props3$y,
+          w = _props3.w,
+          h = _props3.h;
 
 
       var g = new PIXI.Graphics();
@@ -18374,7 +18402,10 @@ var primitiveMap = exports.primitiveMap = {
   ani: AnimatedSprite,
 
   graphics: Graphics,
-  g: Graphics
+  g: Graphics,
+
+  t: Text,
+  text: Text
 };
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
