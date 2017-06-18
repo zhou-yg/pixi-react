@@ -18265,8 +18265,64 @@ var AnimatedSprite = function (_PixiComponent3) {
   return AnimatedSprite;
 }(PixiComponent);
 
-var Rect = function (_PixiComponent4) {
-  _inherits(Rect, _PixiComponent4);
+var Graphics = function (_PixiComponent4) {
+  _inherits(Graphics, _PixiComponent4);
+
+  function Graphics(props) {
+    _classCallCheck(this, Graphics);
+
+    return _possibleConstructorReturn(this, (Graphics.__proto__ || Object.getPrototypeOf(Graphics)).call(this, props));
+  }
+
+  _createClass(Graphics, [{
+    key: 'render',
+    value: function render() {
+      var _props = this.props,
+          color = _props.color,
+          strokeWidth = _props.strokeWidth,
+          strokeColor = _props.strokeColor,
+          x = _props.x,
+          y = _props.y;
+
+      var pointes = this.props.pointes || [];
+      pointes = pointes.map(function (obj) {
+        if (Array.isArray(obj)) {
+          return obj;
+        } else {
+          return [obj.x, obj.y];
+        }
+      });
+
+      var g = new PIXI.Graphics();
+
+      if (pointes.length > 0) {
+        g.beginFill(color);
+
+        if (strokeWidth > 0) {
+          g.lineStyle(strokeWidth, strokeColor, 1);
+        }
+        g.moveTo(pointes[0][0], pointes[0][1]);
+
+        pointes.slice(1).forEach(function (point) {
+          g.lineTo(point[0], point[1]);
+        });
+        g.endFill();
+      }
+
+      g.x = x;
+      g.y = y;
+
+      this.setMember(g);
+
+      return g;
+    }
+  }]);
+
+  return Graphics;
+}(PixiComponent);
+
+var Rect = function (_PixiComponent5) {
+  _inherits(Rect, _PixiComponent5);
 
   function Rect(props) {
     _classCallCheck(this, Rect);
@@ -18277,16 +18333,16 @@ var Rect = function (_PixiComponent4) {
   _createClass(Rect, [{
     key: 'render',
     value: function render() {
-      var _props = this.props,
-          color = _props.color,
-          strokeWidth = _props.strokeWidth,
-          strokeColor = _props.strokeColor,
-          _props$x = _props.x,
-          x = _props$x === undefined ? 0 : _props$x,
-          _props$y = _props.y,
-          y = _props$y === undefined ? 0 : _props$y,
-          w = _props.w,
-          h = _props.h;
+      var _props2 = this.props,
+          color = _props2.color,
+          strokeWidth = _props2.strokeWidth,
+          strokeColor = _props2.strokeColor,
+          _props2$x = _props2.x,
+          x = _props2$x === undefined ? 0 : _props2$x,
+          _props2$y = _props2.y,
+          y = _props2$y === undefined ? 0 : _props2$y,
+          w = _props2.w,
+          h = _props2.h;
 
 
       var g = new PIXI.Graphics();
@@ -18315,7 +18371,10 @@ var primitiveMap = exports.primitiveMap = {
   sp: Sprite,
   rect: Rect,
   'animated-sprite': AnimatedSprite,
-  ani: AnimatedSprite
+  ani: AnimatedSprite,
+
+  graphics: Graphics,
+  g: Graphics
 };
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 

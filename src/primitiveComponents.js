@@ -150,6 +150,46 @@ class AnimatedSprite extends PixiComponent {
   }
 }
 
+class Graphics extends PixiComponent {
+  constructor(props){
+    super(props);
+  }
+  render(){
+    const {color, strokeWidth, strokeColor,x ,y} = this.props;
+    var pointes = this.props.pointes || [];
+    pointes = pointes.map(obj => {
+      if(Array.isArray(obj)){
+        return obj
+      }else{
+        return [obj.x, obj.y];
+      }
+    });
+
+    const g = new PIXI.Graphics();
+
+    if(pointes.length > 0){
+      g.beginFill(color);
+
+      if(strokeWidth > 0){
+        g.lineStyle(strokeWidth, strokeColor, 1);
+      }
+      g.moveTo(pointes[0][0], pointes[0][1]);
+
+      pointes.slice(1).forEach((point) => {
+        g.lineTo(point[0], point[1]);
+      });
+      g.endFill();      
+    }
+
+    g.x = x;
+    g.y = y;
+
+    this.setMember(g);
+
+    return g;
+  }
+}
+
 class Rect extends PixiComponent {
   constructor(props){
     super(props)
@@ -181,4 +221,7 @@ export const primitiveMap = {
   rect: Rect,
   'animated-sprite': AnimatedSprite,
   ani: AnimatedSprite,
+
+  graphics: Graphics,
+  g: Graphics,
 }
