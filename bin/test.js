@@ -17231,7 +17231,15 @@ module.exports = function(value,num){
 
 //import PIXI from 'pixi.js'
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Container = exports.PactComponent = undefined;
+
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+exports.renderTo = renderTo;
+exports.h = h;
 
 var _pixiLib = __webpack_require__(15);
 
@@ -17249,6 +17257,8 @@ var _mount = __webpack_require__(13);
 
 var _primitiveComponents = __webpack_require__(14);
 
+var p = _interopRequireWildcard(_primitiveComponents);
+
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -17257,12 +17267,18 @@ var isUndef = utils.isUndef,
     isDef = utils.isDef,
     log = utils.log;
 
+
+var primitiveMap = p.primitiveMap;
+
+var PactComponent = exports.PactComponent = p.PactComponent;
+
+var Container = exports.Container = primitiveMap.c;
+
 /**
 
 node -> inst -> node2 -> inst2
 
 **/
-
 function renderTo(node, pixiContainer) {
   var instance = new node.type(node.props, node.slots);
   var instanceVNode = instance.render();
@@ -17310,7 +17326,7 @@ function h(componentClass, props) {
 
   // @TODO
   if (utils.isReservedType(componentClass)) {
-    componentClass = _primitiveComponents.primitiveMap[componentClass];
+    componentClass = primitiveMap[componentClass];
   } else if (typeof componentClass === 'function') {
     //暂时忽略 props.children
     slots = children.slice();
@@ -17340,11 +17356,6 @@ function h(componentClass, props) {
 
   return node;
 }
-
-module.exports.renderTo = renderTo;
-module.exports.PactComponent = _primitiveComponents.PactComponent;
-module.exports.Container = _primitiveComponents.primitiveMap.c;
-module.exports.h = h;
 
 /***/ }),
 /* 6 */
