@@ -31,18 +31,18 @@ class T extends PactComponent {
   constructor() {
     super({});
     this.state = {
-      case: true,
+      caseName: true,
     }
   }
   render() {
     const {
-      case,
+      caseName,
     } = this.state;
 
     return (
       <MyComponent ref="myComponent">
-        {case ? '' : <c name="c0" />}
-        {!case ? '' : <c name="c1" />}
+        {caseName ? '' : <c name="c0" />}
+        {!caseName ? '' : <c name="c1" />}
       </MyComponent>
     );
   }
@@ -61,6 +61,6 @@ describe('功能特性:slot', function () {
   })
 
   describe('初始化', function () {
-    
+
   });
 });

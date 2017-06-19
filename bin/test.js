@@ -17225,6 +17225,129 @@ module.exports = function(value,num){
 
 /***/ }),
 /* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+//import PIXI from 'pixi.js'
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var _pixiLib = __webpack_require__(15);
+
+var _pixiLib2 = _interopRequireDefault(_pixiLib);
+
+var _utils = __webpack_require__(7);
+
+var utils = _interopRequireWildcard(_utils);
+
+var _lodash = __webpack_require__(1);
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var _mount = __webpack_require__(13);
+
+var _primitiveComponents = __webpack_require__(14);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var isUndef = utils.isUndef,
+    isDef = utils.isDef,
+    log = utils.log;
+
+/**
+
+node -> inst -> node2 -> inst2
+
+**/
+
+function renderTo(node, pixiContainer) {
+  var instance = new node.type(node.props, node.slots);
+  var instanceVNode = instance.render();
+
+  node.instance = instance;
+
+  node.isTop = true;
+  instance.isTop = true;
+
+  instance.pixiEl = pixiContainer;
+  instance.vNode = instanceVNode;
+
+  var rootInstance = (0, _mount.mountComponent)(instanceVNode, instance, instance);
+  rootInstance.didMounted();
+  instance.didMounted();
+
+  return instance;
+}
+
+function h(componentClass, props) {
+  for (var _len = arguments.length, children = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+    children[_key - 2] = arguments[_key];
+  }
+
+  if (!props) {
+    props = {};
+  }
+  children = children.filter(function (child) {
+    return (typeof child === 'undefined' ? 'undefined' : _typeof(child)) === 'object' || typeof child === 'string';
+  }).reduce(function (prev, next) {
+    // 带slots情况下,children是个二维数组, 需要用isSlot区分
+    if (true) {
+      if (Array.isArray(next) && !next.isSlot && !next.every(function (node) {
+        return !!node.key;
+      })) {
+
+        throw new Error('数组返回的每个节点必须含有key');
+      }
+    }
+
+    return prev.concat(next);
+  }, []);
+
+  var slots = [];
+
+  // @TODO
+  if (utils.isReservedType(componentClass)) {
+    componentClass = _primitiveComponents.primitiveMap[componentClass];
+  } else if (typeof componentClass === 'function') {
+    //暂时忽略 props.children
+    slots = children.slice();
+    slots.isSlot = true;
+    slots.map(function (slotNode) {
+      slotNode.isSlot = true;
+    });
+    children = [];
+  } else {
+    console.error(componentClass);
+    throw new Error('the compoennt ' + componentClass + ' muse be a PactComponent');
+  }
+
+  var key = props.key;
+  delete props.key;
+
+  var node = {
+    type: componentClass,
+    key: key,
+    instance: null,
+    props: props,
+    children: children,
+    slots: slots,
+    isSlot: false,
+    isTop: false,
+    contextInstance: null };
+
+  return node;
+}
+
+module.exports.renderTo = renderTo;
+module.exports.PactComponent = _primitiveComponents.PactComponent;
+module.exports.Container = _primitiveComponents.primitiveMap.c;
+module.exports.h = h;
+
+/***/ }),
+/* 6 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -17410,7 +17533,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17433,7 +17556,7 @@ exports.compareObject = compareObject;
 exports.isReservedType = isReservedType;
 exports.log = log;
 
-var _primitiveComponents = __webpack_require__(13);
+var _primitiveComponents = __webpack_require__(14);
 
 var _chalk = __webpack_require__(28);
 
@@ -17556,129 +17679,6 @@ function log() {
     console.log.apply(console, [_chalk2.default.green(args[0])].concat(args.slice(1)));
   }
 }
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-//import PIXI from 'pixi.js'
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-var _pixiLib = __webpack_require__(14);
-
-var _pixiLib2 = _interopRequireDefault(_pixiLib);
-
-var _utils = __webpack_require__(6);
-
-var utils = _interopRequireWildcard(_utils);
-
-var _lodash = __webpack_require__(1);
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
-var _mount = __webpack_require__(12);
-
-var _primitiveComponents = __webpack_require__(13);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var isUndef = utils.isUndef,
-    isDef = utils.isDef,
-    log = utils.log;
-
-/**
-
-node -> inst -> node2 -> inst2
-
-**/
-
-function renderTo(node, pixiContainer) {
-  var instance = new node.type(node.props, node.slots);
-  var instanceVNode = instance.render();
-
-  node.instance = instance;
-
-  node.isTop = true;
-  instance.isTop = true;
-
-  instance.pixiEl = pixiContainer;
-  instance.vNode = instanceVNode;
-
-  var rootInstance = (0, _mount.mountComponent)(instanceVNode, instance, instance);
-  rootInstance.didMounted();
-  instance.didMounted();
-
-  return instance;
-}
-
-function h(componentClass, props) {
-  for (var _len = arguments.length, children = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
-    children[_key - 2] = arguments[_key];
-  }
-
-  if (!props) {
-    props = {};
-  }
-  children = children.filter(function (child) {
-    return (typeof child === 'undefined' ? 'undefined' : _typeof(child)) === 'object' || typeof child === 'string';
-  }).reduce(function (prev, next) {
-    // 带slots情况下,children是个二维数组, 需要用isSlot区分
-    if (true) {
-      if (Array.isArray(next) && !next.isSlot && !next.every(function (node) {
-        return !!node.key;
-      })) {
-
-        throw new Error('数组返回的每个节点必须含有key');
-      }
-    }
-
-    return prev.concat(next);
-  }, []);
-
-  var slots = [];
-
-  // @TODO
-  if (utils.isReservedType(componentClass)) {
-    componentClass = _primitiveComponents.primitiveMap[componentClass];
-  } else if (typeof componentClass === 'function') {
-    //暂时忽略 props.children
-    slots = children.slice();
-    slots.isSlot = true;
-    slots.map(function (slotNode) {
-      slotNode.isSlot = true;
-    });
-    children = [];
-  } else {
-    console.error(componentClass);
-    throw new Error('the compoennt ' + componentClass + ' muse be a PactComponent');
-  }
-
-  var key = props.key;
-  delete props.key;
-
-  var node = {
-    type: componentClass,
-    key: key,
-    instance: null,
-    props: props,
-    children: children,
-    slots: slots,
-    isSlot: false,
-    isTop: false,
-    contextInstance: null };
-
-  return node;
-}
-
-module.exports.renderTo = renderTo;
-module.exports.PactComponent = _primitiveComponents.PactComponent;
-module.exports.Container = _primitiveComponents.primitiveMap.c;
-module.exports.h = h;
 
 /***/ }),
 /* 8 */
@@ -17950,491 +17950,6 @@ module.exports.polyfill = function() {
 /* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.mountComponent = mountComponent;
-
-var _utils = __webpack_require__(6);
-
-var utils = _interopRequireWildcard(_utils);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-var isUndef = utils.isUndef,
-    isDef = utils.isDef,
-    log = utils.log;
-function mountComponent(parentNode, parentComponent, contextComponent, contextParent) {
-  if (typeof parentNode === 'string') {
-    return parentNode;
-  } else {
-    var props = parentNode.props;
-    var ref = props.ref;
-
-
-    var instance = new parentNode.type(parentNode.props, parentNode.slots);
-    var vNode = instance.render();
-
-    parentNode.instance = instance;
-
-    if (parentNode.isSlot) {
-      parentNode.contextInstance = contextComponent;
-    } else {
-      parentNode.contextInstance = parentComponent;
-    }
-
-    // console.log('mountComponent 0', parentComponent, contextComponent);
-
-    if (utils.isPixiObj(vNode)) {
-      instance.pixiEl = vNode;
-      instance.isMounted = true;
-      parentComponent.pixiEl.addChild(vNode);
-
-      if (ref) {
-        contextComponent.refs[ref] = vNode;
-      }
-    } else if (utils.isVNode(vNode)) {
-
-      instance.vNode = vNode;
-      instance.pixiEl = parentComponent.pixiEl;
-      instance.isMounted = true;
-
-      if (ref) {
-        contextComponent.refs[ref] = instance;
-      }
-
-      var rootInstance = mountComponent(vNode, instance, instance, contextComponent);
-    } else {
-      throw new Error('mountComponent 卧槽');
-    }
-
-    parentNode.children.map(function (childNode) {
-
-      var childContextComponent;
-
-      if (childNode.isSlot) {
-        childContextComponent = contextParent;
-      } else {
-        childContextComponent = contextComponent;
-      }
-
-      var childInstance = mountComponent(childNode, instance, childContextComponent, contextParent);
-
-      instance.children.push(childInstance);
-    });
-
-    instance.didMounted();
-
-    return instance;
-  }
-}
-
-/***/ }),
-/* 13 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(PIXI) {Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.primitiveMap = exports.PactComponent = undefined;
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _pixiLib = __webpack_require__(14);
-
-var _pixiLib2 = _interopRequireDefault(_pixiLib);
-
-var _lodash = __webpack_require__(1);
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
-var _updator = __webpack_require__(27);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var PactComponentI = 0;
-
-var PactComponent = exports.PactComponent = function () {
-  function PactComponent(props, slots) {
-    _classCallCheck(this, PactComponent);
-
-    this.state = {};
-    this.props = {};
-
-    this.props = _lodash2.default.cloneDeep(props);
-
-    this.displayName = 'PactComponent.' + PactComponentI++;
-    this.isMounted = false;
-    this.vNode = null; //render产生的虚拟node
-    this.pixiEl; //pixi对象
-    this.rootInstance; //根实例对象
-    this.children = []; //子PactComponent对象
-    this.slots = slots || []; //插槽
-    this.isTop = false; //是否为顶级
-    this.refs = {}; // 引用
-  }
-
-  _createClass(PactComponent, [{
-    key: 'setState',
-    value: function setState(obj) {
-
-      this.state = _lodash2.default.merge(_lodash2.default.cloneDeep(this.state), obj);
-      //@TODO 同步更新组件
-      (0, _updator.updateComponentSync)(this);
-    }
-  }, {
-    key: 'setProps',
-    value: function setProps(newProps) {
-
-      this.props = _lodash2.default.merge(_lodash2.default.cloneDeep(this.props), newProps);
-    }
-  }, {
-    key: 'update',
-    value: function update() {
-      // @TODO
-    }
-  }, {
-    key: 'addChild',
-    value: function addChild(pactObj, i) {}
-  }, {
-    key: 'removeChild',
-    value: function removeChild(pactObj) {}
-  }, {
-    key: 'didMounted',
-    value: function didMounted() {}
-  }, {
-    key: 'unmount',
-    value: function unmount() {}
-  }, {
-    key: 'render',
-    value: function render() {}
-  }]);
-
-  return PactComponent;
-}();
-
-// 支持的事件
-
-
-var eventsArr = ['onMouseDown', 'onTouchStart'];
-
-var PixiComponent = function (_PactComponent) {
-  _inherits(PixiComponent, _PactComponent);
-
-  function PixiComponent(props) {
-    _classCallCheck(this, PixiComponent);
-
-    var _this = _possibleConstructorReturn(this, (PixiComponent.__proto__ || Object.getPrototypeOf(PixiComponent)).call(this, props));
-
-    _this.eventFnMap = new Map();
-
-    _this.texture = props.texture;
-    return _this;
-  }
-
-  _createClass(PixiComponent, [{
-    key: 'setProps',
-    value: function setProps(newProps) {
-      this.props = _lodash2.default.merge(_lodash2.default.cloneDeep(this.props), newProps);
-
-      if (this.pixiEl) {
-        this.setMember(this.pixiEl);
-      }
-    }
-  }, {
-    key: 'setMember',
-    value: function setMember(pixiObj) {
-      var _this2 = this;
-
-      var member = this.props.member;
-
-      if (member) {
-        _pixiLib2.default.setConfig(pixiObj, member);
-
-        if (member.play === false) {
-          pixiObj.stop();
-        } else if (member.play === true) {
-          pixiObj.play();
-        }
-      }
-      eventsArr.forEach(function (eventName) {
-        var fn = _this2.props[eventName];
-
-        if (fn) {
-          pixiObj.interactive = true;
-
-          eventName = eventName.replace(/^on/, '').toLowerCase();
-
-          var oldFn = _this2.eventFnMap.get(pixiObj);
-
-          if (oldFn) {
-            if (oldFn !== fn) {
-              pixiObj.off(eventName, oldFn);
-              pixiObj.on(eventName, fn);
-            }
-          } else {
-            pixiObj.on(eventName, fn);
-          }
-        }
-      });
-    }
-  }]);
-
-  return PixiComponent;
-}(PactComponent);
-
-var j = 0;
-
-var Container = function (_PixiComponent) {
-  _inherits(Container, _PixiComponent);
-
-  function Container(props) {
-    _classCallCheck(this, Container);
-
-    return _possibleConstructorReturn(this, (Container.__proto__ || Object.getPrototypeOf(Container)).call(this, props));
-  }
-
-  _createClass(Container, [{
-    key: 'render',
-    value: function render() {
-      var c = new PIXI.Container();
-      this.setMember(c);
-      return c;
-    }
-  }]);
-
-  return Container;
-}(PixiComponent);
-
-var Sprite = function (_PixiComponent2) {
-  _inherits(Sprite, _PixiComponent2);
-
-  function Sprite(props) {
-    _classCallCheck(this, Sprite);
-
-    return _possibleConstructorReturn(this, (Sprite.__proto__ || Object.getPrototypeOf(Sprite)).call(this, props));
-  }
-
-  _createClass(Sprite, [{
-    key: 'render',
-    value: function render() {
-      var sp = new PIXI.Sprite(this.texture);
-      this.setMember(sp);
-      return sp;
-    }
-  }]);
-
-  return Sprite;
-}(PixiComponent);
-
-var AnimatedSprite = function (_PixiComponent3) {
-  _inherits(AnimatedSprite, _PixiComponent3);
-
-  function AnimatedSprite(props) {
-    _classCallCheck(this, AnimatedSprite);
-
-    return _possibleConstructorReturn(this, (AnimatedSprite.__proto__ || Object.getPrototypeOf(AnimatedSprite)).call(this, props));
-  }
-
-  _createClass(AnimatedSprite, [{
-    key: 'render',
-    value: function render() {
-      var props = this.props;
-      var ani = new PIXI.extras.AnimatedSprite(props.textures);
-
-      this.setMember(ani);
-
-      if (props.member) {
-        if (props.member.play === false) {
-          ani.stop();
-        } else {
-          ani.play();
-        }
-      }
-
-      return ani;
-    }
-  }]);
-
-  return AnimatedSprite;
-}(PixiComponent);
-
-var Graphics = function (_PixiComponent4) {
-  _inherits(Graphics, _PixiComponent4);
-
-  function Graphics(props) {
-    _classCallCheck(this, Graphics);
-
-    return _possibleConstructorReturn(this, (Graphics.__proto__ || Object.getPrototypeOf(Graphics)).call(this, props));
-  }
-
-  _createClass(Graphics, [{
-    key: 'render',
-    value: function render() {
-      var _props = this.props,
-          color = _props.color,
-          strokeWidth = _props.strokeWidth,
-          strokeColor = _props.strokeColor,
-          x = _props.x,
-          y = _props.y;
-
-      var pointes = this.props.pointes || [];
-      pointes = pointes.map(function (obj) {
-        if (Array.isArray(obj)) {
-          return obj;
-        } else {
-          return [obj.x, obj.y];
-        }
-      });
-
-      var g = new PIXI.Graphics();
-
-      if (pointes.length > 0) {
-        g.beginFill(color);
-
-        if (strokeWidth > 0) {
-          g.lineStyle(strokeWidth, strokeColor, 1);
-        }
-        g.moveTo(pointes[0][0], pointes[0][1]);
-
-        pointes.slice(1).forEach(function (point) {
-          g.lineTo(point[0], point[1]);
-        });
-        g.endFill();
-      }
-
-      g.x = x;
-      g.y = y;
-
-      this.setMember(g);
-
-      return g;
-    }
-  }]);
-
-  return Graphics;
-}(PixiComponent);
-
-var Text = function (_PixiComponent5) {
-  _inherits(Text, _PixiComponent5);
-
-  function Text(props) {
-    _classCallCheck(this, Text);
-
-    return _possibleConstructorReturn(this, (Text.__proto__ || Object.getPrototypeOf(Text)).call(this, props));
-  }
-
-  _createClass(Text, [{
-    key: 'render',
-    value: function render() {
-      var _props2 = this.props,
-          text = _props2.text,
-          style = _props2.style;
-
-
-      var t = new PIXI.Text(text, style);
-
-      this.setMember(t);
-
-      return t;
-    }
-  }]);
-
-  return Text;
-}(PixiComponent);
-
-var Rect = function (_PixiComponent6) {
-  _inherits(Rect, _PixiComponent6);
-
-  function Rect(props) {
-    _classCallCheck(this, Rect);
-
-    return _possibleConstructorReturn(this, (Rect.__proto__ || Object.getPrototypeOf(Rect)).call(this, props));
-  }
-
-  _createClass(Rect, [{
-    key: 'render',
-    value: function render() {
-      var _props3 = this.props,
-          color = _props3.color,
-          strokeWidth = _props3.strokeWidth,
-          strokeColor = _props3.strokeColor,
-          _props3$x = _props3.x,
-          x = _props3$x === undefined ? 0 : _props3$x,
-          _props3$y = _props3.y,
-          y = _props3$y === undefined ? 0 : _props3$y,
-          w = _props3.w,
-          h = _props3.h;
-
-
-      var g = new PIXI.Graphics();
-
-      g.beginFill(color);
-      if (strokeWidth > 0) {
-        g.lineStyle(strokeWidth, strokeColor, 1);
-      }
-      g.drawRect(0, 0, w, h);
-      g.endFill();
-      g.x = x;
-      g.y = y;
-      this.setMember(g);
-
-      return g;
-    }
-  }]);
-
-  return Rect;
-}(PixiComponent);
-
-var primitiveMap = exports.primitiveMap = {
-  c: Container,
-  container: Container,
-  sprite: Sprite,
-  sp: Sprite,
-  rect: Rect,
-  'animated-sprite': AnimatedSprite,
-  ani: AnimatedSprite,
-
-  graphics: Graphics,
-  g: Graphics,
-
-  t: Text,
-  text: Text
-};
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var pixiLib = {appendStage:__webpack_require__(33),audioControl:__webpack_require__(35),canvasManager:__webpack_require__(17),createAction:__webpack_require__(36),createLoader:__webpack_require__(18),createRender:__webpack_require__(19),distance:__webpack_require__(20),fixSpriteProperties:__webpack_require__(37),getIm:__webpack_require__(21),getMc:__webpack_require__(8),getSp:__webpack_require__(22),getTextures:__webpack_require__(38),loadResource:__webpack_require__(23),loadSprite:__webpack_require__(39),makeIdentity:__webpack_require__(42),math:__webpack_require__(43),setConfig:__webpack_require__(9),types:__webpack_require__(24),audio:{loadAudio:__webpack_require__(34),}, loading:{basicLoading:__webpack_require__(40),mpLoading:__webpack_require__(41),}, utils:{addStyle:__webpack_require__(3),basicLoading:__webpack_require__(44),matrixManager:__webpack_require__(10),mpLoading:__webpack_require__(45),repeat:__webpack_require__(4),resizeImageData:__webpack_require__(46),shareGuide:__webpack_require__(47),unfoldArray:__webpack_require__(48),},};if( typeof window !== "undefined" ){ 
-window.pixiLib=pixiLib; 
-} 
-if(true ){  
-module.exports= pixiLib; 
-}
-
-/***/ }),
-/* 15 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-module.exports = function () {
-	return /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-PRZcf-nqry=><]/g;
-};
-
-
-/***/ }),
-/* 16 */
-/***/ (function(module, exports, __webpack_require__) {
-
 "use strict";
 /* WEBPACK VAR INJECTION */(function(global) {
 
@@ -18504,7 +18019,7 @@ function isBuffer(b) {
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-var util = __webpack_require__(61);
+var util = __webpack_require__(62);
 var hasOwn = Object.prototype.hasOwnProperty;
 var pSlice = Array.prototype.slice;
 var functionsHaveNames = (function () {
@@ -18928,6 +18443,491 @@ var objectKeys = Object.keys || function (obj) {
 };
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.mountComponent = mountComponent;
+
+var _utils = __webpack_require__(7);
+
+var utils = _interopRequireWildcard(_utils);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+var isUndef = utils.isUndef,
+    isDef = utils.isDef,
+    log = utils.log;
+function mountComponent(parentNode, parentComponent, contextComponent, contextParent) {
+  if (typeof parentNode === 'string') {
+    return parentNode;
+  } else {
+    var props = parentNode.props;
+    var ref = props.ref;
+
+
+    var instance = new parentNode.type(parentNode.props, parentNode.slots);
+    var vNode = instance.render();
+
+    parentNode.instance = instance;
+
+    if (parentNode.isSlot) {
+      parentNode.contextInstance = contextComponent;
+    } else {
+      parentNode.contextInstance = parentComponent;
+    }
+
+    // console.log('mountComponent 0', parentComponent, contextComponent);
+
+    if (utils.isPixiObj(vNode)) {
+      instance.pixiEl = vNode;
+      instance.isMounted = true;
+      parentComponent.pixiEl.addChild(vNode);
+
+      if (ref) {
+        contextComponent.refs[ref] = vNode;
+      }
+    } else if (utils.isVNode(vNode)) {
+
+      instance.vNode = vNode;
+      instance.pixiEl = parentComponent.pixiEl;
+      instance.isMounted = true;
+
+      if (ref) {
+        contextComponent.refs[ref] = instance;
+      }
+
+      var rootInstance = mountComponent(vNode, instance, instance, contextComponent);
+    } else {
+      throw new Error('mountComponent 卧槽');
+    }
+
+    parentNode.children.map(function (childNode) {
+
+      var childContextComponent;
+
+      if (childNode.isSlot) {
+        childContextComponent = contextParent;
+      } else {
+        childContextComponent = contextComponent;
+      }
+
+      var childInstance = mountComponent(childNode, instance, childContextComponent, contextParent);
+
+      instance.children.push(childInstance);
+    });
+
+    instance.didMounted();
+
+    return instance;
+  }
+}
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(PIXI) {Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.primitiveMap = exports.PactComponent = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _pixiLib = __webpack_require__(15);
+
+var _pixiLib2 = _interopRequireDefault(_pixiLib);
+
+var _lodash = __webpack_require__(1);
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var _updator = __webpack_require__(27);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var PactComponentI = 0;
+
+var PactComponent = exports.PactComponent = function () {
+  function PactComponent(props, slots) {
+    _classCallCheck(this, PactComponent);
+
+    this.state = {};
+    this.props = {};
+
+    this.props = _lodash2.default.cloneDeep(props);
+
+    this.displayName = 'PactComponent.' + PactComponentI++;
+    this.isMounted = false;
+    this.vNode = null; //render产生的虚拟node
+    this.pixiEl; //pixi对象
+    this.rootInstance; //根实例对象
+    this.children = []; //子PactComponent对象
+    this.slots = slots || []; //插槽
+    this.isTop = false; //是否为顶级
+    this.refs = {}; // 引用
+  }
+
+  _createClass(PactComponent, [{
+    key: 'setState',
+    value: function setState(obj) {
+
+      this.state = _lodash2.default.merge(_lodash2.default.cloneDeep(this.state), obj);
+      //@TODO 同步更新组件
+      (0, _updator.updateComponentSync)(this);
+    }
+  }, {
+    key: 'setProps',
+    value: function setProps(newProps) {
+
+      this.props = _lodash2.default.merge(_lodash2.default.cloneDeep(this.props), newProps);
+    }
+  }, {
+    key: 'update',
+    value: function update() {
+      // @TODO
+    }
+  }, {
+    key: 'addChild',
+    value: function addChild(pactObj, i) {}
+  }, {
+    key: 'removeChild',
+    value: function removeChild(pactObj) {}
+  }, {
+    key: 'didMounted',
+    value: function didMounted() {}
+  }, {
+    key: 'unmount',
+    value: function unmount() {}
+  }, {
+    key: 'render',
+    value: function render() {}
+  }]);
+
+  return PactComponent;
+}();
+
+// 支持的事件
+
+
+var eventsArr = ['onMouseDown', 'onTouchStart'];
+
+var PixiComponent = function (_PactComponent) {
+  _inherits(PixiComponent, _PactComponent);
+
+  function PixiComponent(props) {
+    _classCallCheck(this, PixiComponent);
+
+    var _this = _possibleConstructorReturn(this, (PixiComponent.__proto__ || Object.getPrototypeOf(PixiComponent)).call(this, props));
+
+    _this.eventFnMap = new Map();
+
+    _this.texture = props.texture;
+    return _this;
+  }
+
+  _createClass(PixiComponent, [{
+    key: 'setProps',
+    value: function setProps(newProps) {
+      this.props = _lodash2.default.merge(_lodash2.default.cloneDeep(this.props), newProps);
+
+      if (this.pixiEl) {
+        this.setMember(this.pixiEl);
+      }
+    }
+  }, {
+    key: 'setMember',
+    value: function setMember(pixiObj) {
+      var _this2 = this;
+
+      var member = this.props.member;
+
+      if (member) {
+        _pixiLib2.default.setConfig(pixiObj, member);
+
+        if (member.play === false) {
+          pixiObj.stop();
+        } else if (member.play === true) {
+          pixiObj.play();
+        }
+      }
+      eventsArr.forEach(function (eventName) {
+        var fn = _this2.props[eventName];
+
+        if (fn) {
+          pixiObj.interactive = true;
+
+          eventName = eventName.replace(/^on/, '').toLowerCase();
+
+          var oldFn = _this2.eventFnMap.get(pixiObj);
+
+          if (oldFn) {
+            if (oldFn !== fn) {
+              pixiObj.off(eventName, oldFn);
+              pixiObj.on(eventName, fn);
+            }
+          } else {
+            pixiObj.on(eventName, fn);
+          }
+        }
+      });
+    }
+  }]);
+
+  return PixiComponent;
+}(PactComponent);
+
+var j = 0;
+
+var Container = function (_PixiComponent) {
+  _inherits(Container, _PixiComponent);
+
+  function Container(props) {
+    _classCallCheck(this, Container);
+
+    return _possibleConstructorReturn(this, (Container.__proto__ || Object.getPrototypeOf(Container)).call(this, props));
+  }
+
+  _createClass(Container, [{
+    key: 'render',
+    value: function render() {
+      var c = new PIXI.Container();
+      this.setMember(c);
+      return c;
+    }
+  }]);
+
+  return Container;
+}(PixiComponent);
+
+var Sprite = function (_PixiComponent2) {
+  _inherits(Sprite, _PixiComponent2);
+
+  function Sprite(props) {
+    _classCallCheck(this, Sprite);
+
+    return _possibleConstructorReturn(this, (Sprite.__proto__ || Object.getPrototypeOf(Sprite)).call(this, props));
+  }
+
+  _createClass(Sprite, [{
+    key: 'render',
+    value: function render() {
+      var sp = new PIXI.Sprite(this.texture);
+      this.setMember(sp);
+      return sp;
+    }
+  }]);
+
+  return Sprite;
+}(PixiComponent);
+
+var AnimatedSprite = function (_PixiComponent3) {
+  _inherits(AnimatedSprite, _PixiComponent3);
+
+  function AnimatedSprite(props) {
+    _classCallCheck(this, AnimatedSprite);
+
+    return _possibleConstructorReturn(this, (AnimatedSprite.__proto__ || Object.getPrototypeOf(AnimatedSprite)).call(this, props));
+  }
+
+  _createClass(AnimatedSprite, [{
+    key: 'render',
+    value: function render() {
+      var props = this.props;
+      var ani = new PIXI.extras.AnimatedSprite(props.textures);
+
+      this.setMember(ani);
+
+      if (props.member) {
+        if (props.member.play === false) {
+          ani.stop();
+        } else {
+          ani.play();
+        }
+      }
+
+      return ani;
+    }
+  }]);
+
+  return AnimatedSprite;
+}(PixiComponent);
+
+var Graphics = function (_PixiComponent4) {
+  _inherits(Graphics, _PixiComponent4);
+
+  function Graphics(props) {
+    _classCallCheck(this, Graphics);
+
+    return _possibleConstructorReturn(this, (Graphics.__proto__ || Object.getPrototypeOf(Graphics)).call(this, props));
+  }
+
+  _createClass(Graphics, [{
+    key: 'render',
+    value: function render() {
+      var _props = this.props,
+          color = _props.color,
+          strokeWidth = _props.strokeWidth,
+          strokeColor = _props.strokeColor,
+          x = _props.x,
+          y = _props.y;
+
+      var pointes = this.props.pointes || [];
+      pointes = pointes.map(function (obj) {
+        if (Array.isArray(obj)) {
+          return obj;
+        } else {
+          return [obj.x, obj.y];
+        }
+      });
+
+      var g = new PIXI.Graphics();
+
+      if (pointes.length > 0) {
+        g.beginFill(color);
+
+        if (strokeWidth > 0) {
+          g.lineStyle(strokeWidth, strokeColor, 1);
+        }
+        g.moveTo(pointes[0][0], pointes[0][1]);
+
+        pointes.slice(1).forEach(function (point) {
+          g.lineTo(point[0], point[1]);
+        });
+        g.endFill();
+      }
+
+      g.x = x;
+      g.y = y;
+
+      this.setMember(g);
+
+      return g;
+    }
+  }]);
+
+  return Graphics;
+}(PixiComponent);
+
+var Text = function (_PixiComponent5) {
+  _inherits(Text, _PixiComponent5);
+
+  function Text(props) {
+    _classCallCheck(this, Text);
+
+    return _possibleConstructorReturn(this, (Text.__proto__ || Object.getPrototypeOf(Text)).call(this, props));
+  }
+
+  _createClass(Text, [{
+    key: 'render',
+    value: function render() {
+      var _props2 = this.props,
+          text = _props2.text,
+          style = _props2.style;
+
+
+      var t = new PIXI.Text(text, style);
+
+      this.setMember(t);
+
+      return t;
+    }
+  }]);
+
+  return Text;
+}(PixiComponent);
+
+var Rect = function (_PixiComponent6) {
+  _inherits(Rect, _PixiComponent6);
+
+  function Rect(props) {
+    _classCallCheck(this, Rect);
+
+    return _possibleConstructorReturn(this, (Rect.__proto__ || Object.getPrototypeOf(Rect)).call(this, props));
+  }
+
+  _createClass(Rect, [{
+    key: 'render',
+    value: function render() {
+      var _props3 = this.props,
+          color = _props3.color,
+          strokeWidth = _props3.strokeWidth,
+          strokeColor = _props3.strokeColor,
+          _props3$x = _props3.x,
+          x = _props3$x === undefined ? 0 : _props3$x,
+          _props3$y = _props3.y,
+          y = _props3$y === undefined ? 0 : _props3$y,
+          w = _props3.w,
+          h = _props3.h;
+
+
+      var g = new PIXI.Graphics();
+
+      g.beginFill(color);
+      if (strokeWidth > 0) {
+        g.lineStyle(strokeWidth, strokeColor, 1);
+      }
+      g.drawRect(0, 0, w, h);
+      g.endFill();
+      g.x = x;
+      g.y = y;
+      this.setMember(g);
+
+      return g;
+    }
+  }]);
+
+  return Rect;
+}(PixiComponent);
+
+var primitiveMap = exports.primitiveMap = {
+  c: Container,
+  container: Container,
+  sprite: Sprite,
+  sp: Sprite,
+  rect: Rect,
+  'animated-sprite': AnimatedSprite,
+  ani: AnimatedSprite,
+
+  graphics: Graphics,
+  g: Graphics,
+
+  t: Text,
+  text: Text
+};
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var pixiLib = {appendStage:__webpack_require__(33),audioControl:__webpack_require__(35),canvasManager:__webpack_require__(17),createAction:__webpack_require__(36),createLoader:__webpack_require__(18),createRender:__webpack_require__(19),distance:__webpack_require__(20),fixSpriteProperties:__webpack_require__(37),getIm:__webpack_require__(21),getMc:__webpack_require__(8),getSp:__webpack_require__(22),getTextures:__webpack_require__(38),loadResource:__webpack_require__(23),loadSprite:__webpack_require__(39),makeIdentity:__webpack_require__(42),math:__webpack_require__(43),setConfig:__webpack_require__(9),types:__webpack_require__(24),audio:{loadAudio:__webpack_require__(34),}, loading:{basicLoading:__webpack_require__(40),mpLoading:__webpack_require__(41),}, utils:{addStyle:__webpack_require__(3),basicLoading:__webpack_require__(44),matrixManager:__webpack_require__(10),mpLoading:__webpack_require__(45),repeat:__webpack_require__(4),resizeImageData:__webpack_require__(46),shareGuide:__webpack_require__(47),unfoldArray:__webpack_require__(48),},};if( typeof window !== "undefined" ){ 
+window.pixiLib=pixiLib; 
+} 
+if(true ){  
+module.exports= pixiLib; 
+}
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+module.exports = function () {
+	return /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-PRZcf-nqry=><]/g;
+};
+
 
 /***/ }),
 /* 17 */
@@ -19425,7 +19425,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 exports.updateComponentSync = updateComponentSync;
 exports.updateComponentAsync = updateComponentAsync;
 
-var _utils = __webpack_require__(6);
+var _utils = __webpack_require__(7);
 
 var utils = _interopRequireWildcard(_utils);
 
@@ -19433,7 +19433,7 @@ var _lodash = __webpack_require__(1);
 
 var _lodash2 = _interopRequireDefault(_lodash);
 
-var _mount = __webpack_require__(12);
+var _mount = __webpack_require__(13);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -19786,7 +19786,7 @@ module.exports.hasColor = hasAnsi;
 module.exports.stripColor = stripAnsi;
 module.exports.supportsColor = supportsColor;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6)))
 
 /***/ }),
 /* 29 */
@@ -19812,7 +19812,7 @@ module.exports = function (str) {
 
 "use strict";
 
-var ansiRegex = __webpack_require__(15);
+var ansiRegex = __webpack_require__(16);
 var re = new RegExp(ansiRegex().source); // remove the `g` flag
 module.exports = re.test.bind(re);
 
@@ -19858,7 +19858,7 @@ module.exports = re.test.bind(re);
 
 //# sourceMappingURL=performance-now.js.map
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6)))
 
 /***/ }),
 /* 32 */
@@ -21143,7 +21143,7 @@ https://github.com/mroderick/PubSubJS
 
 "use strict";
 
-var ansiRegex = __webpack_require__(15)();
+var ansiRegex = __webpack_require__(16)();
 
 module.exports = function (str) {
 	return typeof str === 'string' ? str.replace(ansiRegex, '') : str;
@@ -21206,7 +21206,7 @@ module.exports = (function () {
 	return false;
 })();
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6)))
 
 /***/ }),
 /* 52 */
@@ -21215,10 +21215,10 @@ module.exports = (function () {
 var map = {
 	"./mapChildren_test.js": 54,
 	"./ref_test.js": 55,
-	"./slot_test.js": 62,
-	"./updateChildrenComponent_test.js": 56,
-	"./updateChildren_test.js": 57,
-	"./updateProps_test.js": 58
+	"./slot_test.js": 56,
+	"./updateChildrenComponent_test.js": 57,
+	"./updateChildren_test.js": 58,
+	"./updateProps_test.js": 59
 };
 function webpackContext(req) {
 	return __webpack_require__(webpackContextResolve(req));
@@ -21258,9 +21258,9 @@ var _pixiFake = __webpack_require__(0);
 
 var _pixiFake2 = _interopRequireDefault(_pixiFake);
 
-var _assert = __webpack_require__(16);
+var _assert = __webpack_require__(12);
 
-var _pixiReact = __webpack_require__(7);
+var _pixiReact = __webpack_require__(5);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -21369,9 +21369,9 @@ var _pixiFake = __webpack_require__(0);
 
 var _pixiFake2 = _interopRequireDefault(_pixiFake);
 
-var _assert = __webpack_require__(16);
+var _assert = __webpack_require__(12);
 
-var _pixiReact = __webpack_require__(7);
+var _pixiReact = __webpack_require__(5);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -21499,9 +21499,109 @@ var _pixiFake = __webpack_require__(0);
 
 var _pixiFake2 = _interopRequireDefault(_pixiFake);
 
-var _assert = __webpack_require__(16);
+var _assert = __webpack_require__(12);
 
-var _pixiReact = __webpack_require__(7);
+var _pixiReact = __webpack_require__(5);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+global.PIXI = _pixiFake2.default;
+global.__ENV__ = true;
+
+var MyComponent = function (_PactComponent) {
+  _inherits(MyComponent, _PactComponent);
+
+  function MyComponent() {
+    _classCallCheck(this, MyComponent);
+
+    return _possibleConstructorReturn(this, (MyComponent.__proto__ || Object.getPrototypeOf(MyComponent)).apply(this, arguments));
+  }
+
+  _createClass(MyComponent, [{
+    key: 'render',
+    value: function render() {
+      return (0, _pixiReact.h)(
+        'c',
+        { key: 'myComponent', ref: 'rootInComponent' },
+        (0, _pixiReact.h)('c', { keyName: 'm0' }),
+        this.slots
+      );
+    }
+  }]);
+
+  return MyComponent;
+}(_pixiReact.PactComponent);
+
+var T = function (_PactComponent2) {
+  _inherits(T, _PactComponent2);
+
+  function T() {
+    _classCallCheck(this, T);
+
+    var _this2 = _possibleConstructorReturn(this, (T.__proto__ || Object.getPrototypeOf(T)).call(this, {}));
+
+    _this2.state = {
+      caseName: true
+    };
+    return _this2;
+  }
+
+  _createClass(T, [{
+    key: 'render',
+    value: function render() {
+      var caseName = this.state.caseName;
+
+
+      return (0, _pixiReact.h)(
+        MyComponent,
+        { ref: 'myComponent' },
+        caseName ? '' : (0, _pixiReact.h)('c', { name: 'c0' }),
+        !caseName ? '' : (0, _pixiReact.h)('c', { name: 'c1' })
+      );
+    }
+  }]);
+
+  return T;
+}(_pixiReact.PactComponent);
+
+describe('功能特性:slot', function () {
+
+  var tVNode;
+  var topContainer;
+  var tInstance;
+
+  beforeEach(function () {
+    tVNode = (0, _pixiReact.h)(T);
+    topContainer = new _pixiFake2.default.Container();
+    tInstance = (0, _pixiReact.renderTo)(tVNode, topContainer);
+  });
+
+  describe('初始化', function () {});
+});
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
+
+/***/ }),
+/* 57 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(global) {
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _pixiFake = __webpack_require__(0);
+
+var _pixiFake2 = _interopRequireDefault(_pixiFake);
+
+var _assert = __webpack_require__(12);
+
+var _pixiReact = __webpack_require__(5);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -21743,7 +21843,7 @@ describe('复杂嵌套的组件', function () {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ }),
-/* 57 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -21755,9 +21855,9 @@ var _pixiFake = __webpack_require__(0);
 
 var _pixiFake2 = _interopRequireDefault(_pixiFake);
 
-var _assert = __webpack_require__(16);
+var _assert = __webpack_require__(12);
 
-var _pixiReact = __webpack_require__(7);
+var _pixiReact = __webpack_require__(5);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -21938,7 +22038,7 @@ describe('基础组件', function () {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ }),
-/* 58 */
+/* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -21950,9 +22050,9 @@ var _pixiFake = __webpack_require__(0);
 
 var _pixiFake2 = _interopRequireDefault(_pixiFake);
 
-var _assert = __webpack_require__(16);
+var _assert = __webpack_require__(12);
 
-var _pixiReact = __webpack_require__(7);
+var _pixiReact = __webpack_require__(5);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -22119,7 +22219,7 @@ describe('更新props', function () {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ }),
-/* 59 */
+/* 60 */
 /***/ (function(module, exports) {
 
 if (typeof Object.create === 'function') {
@@ -22148,7 +22248,7 @@ if (typeof Object.create === 'function') {
 
 
 /***/ }),
-/* 60 */
+/* 61 */
 /***/ (function(module, exports) {
 
 module.exports = function isBuffer(arg) {
@@ -22159,7 +22259,7 @@ module.exports = function isBuffer(arg) {
 }
 
 /***/ }),
-/* 61 */
+/* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, process) {// Copyright Joyent, Inc. and other Node contributors.
@@ -22687,7 +22787,7 @@ function isPrimitive(arg) {
 }
 exports.isPrimitive = isPrimitive;
 
-exports.isBuffer = __webpack_require__(60);
+exports.isBuffer = __webpack_require__(61);
 
 function objectToString(o) {
   return Object.prototype.toString.call(o);
@@ -22731,7 +22831,7 @@ exports.log = function() {
  *     prototype.
  * @param {function} superCtor Constructor function to inherit prototype from.
  */
-exports.inherits = __webpack_require__(59);
+exports.inherits = __webpack_require__(60);
 
 exports._extend = function(origin, add) {
   // Don't do anything if add isn't an object
@@ -22749,13 +22849,7 @@ function hasOwnProperty(obj, prop) {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2), __webpack_require__(5)))
-
-/***/ }),
-/* 62 */
-/***/ (function(module, exports) {
-
-throw new Error("Module build failed: SyntaxError: case is a reserved word (39:6)\n\n\u001b[0m \u001b[90m 37 | \u001b[39m  render() {\n \u001b[90m 38 | \u001b[39m    \u001b[36mconst\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 39 | \u001b[39m      \u001b[36mcase\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m    | \u001b[39m      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 40 | \u001b[39m    } \u001b[33m=\u001b[39m \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mstate\u001b[33m;\u001b[39m\n \u001b[90m 41 | \u001b[39m\n \u001b[90m 42 | \u001b[39m    \u001b[36mreturn\u001b[39m (\u001b[0m\n");
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2), __webpack_require__(6)))
 
 /***/ })
 /******/ ]);
