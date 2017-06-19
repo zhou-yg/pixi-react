@@ -1,6 +1,6 @@
 {
   "name": "pixi-react",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "set/get data structure",
   "main": "./src/pixi-react.js",
   "scripts": {
