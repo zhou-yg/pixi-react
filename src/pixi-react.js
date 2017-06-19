@@ -5,16 +5,22 @@ import * as utils from './utils.js';
 import _ from 'lodash';
 
 import {mountComponent} from './mount';
-import {PactComponent, primitiveMap} from './primitiveComponents.js';
+import * as p from './primitiveComponents.js';
 
 const {isUndef, isDef,log} = utils;
+
+const primitiveMap = p.primitiveMap;
+
+export const PactComponent = p.PactComponent
+
+export const Container = primitiveMap.c;
 
 /**
 
 node -> inst -> node2 -> inst2
 
 **/
-function renderTo(node, pixiContainer) {
+export function renderTo(node, pixiContainer) {
   const instance = new node.type(node.props, node.slots);
   const instanceVNode = instance.render();
 
@@ -34,7 +40,7 @@ function renderTo(node, pixiContainer) {
 }
 
 
-function h(componentClass, props, ...children) {
+export function h(componentClass, props, ...children) {
   if(!props){
     props = {};
   }
@@ -89,8 +95,3 @@ function h(componentClass, props, ...children) {
 
   return node;
 }
-
-module.exports.renderTo = renderTo;
-module.exports.PactComponent = PactComponent;
-module.exports.Container = primitiveMap.c;
-module.exports.h = h;
