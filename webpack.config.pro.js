@@ -7,7 +7,7 @@ module.exports = Object.assign(baseConfig,{
     index: path.join(__dirname, './src/pixi-react.js'),
   },
   output: {
-    path: path.join(__dirname, './bin/'),
+    path: path.join(__dirname, './dist/'),
     filename: '[name].js'
   },
   plugins: [

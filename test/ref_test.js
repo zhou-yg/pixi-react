@@ -68,7 +68,7 @@ describe('功能特性:ref', function () {
       const myComponentInst = tInstance.vNode.instance.children[0];
 
       equal(tInstance.refs.myComponent, myComponentInst, '自定义组件的ref为组件实例');
-      equal(myComponentInst.refs.rootInComponent, myComponentInst.vNode.instance.pixiEl , 'pixi组件的ref为pixi对象');
+      equal(myComponentInst.refs.rootInComponent, myComponentInst.vNode.instance.pixiEl , 'pixi组件的ref,如果被保留类型，则为pixi对象');
       equal(tInstance.refs.childInComponent, myComponentInst.vNode.instance.children[1].pixiEl , '嵌套组件的ref在 声明时所在的实例下');
     });
   });

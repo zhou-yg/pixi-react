@@ -8,7 +8,7 @@
     "build-w": "webpack --progress --display-error-details --watch",
     "bin": "webpack --progress --display-error-details --config webpack.config.pro.js",
     "mocha": "mocha bin/test.js",
-    "mocha-w": "mocha --watch bin/test.js",
+    "mocha-w": "mocha --watch dist/test.js",
     "mocha-b": "mocha --watch --require babel-register "
   },
   "repository": {

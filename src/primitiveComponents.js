@@ -243,3 +243,8 @@ export const primitiveMap = {
   t: Text,
   text: Text,
 }
+
+
+export function isPrimitiveClass(obj) {
+  return obj instanceof PixiComponent;  
+}

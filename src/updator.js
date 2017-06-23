@@ -2,6 +2,7 @@ import * as utils from './utils.js';
 import _ from 'lodash';
 const {isUndef, isDef,log} = utils;
 import {mountComponent} from './mount.js';
+import {isPrimitiveClass} from './primitiveComponents';
 
 const updateQueue = []; //等待更新
 
@@ -13,7 +14,7 @@ function removeRef(vNode){
 
 function appendRef(vNode){
   if(typeof vNode === 'object' && vNode.props.ref){
-    vNode.contextInstance.refs[vNode.props.ref] = vNode.instance.pixiEl ? vNode.instance.pixiEl : vNode;
+    vNode.contextInstance.refs[vNode.props.ref] = isPrimitiveClass(vNode.instance) ? vNode.instance.pixiEl : vNode;
   }
 }
 
