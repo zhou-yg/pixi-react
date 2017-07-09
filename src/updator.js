@@ -2,7 +2,7 @@ import * as utils from './utils.js';
 import _ from 'lodash';
 const {isUndef, isDef,log} = utils;
 import {mountComponent} from './mount.js';
-import {isPrimitiveClass} from './primitiveComponents';
+import {isPrimitiveClass, NullSprite} from './primitiveComponents';
 
 const updateQueue = []; //等待更新
 
@@ -46,9 +46,18 @@ function replaceVNode(parentVNode, newVNode, replaceIndex) {
   parentVNode.instance.children[replaceIndex] = newInstance;
   parentVNode.children[replaceIndex] = newVNode;
 
-  if(typeof newInstance !== 'string' && !newInstance.vNode){
-    parentVNode.instance.pixiEl.removeChildAt(replaceIndex);
-    parentVNode.instance.pixiEl.addChildAt(newInstance.pixiEl, replaceIndex);
+  const pixiEl = parentVNode.instance.pixiEl;
+
+  console.log(replaceIndex, pixiEl.children);
+
+  if (typeof newInstance === 'string') {
+    if(pixiEl.children[replaceIndex]){
+      pixiEl.removeChildAt(replaceIndex);
+    }
+    pixiEl.addChildAt(new NullSprite(), replaceIndex);
+  } else if(/* typeof newInstance !== 'string' &&  */!newInstance.vNode){
+    pixiEl.removeChildAt(replaceIndex);
+    pixiEl.addChildAt(newInstance.pixiEl, replaceIndex);
   }
 }
 function addVNode(parentVNode, newVNode, targetIndex) {
@@ -59,7 +68,11 @@ function addVNode(parentVNode, newVNode, targetIndex) {
   parentVNode.instance.children.splice(targetIndex, 0 , newInstance);
   parentVNode.children.splice(targetIndex,0 , newVNode);
 
-  if(typeof newInstance !== 'string' && !newInstance.vNode){
+  log(`addVNode`, newInstance)
+
+  if(typeof newInstance === 'string'){
+    parentVNode.instance.pixiEl.addChildAt(new NullSprite(), targetIndex);
+  } else if(!newInstance.vNode){
     parentVNode.instance.pixiEl.addChildAt(newInstance.pixiEl, targetIndex);
   }
 }

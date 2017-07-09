@@ -24,6 +24,7 @@ export class PactComponent {
   setState (obj) {
 
     this.state = _.merge(_.cloneDeep(this.state), obj);
+
     //@TODO 同步更新组件
     updateComponentSync(this);
   }
@@ -228,6 +229,13 @@ class Rect extends PixiComponent {
   }
 }
 
+export class NullSprite extends PIXI.Sprite {
+  constructor(...arg){
+    super(...arg);
+    this.isNullSprite = true;
+  }
+}
+
 export const primitiveMap = {
   c: Container,
   container:Container,
@@ -246,5 +254,5 @@ export const primitiveMap = {
 
 
 export function isPrimitiveClass(obj) {
-  return obj instanceof PixiComponent;  
+  return obj instanceof PixiComponent;
 }
