@@ -48,8 +48,6 @@ function replaceVNode(parentVNode, newVNode, replaceIndex) {
 
   const pixiEl = parentVNode.instance.pixiEl;
 
-  console.log(replaceIndex, pixiEl.children);
-
   if (typeof newInstance === 'string') {
     if(pixiEl.children[replaceIndex]){
       pixiEl.removeChildAt(replaceIndex);
