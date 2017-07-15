@@ -33,30 +33,32 @@ function syncProps(oldVNode, newVNode) {
 }
 
 function replaceVNode(parentVNode, newVNode, replaceIndex) {
+  const pixiEl = parentVNode.instance.pixiEl;
+
   log(`replaceVNode`, replaceIndex);
   log(`replaceVNode`,'new',newVNode);
 
-  const newInstance = mountComponent(newVNode, parentVNode.instance, parentVNode.contextInstance, parentVNode.contextInstance);
-  const oldVNode = parentVNode.children[replaceIndex];
-
   removeRef(oldVNode);
+  pixiEl.removeChildAt(replaceIndex);
+
+  const newInstance = mountComponent(newVNode, parentVNode.instance, parentVNode.contextInstance, parentVNode.contextInstance, replaceIndex);
+  const oldVNode = parentVNode.children[replaceIndex];
 
   appendRef(newVNode);
 
   parentVNode.instance.children[replaceIndex] = newInstance;
   parentVNode.children[replaceIndex] = newVNode;
 
-  const pixiEl = parentVNode.instance.pixiEl;
-
-  if (typeof newInstance === 'string') {
-    if(pixiEl.children[replaceIndex]){
-      pixiEl.removeChildAt(replaceIndex);
-    }
-    pixiEl.addChildAt(new NullSprite(), replaceIndex);
-  } else if(/* typeof newInstance !== 'string' &&  */!newInstance.vNode){
-    pixiEl.removeChildAt(replaceIndex);
-    pixiEl.addChildAt(newInstance.pixiEl, replaceIndex);
-  }
+  // if (typeof newInstance === 'string') {
+  //   log(`replaceVNode`,'str', pixiEl.children, !!pixiEl.children[replaceIndex]);
+  //
+  //   // if(pixiEl.children[replaceIndex]){
+  //   //   pixiEl.removeChildAt(replaceIndex);
+  //   // }
+  //   // pixiEl.addChildAt(new NullSprite(), replaceIndex);
+  // } else if(/* typeof newInstance !== 'string' &&  */!newInstance.vNode){
+  //   // pixiEl.addChildAt(newInstance.pixiEl, replaceIndex);
+  // }
 }
 function addVNode(parentVNode, newVNode, targetIndex) {
   const newInstance = mountComponent(newVNode, parentVNode.instance, parentVNode.contextInstance, parentVNode.contextInstance);
@@ -76,6 +78,7 @@ function addVNode(parentVNode, newVNode, targetIndex) {
 }
 
 function removeVNode(parentVNode, removeFromIndex) {
+  const pixiEl = parentVNode.instance.pixiEl;
   const removedVNode = parentVNode.children[removeFromIndex];
 
   removeRef(removedVNode);
@@ -85,8 +88,8 @@ function removeVNode(parentVNode, removeFromIndex) {
   parentVNode.instance.children.splice(removeFromIndex, 1);
   parentVNode.children.splice(removeFromIndex, 1);
 
-  if(parentVNode.instance.pixiEl){
-    parentVNode.instance.pixiEl.removeChildAt(removeFromIndex);
+  if(pixiEl){
+    pixiEl.removeChildAt(removeFromIndex);
   }
 }
 

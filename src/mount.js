@@ -1,8 +1,13 @@
 import * as utils from './utils.js';
+import { NullSprite} from './primitiveComponents';
+
 const {isUndef, isDef,log} = utils;
 
-export function mountComponent(parentNode, parentComponent, contextComponent, contextParent) {
+export function mountComponent(parentNode, parentComponent, contextComponent, contextParent, index = 0) {
   if(typeof parentNode === 'string'){
+
+    parentComponent.pixiEl.addChildAt(new NullSprite(), index);
+
     return parentNode;
   } else {
     const props = parentNode.props;
@@ -24,7 +29,7 @@ export function mountComponent(parentNode, parentComponent, contextComponent, co
     if(utils.isPixiObj(vNode)){
       instance.pixiEl = vNode;
       instance.isMounted = true;
-      parentComponent.pixiEl.addChild(vNode);
+      parentComponent.pixiEl.addChildAt(vNode, index);
 
       if(ref){
         contextComponent.refs[ref] = vNode;
@@ -40,13 +45,13 @@ export function mountComponent(parentNode, parentComponent, contextComponent, co
         contextComponent.refs[ref] = instance;
       }
 
-      const rootInstance = mountComponent(vNode, instance, instance, contextComponent);
+      const rootInstance = mountComponent(vNode, instance, instance, contextComponent, index);
 
     }else{
       throw new Error('mountComponent 卧槽');
     }
 
-    parentNode.children.map(childNode => {
+    parentNode.children.map((childNode, i) => {
 
       var childContextComponent;
 
@@ -56,7 +61,7 @@ export function mountComponent(parentNode, parentComponent, contextComponent, co
         childContextComponent = contextComponent;
       }
 
-      const childInstance = mountComponent(childNode, instance, childContextComponent, contextParent);
+      const childInstance = mountComponent(childNode, instance, childContextComponent, contextParent, i);
 
       instance.children.push(childInstance);
     });
