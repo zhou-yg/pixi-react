@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "set/get data structure",
   "main": "./src/pixi-react.js",
+  "files": [
+    "src",
+    "dist"
+  ],
   "scripts": {
     "build": "webpack --config webpack.config.pro --progress --display-error-details",
     "build-w": "webpack --progress --display-error-details --watch",
@@ -42,6 +46,6 @@
   },
   "dependencies": {
     "pixi.js": "^4.5.0",
-    "pixi-lib":"x.x.x",
+    "pixi-lib":"x.x.x"
   }
 }
