@@ -26,6 +26,6 @@ module.exports = Object.assign(baseConfig,{
     //     warnings: false,
     //   }
     // }),
-    new (require('webpack-bundle-analyzer').BundleAnalyzerPlugin)(),
+    // new (require('webpack-bundle-analyzer').BundleAnalyzerPlugin)(),
   ],
 });
