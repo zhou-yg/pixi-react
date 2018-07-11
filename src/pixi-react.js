@@ -1,8 +1,5 @@
 'use strict';
-//import PIXI from 'pixi.js'
-import pixiLib from 'pixi-lib';
 import * as utils from './utils.js';
-import _ from 'lodash';
 
 import {mountComponent} from './mount';
 import * as p from './primitiveComponents.js';

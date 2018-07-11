@@ -1,5 +1,5 @@
 import * as utils from './utils.js';
-import _ from 'lodash';
+import {cloneDeep} from 'lodash';
 const {isUndef, isDef,log} = utils;
 import {mountComponent} from './mount.js';
 import {isPrimitiveClass, NullSprite} from './primitiveComponents';
@@ -24,7 +24,7 @@ function syncProps(oldVNode, newVNode) {
 
   removeRef(oldVNode);
 
-  oldVNode.props = _.cloneDeep(newVNode.props);
+  oldVNode.props = cloneDeep(newVNode.props);
   oldVNode.instance.setProps(oldVNode.props);
 
   updateComponent(oldVNode.instance);

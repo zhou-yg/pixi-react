@@ -10,15 +10,22 @@ module.exports = Object.assign(baseConfig,{
     path: path.join(__dirname, './dist/'),
     filename: '[name].js'
   },
+  externals: {
+    'pixi-lib': 'pixiLib',
+  },
+  resolve: {
+    extensions: ['.js'],
+  },
   plugins: [
     new webpack.DefinePlugin({
       '__ENV__': 'pro',
     }),
-    new webpack.optimize.UglifyJsPlugin({
-      compress:{
-        drop_console: true,
-        warnings: false,
-      }
-    }),
+    // new webpack.optimize.UglifyJsPlugin({
+    //   compress:{
+    //     drop_console: true,
+    //     warnings: false,
+    //   }
+    // }),
+    new (require('webpack-bundle-analyzer').BundleAnalyzerPlugin)(),
   ],
 });

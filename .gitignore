@@ -80,7 +80,3 @@ node_modules
 # Created by .ignore support plugin (hsz.mobi)
 
 _test/
-
-dist/
-./dist/
-./dist/*.js
