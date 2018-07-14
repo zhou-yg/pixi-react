@@ -1,6 +1,22 @@
 'use strict';
 import {primitiveMap} from './primitiveComponents.js';
 import chalk from 'chalk';
+import {cloneDeep, merge} from 'lodash';
+
+export function cloneProps(props) {
+  var t = [];
+  ['texture', 'textures'].forEach(k => {
+    if (props[k]) {
+      t.push([k, props[k]]);
+    }
+  });
+  props = cloneDeep(props);
+
+  t.forEach(([k, v]) => {
+    props[k] = v;
+  });
+  return props;
+}
 export function isDef(v) {
   return v !== undefined;
 }
@@ -17,7 +33,7 @@ export function isVNode(obj) {
 }
 
 export function isPixiObj(obj) {
-  return obj && obj.addChild
+  return obj && obj instanceof PIXI.DisplayObject;
 }
 
 export function isEqualObj(obj1,obj2) {
@@ -77,8 +93,8 @@ export function compareObject(obj1, obj2) {
 
   if(type1 === type2 && obj1 && obj2){
 
-    const keys1 = Object.keys(obj1);
-    const keys2 = Object.keys(obj2);
+    const keys1 = Object.keys(obj1).filter((keyName) => !/^_/.test(keyName));
+    const keys2 = Object.keys(obj2).filter((keyName) => !/^_/.test(keyName));
 
     if(keys1.join('') === keys2.join('')){
       return keys1.every(k=>{

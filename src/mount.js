@@ -24,9 +24,10 @@ export function mountComponent(parentNode, parentComponent, contextComponent, co
       parentNode.contextInstance = parentComponent;
     }
 
-    // console.log('mountComponent 0', parentComponent, contextComponent);
+    // console.log('mountComponent 0', vNode, utils.isPixiObj(vNode));
 
     if(utils.isPixiObj(vNode)){
+
       instance.pixiEl = vNode;
       instance.isMounted = true;
       parentComponent.pixiEl.addChildAt(vNode, index);

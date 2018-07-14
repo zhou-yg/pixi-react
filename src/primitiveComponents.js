@@ -1,5 +1,6 @@
 import {cloneDeep, merge} from 'lodash';
 import {updateComponentSync} from './updator';
+import {cloneProps} from './utils';
 
 var PactComponentI = 0;
 
@@ -8,7 +9,7 @@ export class PactComponent {
     this.state = {};
     this.props = {};
 
-    this.props = _.cloneDeep(props);
+    this.props = props;
 
     this.displayName = 'PactComponent.' + (PactComponentI++);
     this.isMounted = false;
@@ -30,7 +31,7 @@ export class PactComponent {
 
   setProps (newProps) {
 
-    this.props = _.merge(_.cloneDeep(this.props),newProps);
+    this.props = _.merge(cloneProps(this.props),newProps);
   }
 
   update () {
@@ -66,7 +67,7 @@ class PixiComponent extends PactComponent{
   }
 
   setProps (newProps) {
-    this.props = _.merge(_.cloneDeep(this.props),newProps);
+    this.props = _.merge(cloneProps(this.props),newProps);
 
     if(this.pixiEl){
       this.setMember(this.pixiEl);

@@ -8,9 +8,9 @@
     "dist"
   ],
   "scripts": {
-    "build": "webpack --config webpack.config.pro --progress --display-error-details",
+    "build": "webpack --progress --display-error-details",
     "build-w": "webpack --progress --display-error-details --watch",
-    "bin": "webpack --progress --display-error-details --config webpack.config.pro.js",
+    "dist": "webpack --progress --display-error-details --config webpack.config.pro.js",
     "mocha": "mocha bin/test.js",
     "mocha-w": "mocha --watch dist/test.js",
     "mocha-b": "mocha --watch --require babel-register "
@@ -46,6 +46,6 @@
   },
   "dependencies": {
     "pixi.js": "^4.5.0",
-    "pixi-lib":"x.x.x"
+    "pixi-lib": "x.x.x"
   }
 }

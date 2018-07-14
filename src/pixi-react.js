@@ -4,7 +4,7 @@ import * as utils from './utils.js';
 import {mountComponent} from './mount';
 import * as p from './primitiveComponents.js';
 
-const {isUndef, isDef,log} = utils;
+const {isUndef, isDef,log, cloneProps} = utils;
 
 const primitiveMap = p.primitiveMap;
 
@@ -12,13 +12,16 @@ export const PactComponent = p.PactComponent
 
 export const Container = primitiveMap.c;
 
+export const primitiveComponents = p;
+
 /**
 
 node -> inst -> node2 -> inst2
 
 **/
 export function renderTo(node, pixiContainer) {
-  const instance = new node.type(node.props, node.slots);
+  const CT = node.type;
+  const instance = new CT(node.props, node.slots);
   const instanceVNode = instance.render();
 
   node.instance = instance;
@@ -35,7 +38,6 @@ export function renderTo(node, pixiContainer) {
 
   return instance;
 }
-
 
 export function h(componentClass, props, ...children) {
   if(!props){
@@ -82,7 +84,7 @@ export function h(componentClass, props, ...children) {
     type: componentClass,
     key,
     instance: null,
-    props,
+    props: cloneProps(props),
     children,
     slots,
     isSlot: false,

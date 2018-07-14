@@ -8,7 +8,8 @@ module.exports = Object.assign(baseConfig,{
   },
   output: {
     path: path.join(__dirname, './dist/'),
-    filename: '[name].js'
+    filename: 'pixi-react.js',
+    libraryTarget: 'umd',
   },
   externals: {
     'pixi-lib': 'pixiLib',
@@ -18,7 +19,8 @@ module.exports = Object.assign(baseConfig,{
   },
   plugins: [
     new webpack.DefinePlugin({
-      '__ENV__': 'pro',
+      '__ENV__': '"pro"',
+      'pro': 'production',
     }),
     // new webpack.optimize.UglifyJsPlugin({
     //   compress:{
