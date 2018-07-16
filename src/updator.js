@@ -1,6 +1,6 @@
 import * as utils from './utils.js';
 import {cloneDeep} from 'lodash';
-const {isUndef, isDef,log} = utils;
+const {isUndef, isDef,log, isStr} = utils;
 import {mountComponent} from './mount.js';
 import {isPrimitiveClass, NullSprite} from './primitiveComponents';
 
@@ -47,7 +47,7 @@ function replaceVNode(parentVNode, newVNode, replaceIndex) {
   appendRef(newVNode);
 
   if (parentVNode.instance[replaceIndex]) {
-    parentVNode.instance[replaceIndex].unmount();    
+    parentVNode.instance[replaceIndex].unmount();
   }
 
   parentVNode.instance.children[replaceIndex] = newInstance;
@@ -74,7 +74,7 @@ function addVNode(parentVNode, newVNode, targetIndex) {
 
   log(`addVNode`, newInstance)
 
-  if(typeof newInstance === 'string'){
+  if(isStr(newInstance)){
     parentVNode.instance.pixiEl.addChildAt(new NullSprite(), targetIndex);
   } else if(!newInstance.vNode){
     parentVNode.instance.pixiEl.addChildAt(newInstance.pixiEl, targetIndex);
@@ -124,7 +124,7 @@ function updateChildren(instanceParentVnode, newParentVnode) {
 
     log('updateChildren', oldVNode, newVNode);
     if(isDef(oldVNode)){
-      if(typeof oldVNode === 'string' || typeof newVNode === 'string'){
+      if(isStr(oldVNode) || isStr(newVNode)){
         replaceVNode(instanceParentVnode, newVNode, newStartIndex);
       }else{
         if(utils.equalVNode(oldVNode, newVNode)){
@@ -167,7 +167,7 @@ function patchVnode(oldVNode, newVNode) {
       patchVnode(oldChildVNode, newVNode.children[i]);
     });
     oldVNode.slots.slice().forEach((oldSlotVNode, i) => {
-      patchVnode(oldSlotVNode, newVNode.slots[i]);
+      patchVnode(oldSlotVNode, newVNode.props.slots[i]);
     });
   } else {
     updateChildren(oldVNode, newVNode);

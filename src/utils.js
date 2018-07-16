@@ -17,6 +17,9 @@ export function cloneProps(props) {
   });
   return props;
 }
+export function isStr(v) {
+  return typeof v === 'string' || v instanceof String;
+}
 export function isDef(v) {
   return v !== undefined;
 }

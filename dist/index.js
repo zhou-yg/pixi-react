@@ -590,12 +590,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var PactComponentI = 0;
 
 var PactComponent = exports.PactComponent = function () {
-  function PactComponent(props, slots) {
+  function PactComponent(props) {
     _classCallCheck(this, PactComponent);
 
     this.state = {};
-    this.props = {};
-
     this.props = props;
 
     this.displayName = 'PactComponent.' + PactComponentI++;
@@ -604,7 +602,7 @@ var PactComponent = exports.PactComponent = function () {
     this.pixiEl; //pixi对象
     this.rootInstance; //根实例对象
     this.children = []; //子PactComponent对象
-    this.slots = slots || []; //插槽
+    this.slots = props.slots || []; //插槽
     this.isTop = false; //是否为顶级
     this.refs = {}; // 引用
   }
@@ -984,6 +982,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
 exports.cloneProps = cloneProps;
+exports.isStr = isStr;
 exports.isDef = isDef;
 exports.isUndef = isUndef;
 exports.isVNode = isVNode;
@@ -1020,6 +1019,9 @@ function cloneProps(props) {
     props[k] = v;
   });
   return props;
+}
+function isStr(v) {
+  return typeof v === 'string' || v instanceof String;
 }
 function isDef(v) {
   return v !== undefined;
@@ -1174,7 +1176,8 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 var isUndef = utils.isUndef,
     isDef = utils.isDef,
     log = utils.log,
-    cloneProps = utils.cloneProps;
+    cloneProps = utils.cloneProps,
+    isStr = utils.isStr;
 
 
 var primitiveMap = p.primitiveMap;
@@ -1192,7 +1195,7 @@ node -> inst -> node2 -> inst2
 **/
 function renderTo(node, pixiContainer) {
   var CT = node.type;
-  var instance = new CT(node.props, node.slots);
+  var instance = new CT(node.props);
   var instanceVNode = instance.render();
 
   node.instance = instance;
@@ -1219,7 +1222,7 @@ function h(componentClass, props) {
     props = {};
   }
   children = children.filter(function (child) {
-    return (typeof child === 'undefined' ? 'undefined' : _typeof(child)) === 'object' || typeof child === 'string';
+    return (typeof child === 'undefined' ? 'undefined' : _typeof(child)) === 'object' || isStr(child);
   }).reduce(function (prev, next) {
     // 带slots情况下,children是个二维数组, 需要用isSlot区分
     if (true) {
@@ -1244,8 +1247,12 @@ function h(componentClass, props) {
     slots = children.slice();
     slots.isSlot = true;
     slots.map(function (slotNode) {
+      if (isStr(slotNode)) {
+        slotNode = new String(slotNode);
+      }
       slotNode.isSlot = true;
     });
+
     children = [];
   } else {
     console.error(componentClass);
@@ -1255,13 +1262,18 @@ function h(componentClass, props) {
   var key = props.key;
   delete props.key;
 
+  Object.defineProperty(props, 'slots', {
+    enmuratbale: false,
+    writable: false,
+    value: slots
+  });
+
   var node = {
     type: componentClass,
     key: key,
     instance: null,
     props: cloneProps(props),
     children: children,
-    slots: slots,
     isSlot: false,
     isTop: false,
     contextInstance: null };
@@ -1873,11 +1885,12 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 var isUndef = utils.isUndef,
     isDef = utils.isDef,
-    log = utils.log;
+    log = utils.log,
+    isStr = utils.isStr;
 function mountComponent(parentNode, parentComponent, contextComponent, contextParent) {
   var index = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 0;
 
-  if (typeof parentNode === 'string') {
+  if (isStr(parentNode)) {
 
     parentComponent.pixiEl.addChildAt(new _primitiveComponents.NullSprite(), index);
 
@@ -1887,7 +1900,7 @@ function mountComponent(parentNode, parentComponent, contextComponent, contextPa
     var ref = props.ref;
 
 
-    var instance = new parentNode.type(parentNode.props, parentNode.slots);
+    var instance = new parentNode.type(parentNode.props);
     var vNode = instance.render();
 
     parentNode.instance = instance;
@@ -2696,7 +2709,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var isUndef = utils.isUndef,
     isDef = utils.isDef,
-    log = utils.log;
+    log = utils.log,
+    isStr = utils.isStr;
 
 
 var updateQueue = []; //等待更新
@@ -2769,7 +2783,7 @@ function addVNode(parentVNode, newVNode, targetIndex) {
 
   log('addVNode', newInstance);
 
-  if (typeof newInstance === 'string') {
+  if (isStr(newInstance)) {
     parentVNode.instance.pixiEl.addChildAt(new _primitiveComponents.NullSprite(), targetIndex);
   } else if (!newInstance.vNode) {
     parentVNode.instance.pixiEl.addChildAt(newInstance.pixiEl, targetIndex);
@@ -2819,7 +2833,7 @@ function updateChildren(instanceParentVnode, newParentVnode) {
 
     log('updateChildren', oldVNode, newVNode);
     if (isDef(oldVNode)) {
-      if (typeof oldVNode === 'string' || typeof newVNode === 'string') {
+      if (isStr(oldVNode) || isStr(newVNode)) {
         replaceVNode(instanceParentVnode, newVNode, newStartIndex);
       } else {
         if (utils.equalVNode(oldVNode, newVNode)) {
@@ -2862,7 +2876,7 @@ function patchVnode(oldVNode, newVNode) {
       patchVnode(oldChildVNode, newVNode.children[i]);
     });
     oldVNode.slots.slice().forEach(function (oldSlotVNode, i) {
-      patchVnode(oldSlotVNode, newVNode.slots[i]);
+      patchVnode(oldSlotVNode, newVNode.props.slots[i]);
     });
   } else {
     updateChildren(oldVNode, newVNode);
