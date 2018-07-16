@@ -57,7 +57,7 @@ class T extends PactComponent {
   }
 }
 
-describe('复杂嵌套的组件', function() {
+describe('updateChildrenComponent:复杂嵌套的组件', function() {
 
   var initChildrenLen = 4;
 
@@ -76,10 +76,10 @@ describe('复杂嵌套的组件', function() {
       // !还没mount
       // equal(tInstance.vNode.children[0].children[0], 'm0', '第一个儿子key');
       // equal(tInstance.vNode.children[0].children[1], 'm3', '第一个儿子key');
-      equal(tInstance.vNode.children[1].slots[0].type, Container, '组件的第一个slot类型');
-      equal(tInstance.vNode.children[1].slots[0].props.keyName, 'm1', '组件的第一个key');
-      equal(tInstance.vNode.children[1].slots[1].type, Container, '组件的第二个slot类型');
-      equal(tInstance.vNode.children[1].slots[1].props.keyName, 'm2', '组件的第二个key');
+      equal(tInstance.vNode.children[1].props.slots[0].type, Container, '组件的第一个slot类型');
+      equal(tInstance.vNode.children[1].props.slots[0].props.keyName, 'm1', '组件的第一个key');
+      equal(tInstance.vNode.children[1].props.slots[1].type, Container, '组件的第二个slot类型');
+      equal(tInstance.vNode.children[1].props.slots[1].props.keyName, 'm2', '组件的第二个key');
 
       equal(tInstance.vNode.children[2].type, Container, '第3个儿子类型');
       equal(tInstance.vNode.children[2].props.keyName, 'c2', '第3个儿子key');

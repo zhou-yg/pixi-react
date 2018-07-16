@@ -23,6 +23,9 @@ class MyComponent extends PactComponent{
   didMounted () {
     this.props.cb();
   }
+  unmount () {
+    this.props.cb2();
+  }
   render(){
     return (
       <c key="myComponent" ref="rootInComponent">
@@ -52,9 +55,7 @@ class T extends PactComponent {
 
     return (
       <c>
-        <MyComponent ref="myComponent" cb={this.props.cb2}>
-          {childInComponent ? <c ref="childInComponent" name="childIn"/> : <c ref="childInComponent2" name="childIn2"/>}
-        </MyComponent>
+        {childInComponent ? (<MyComponent ref="myComponent" cb={this.props.cb2} cb2={this.props.cb3}></MyComponent>) : ''}
       </c>
     );
   }
@@ -66,13 +67,21 @@ describe('组件生命周期', function() {
   var tInstance;
   var mountedCount = 0;
   var childMountedCount = 0;
+  var unmoutCount = 0;
   beforeEach(function () {
+    mountedCount = 0;
+    childMountedCount = 0;
+    unmoutCount = 0;
+
     tVNode = h(T, {
       cb () {
         mountedCount += 1;
       },
       cb2 () {
         childMountedCount += 1;
+      },
+      cb3 () {
+        unmoutCount += 1;
       },
     });
     topContainer = new PIXI.Container();
@@ -83,7 +92,6 @@ describe('组件生命周期', function() {
     it('触发一次', () => {
       notEqual(mountedCount, 0, '没有触发');
       equal(mountedCount, 1, '触发了一次');
-      mountedCount = 0;
     });
     it('不再触发第二次', () => {
       tInstance.setState({childInComponent: false});
@@ -91,15 +99,24 @@ describe('组件生命周期', function() {
     });
   });
 
-  // describe('子组件:didMounted', () => {
-  //   it('触发一次', () => {
-  //     notEqual(childMountedCount, 0, '没有触发');
-  //     equal(childMountedCount, 1, '触发了一次');
-  //     childMountedCount = 0;
-  //   });
-  //   it('不再触发第二次', () => {
-  //     tInstance.setState({childInComponent: false});
-  //     equal(childMountedCount, 1, '不再触发');
-  //   });
-  // });
+  describe('子组件:didMounted', () => {
+    it('触发一次', () => {
+      notEqual(childMountedCount, 0, '没有触发');
+      equal(childMountedCount, 1, '触发了一次');
+    });
+    it('不再触发第二次', () => {
+      tInstance.setState({childInComponent: false});
+      equal(childMountedCount, 1, '不再触发');
+    });
+  });
+  describe('子组件:unmout', () => {
+    it('不再触发第二次', () => {
+
+      equal(unmoutCount, 0, '初始不触发');
+
+      tInstance.setState({childInComponent: false});
+
+      equal(unmoutCount, 1, '组件卸载后再触发');
+    });
+  });
 });

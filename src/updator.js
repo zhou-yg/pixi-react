@@ -1,6 +1,5 @@
 import * as utils from './utils.js';
-import {cloneDeep} from 'lodash';
-const {isUndef, isDef,log, isStr} = utils;
+const {isUndef, isDef,log, isStr, cloneProps} = utils;
 import {mountComponent} from './mount.js';
 import {isPrimitiveClass, NullSprite} from './primitiveComponents';
 
@@ -24,7 +23,7 @@ function syncProps(oldVNode, newVNode) {
 
   removeRef(oldVNode);
 
-  oldVNode.props = cloneDeep(newVNode.props);
+  oldVNode.props = cloneProps(newVNode.props);
   oldVNode.instance.setProps(oldVNode.props);
 
   updateComponent(oldVNode.instance);
@@ -46,8 +45,9 @@ function replaceVNode(parentVNode, newVNode, replaceIndex) {
 
   appendRef(newVNode);
 
-  if (parentVNode.instance[replaceIndex]) {
-    parentVNode.instance[replaceIndex].unmount();
+  log(`replaceVNode`,'isntance.chidlren[i]', !!parentVNode.instance.children[replaceIndex]);
+  if (parentVNode.instance.children[replaceIndex]) {
+    parentVNode.instance.children[replaceIndex].unmount();
   }
 
   parentVNode.instance.children[replaceIndex] = newInstance;
@@ -166,7 +166,10 @@ function patchVnode(oldVNode, newVNode) {
     oldVNode.children.slice().forEach((oldChildVNode, i) => {
       patchVnode(oldChildVNode, newVNode.children[i]);
     });
-    oldVNode.slots.slice().forEach((oldSlotVNode, i) => {
+    if (!oldVNode.props.slots) {
+      console.log(oldVNode.props.slots, oldVNode);
+    }
+    oldVNode.props.slots.slice().forEach((oldSlotVNode, i) => {
       patchVnode(oldSlotVNode, newVNode.props.slots[i]);
     });
   } else {

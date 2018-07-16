@@ -54,7 +54,7 @@ class T extends PactComponent {
   }
 }
 
-describe('功能特性:ref', function () {
+describe('ref:功能特性', function () {
 
   var tVNode;
   var topContainer;
@@ -91,7 +91,7 @@ describe('功能特性:ref', function () {
 
       const myComponentInst = tInstance.vNode.instance.children[0];
 
-      equal(tInstance.vNode.children[0].slots[0].props.name, 'childIn2', '变换');
+      equal(tInstance.vNode.children[0].props.slots[0].props.name, 'childIn2', '变换');
       equal(tInstance.refs.myComponent, myComponentInst, '自定义组件的ref为组件实例');
       equal(myComponentInst.refs.rootInComponent, myComponentInst.vNode.instance.pixiEl , 'pixi组件的ref为pixi对象');
       equal(tInstance.refs.childInComponent2, myComponentInst.vNode.instance.children[1].pixiEl , '嵌套组件的ref在 声明时所在的实例下');
