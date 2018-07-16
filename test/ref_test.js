@@ -17,6 +17,9 @@ import {
 } from '../src/pixi-react';
 
 class MyComponent extends PactComponent{
+  constructor(p) {
+    super(p);
+  }
   render(){
     return (
       <c key="myComponent" ref="rootInComponent">
@@ -43,9 +46,9 @@ class T extends PactComponent {
 
     return (
       <c>
-      <MyComponent ref="myComponent">
-        {childInComponent ? <c ref="childInComponent" name="childIn"/> : <c ref="childInComponent2" name="childIn2"/>}
-      </MyComponent>
+        <MyComponent ref="myComponent">
+          {childInComponent ? <c ref="childInComponent" name="childIn"/> : <c ref="childInComponent2" name="childIn2"/>}
+        </MyComponent>
       </c>
     );
   }
@@ -58,7 +61,10 @@ describe('功能特性:ref', function () {
   var tInstance;
 
   beforeEach(function () {
-    tVNode = h(T);
+    tVNode = h(T, {
+      cb () {},
+      cb2 () {},
+    });
     topContainer = new PIXI.Container();
     tInstance = renderTo(tVNode, topContainer);
   })
@@ -66,6 +72,8 @@ describe('功能特性:ref', function () {
   describe('ref特性', function () {
     it('实例refs', () => {
       const myComponentInst = tInstance.vNode.instance.children[0];
+
+      // console.log(myComponentInst.vNode.instance.children);
 
       equal(tInstance.refs.myComponent, myComponentInst, '自定义组件的ref为组件实例');
       equal(myComponentInst.refs.rootInComponent, myComponentInst.vNode.instance.pixiEl , 'pixi组件的ref,如果被保留类型，则为pixi对象');

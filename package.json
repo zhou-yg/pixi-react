@@ -11,9 +11,10 @@
     "build": "webpack --progress --display-error-details",
     "build-w": "webpack --progress --display-error-details --watch",
     "dist": "webpack --progress --display-error-details --config webpack.config.pro.js",
-    "mocha": "mocha bin/test.js",
+    "mocha": "mocha dist/test.js",
     "mocha-w": "mocha --watch dist/test.js",
-    "mocha-b": "mocha --watch --require babel-register "
+    "mocha-b": "mocha --watch --require babel-register",
+    "test": "npm run build && npm run mocha"
   },
   "repository": {
     "type": "git",
@@ -39,7 +40,7 @@
     "chalk": "^1.1.3",
     "lodash": "^4.17.4",
     "mocha": "^3.3.0",
-    "pixi-fake.js": "^1.1.0",
+    "pixi-fake.js": "^1.3.0",
     "raf": "^3.3.2",
     "webpack": "^2.7.0",
     "webpack-bundle-analyzer": "^2.13.1"

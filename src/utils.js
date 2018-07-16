@@ -10,12 +10,25 @@ export function cloneProps(props) {
       t.push([k, props[k]]);
     }
   });
+  const slots = props.slots.slice();
+  slots.isSlot = true;
+
   props = cloneDeep(props);
 
   t.forEach(([k, v]) => {
     props[k] = v;
   });
+
+  Object.defineProperty(props, 'slots', {
+    enmuratbale: false,
+    writable: false,
+    value: slots,
+  });
+
   return props;
+}
+export function isStr(v) {
+  return typeof v === 'string' || v instanceof String;
 }
 export function isDef(v) {
   return v !== undefined;

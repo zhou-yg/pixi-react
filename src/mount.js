@@ -1,10 +1,10 @@
 import * as utils from './utils.js';
 import { NullSprite} from './primitiveComponents';
 
-const {isUndef, isDef,log} = utils;
+const {isUndef, isDef,log, isStr} = utils;
 
 export function mountComponent(parentNode, parentComponent, contextComponent, contextParent, index = 0) {
-  if(typeof parentNode === 'string'){
+  if(isStr(parentNode)){
 
     parentComponent.pixiEl.addChildAt(new NullSprite(), index);
 
@@ -13,7 +13,7 @@ export function mountComponent(parentNode, parentComponent, contextComponent, co
     const props = parentNode.props;
     const {ref} = props;
 
-    const instance = new parentNode.type(parentNode.props, parentNode.slots);
+    const instance = new parentNode.type(parentNode.props);
     const vNode = instance.render();
 
     parentNode.instance = instance;
