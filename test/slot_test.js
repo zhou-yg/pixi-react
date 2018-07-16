@@ -64,9 +64,8 @@ describe('功能特性:slot', function () {
   })
 
   describe('初始化', function () {
-    it('instance.slots', function() {
-      console.log(tInstance.vNode.instance);
-      equal(tInstance.vNode.instance.slots, 2, 'slot个数');
+    it('slots', function() {
+      equal(tInstance.vNode.instance.vNode.children.length, 3, 'slot个数');
     });
   });
 });

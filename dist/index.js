@@ -602,6 +602,7 @@ var PactComponent = exports.PactComponent = function () {
     this.pixiEl; //pixi对象
     this.rootInstance; //根实例对象
     this.children = []; //子PactComponent对象
+
     this.slots = props.slots || []; //插槽
     this.isTop = false; //是否为顶级
     this.refs = {}; // 引用
@@ -1009,6 +1010,9 @@ function cloneProps(props) {
       t.push([k, props[k]]);
     }
   });
+  var slots = props.slots.slice();
+  slots.isSlot = true;
+
   props = (0, _cloneDeep3.default)(props);
 
   t.forEach(function (_ref) {
@@ -1018,6 +1022,13 @@ function cloneProps(props) {
 
     props[k] = v;
   });
+
+  Object.defineProperty(props, 'slots', {
+    enmuratbale: false,
+    writable: false,
+    value: slots
+  });
+
   return props;
 }
 function isStr(v) {
@@ -1229,7 +1240,7 @@ function h(componentClass, props) {
       if (Array.isArray(next) && !next.isSlot && !next.every(function (node) {
         return !!node.key;
       })) {
-
+        console.log('next:', children, next);
         throw new Error('数组返回的每个节点必须含有key');
       }
     }

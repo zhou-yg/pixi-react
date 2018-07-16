@@ -15,6 +15,7 @@ export class PactComponent {
     this.pixiEl; //pixi对象
     this.rootInstance; //根实例对象
     this.children = []; //子PactComponent对象
+
     this.slots = props.slots || []; //插槽
     this.isTop = false; //是否为顶级
     this.refs = {}; // 引用
