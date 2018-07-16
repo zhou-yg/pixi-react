@@ -46,7 +46,9 @@ function replaceVNode(parentVNode, newVNode, replaceIndex) {
 
   appendRef(newVNode);
 
-  parentVNode.instance[replaceIndex].unmount();
+  if (parentVNode.instance[replaceIndex]) {
+    parentVNode.instance[replaceIndex].unmount();    
+  }
 
   parentVNode.instance.children[replaceIndex] = newInstance;
   parentVNode.children[replaceIndex] = newVNode;
