@@ -60,7 +60,7 @@ class PixiComponent extends PactComponent{
   constructor(props) {
     super(props)
 
-    this.eventFnMap = new Map();
+    this._eventFnMap = new Map();
 
     this.texture = props.texture;
   }
@@ -92,15 +92,16 @@ class PixiComponent extends PactComponent{
 
         eventName = eventName.replace(/^on/, '').toLowerCase();
 
-        const oldFn = this.eventFnMap.get(pixiObj);
+        const oldFn = this._eventFnMap.get(pixiObj);
 
-        if(oldFn){
-          if(oldFn !== fn){
+        if (oldFn === fn) {
+
+        } else {
+          if (oldFn) {
             pixiObj.off(eventName, oldFn);
-            pixiObj.on(eventName, fn);
           }
-        }else{
           pixiObj.on(eventName, fn);
+          this._eventFnMap.set(pixiObj, fn);
         }
       }
     });
@@ -210,15 +211,37 @@ class Rect extends PixiComponent {
     super(props)
   }
   render () {
-    const {color, strokeWidth, strokeColor, x = 0, y =0, w, h} = this.props;
+    const {color, fill, strokeWidth, strokeColor, x = 0, y =0, w, h} = this.props;
 
     const g = new PIXI.Graphics();
 
-    g.beginFill(color);
+    g.beginFill(fill || color);
     if(strokeWidth > 0){
       g.lineStyle(strokeWidth, strokeColor, 1);
     }
     g.drawRect(0,0,w,h);
+    g.endFill();
+    g.x = x;
+    g.y = y;
+    this.setMember(g);
+
+    return g;
+  }
+}
+class RoundedRect extends PixiComponent {
+  constructor(props){
+    super(props)
+  }
+  render () {
+    const {color, fill, strokeWidth, strokeColor, x = 0, y =0, w, h, r} = this.props;
+
+    const g = new PIXI.Graphics();
+
+    g.beginFill(fill || color);
+    if(strokeWidth > 0){
+      g.lineStyle(strokeWidth, strokeColor, 1);
+    }
+    g.drawRoundedRect(0,0,w,h, r);
     g.endFill();
     g.x = x;
     g.y = y;
@@ -241,6 +264,7 @@ export const primitiveMap = {
   sprite: Sprite,
   sp: Sprite,
   rect: Rect,
+  rrect: RoundedRect,
   'animated-sprite': AnimatedSprite,
   ani: AnimatedSprite,
 
