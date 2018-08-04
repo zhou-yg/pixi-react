@@ -5,6 +5,7 @@ global.__ENV__ = true;
 
 import {
   equal,
+  notEqual,
   ok,
   ifError
 } from 'assert';
@@ -24,6 +25,7 @@ class T extends PactComponent {
       a: false,
       c2: true,
       c4: true,
+      c5: true,
     }
   }
   render() {
@@ -31,8 +33,11 @@ class T extends PactComponent {
       a,
       c2,
       c,
-      c4
+      c4,
+      c5,
     } = this.state;
+
+    const m = c5 ? {x:0} : {x:1};
 
     return (
       <c key="top">
@@ -40,14 +45,15 @@ class T extends PactComponent {
         <c keyName="c1">< /c>
         {c2 ? <c keyName = "c2" ></c> : <c keyName="c3"></c>}
         {c4 ? <c keyName="c4" /> : ''}
+        <c key={String(c5)} member={m} keyName={ c5 ? 'c5true' : 'c5false'}/>
       </c>
     );
   }
 }
 
-describe('基础组件', function() {
+describe('updateChildren_test 组件', function() {
 
-  var initChildrenLen = 4;
+  var initChildrenLen = 5;
 
   describe('初始化', function() {
     const tVNode = h(T);
@@ -118,7 +124,8 @@ describe('基础组件', function() {
     const oldCh = tInstance.vNode.instance.children.slice();
     tInstance.setState({
       a: true,
-      c2: false
+      c2: false,
+      c5: false,
     });
 
     // body...
@@ -131,11 +138,18 @@ describe('基础组件', function() {
       equal(tInstance.vNode.children[1].props.keyName, 'c1', '第二个儿子key');
       equal(tInstance.vNode.children[2].type, Container, '第三个儿子类型');
       equal(tInstance.vNode.children[2].props.keyName, 'c3', '第三个儿子key');
+      equal(tInstance.vNode.children[4].type, Container, '第五个儿子类型');
+      equal(tInstance.vNode.children[4].props.keyName, 'c5false', '第三个儿子key');
     });
     it('替换的instance', function() {
       const newCh = tInstance.vNode.instance.children.slice();
       equal(newCh.length, initChildrenLen, '子实例们的长度');
       equal(oldCh[1], newCh[1], 'key=c1的节点没变');
+      equal(oldCh[1].pixiEl, newCh[1].pixiEl, 'key=c1的pixi节点也没变');
+      // ok(oldCh[2].pixiEl !== newCh[2].pixiEl, 'c2变为c3');
+
+      equal(newCh[4].pixiEl.x, 1, 'key=c5的member改变了');
+      ok(oldCh[4].pixiEl !== newCh[4].pixiEl, 'key=c5的pixi节点改变了');
     });
   });
   describe('组建更新-删除', function() {

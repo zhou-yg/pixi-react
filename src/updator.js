@@ -37,11 +37,12 @@ function replaceVNode(parentVNode, newVNode, replaceIndex) {
   log(`replaceVNode`, replaceIndex);
   log(`replaceVNode`,'new',newVNode);
 
+  pixiEl.removeChildAt(replaceIndex);
+
   const newInstance = mountComponent(newVNode, parentVNode.instance, parentVNode.contextInstance, parentVNode.contextInstance, replaceIndex);
   const oldVNode = parentVNode.children[replaceIndex];
 
   removeRef(oldVNode);
-  pixiEl.removeChildAt(replaceIndex);
 
   appendRef(newVNode);
 
