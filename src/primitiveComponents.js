@@ -206,6 +206,44 @@ class Text extends PixiComponent {
   }
 }
 
+class Ellipse extends PixiComponent {
+  constructor(props){
+    super(props)
+  }
+  render () {
+    const {x = 0, y =0, w, h, fill} = this.props;
+
+    const g = new PIXI.Graphics();
+
+    g.beginFill(fill);
+    g.drawEllipse(0,0,w,h);
+    g.endFill();
+    g.x = x;
+    g.y = y;
+    this.setMember(g);
+
+    return g;
+  }
+}
+class Circle extends PixiComponent {
+  constructor(props){
+    super(props)
+  }
+  render () {
+    const {x = 0, y =0, r, fill} = this.props;
+
+    const g = new PIXI.Graphics();
+
+    g.beginFill(fill);
+    g.drawCircle(0,0,r);
+    g.endFill();
+    g.x = x;
+    g.y = y;
+    this.setMember(g);
+
+    return g;
+  }
+}
 class Rect extends PixiComponent {
   constructor(props){
     super(props)
@@ -261,10 +299,19 @@ export class NullSprite extends PIXI.Sprite {
 export const primitiveMap = {
   c: Container,
   container:Container,
+
   sprite: Sprite,
   sp: Sprite,
+
   rect: Rect,
   rrect: RoundedRect,
+
+  ellipse: Ellipse,
+  ell: Ellipse,
+
+  circle: Circle,
+  cir: Circle,
+
   'animated-sprite': AnimatedSprite,
   ani: AnimatedSprite,
 
