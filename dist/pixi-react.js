@@ -483,12 +483,14 @@ var Ellipse = function (_PixiComponent6) {
           y = _props3$y === undefined ? 0 : _props3$y,
           w = _props3.w,
           h = _props3.h,
-          fill = _props3.fill;
+          fill = _props3.fill,
+          _props3$alpha = _props3.alpha,
+          alpha = _props3$alpha === undefined ? 1 : _props3$alpha;
 
 
       var g = new PIXI.Graphics();
 
-      g.beginFill(fill);
+      g.beginFill(fill, alpha);
       g.drawEllipse(0, 0, w, h);
       g.endFill();
       g.x = x;
@@ -520,12 +522,14 @@ var Circle = function (_PixiComponent7) {
           _props4$y = _props4.y,
           y = _props4$y === undefined ? 0 : _props4$y,
           r = _props4.r,
-          fill = _props4.fill;
+          fill = _props4.fill,
+          _props4$alpha = _props4.alpha,
+          alpha = _props4$alpha === undefined ? 1 : _props4$alpha;
 
 
       var g = new PIXI.Graphics();
 
-      g.beginFill(fill);
+      g.beginFill(fill, alpha);
       g.drawCircle(0, 0, r);
       g.endFill();
       g.x = x;
@@ -561,12 +565,14 @@ var Rect = function (_PixiComponent8) {
           _props5$y = _props5.y,
           y = _props5$y === undefined ? 0 : _props5$y,
           w = _props5.w,
-          h = _props5.h;
+          h = _props5.h,
+          _props5$alpha = _props5.alpha,
+          alpha = _props5$alpha === undefined ? 1 : _props5$alpha;
 
 
       var g = new PIXI.Graphics();
 
-      g.beginFill(fill || color);
+      g.beginFill(fill || color, alpha);
       if (strokeWidth > 0) {
         g.lineStyle(strokeWidth, strokeColor, 1);
       }
@@ -606,12 +612,14 @@ var RoundedRect = function (_PixiComponent9) {
           y = _props6$y === undefined ? 0 : _props6$y,
           w = _props6.w,
           h = _props6.h,
-          r = _props6.r;
+          r = _props6.r,
+          _props6$alpha = _props6.alpha,
+          alpha = _props6$alpha === undefined ? 1 : _props6$alpha;
 
 
       var g = new PIXI.Graphics();
 
-      g.beginFill(fill || color);
+      g.beginFill(fill || color, alpha);
       if (strokeWidth > 0) {
         g.lineStyle(strokeWidth, strokeColor, 1);
       }

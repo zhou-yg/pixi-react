@@ -211,11 +211,11 @@ class Ellipse extends PixiComponent {
     super(props)
   }
   render () {
-    const {x = 0, y =0, w, h, fill} = this.props;
+    const {x = 0, y =0, w, h, fill, alpha = 1} = this.props;
 
     const g = new PIXI.Graphics();
 
-    g.beginFill(fill);
+    g.beginFill(fill, alpha);
     g.drawEllipse(0,0,w,h);
     g.endFill();
     g.x = x;
@@ -230,11 +230,11 @@ class Circle extends PixiComponent {
     super(props)
   }
   render () {
-    const {x = 0, y =0, r, fill} = this.props;
+    const {x = 0, y =0, r, fill, alpha = 1} = this.props;
 
     const g = new PIXI.Graphics();
 
-    g.beginFill(fill);
+    g.beginFill(fill, alpha);
     g.drawCircle(0,0,r);
     g.endFill();
     g.x = x;
@@ -249,11 +249,11 @@ class Rect extends PixiComponent {
     super(props)
   }
   render () {
-    const {color, fill, strokeWidth, strokeColor, x = 0, y =0, w, h} = this.props;
+    const {color, fill, strokeWidth, strokeColor, x = 0, y =0, w, h, alpha = 1} = this.props;
 
     const g = new PIXI.Graphics();
 
-    g.beginFill(fill || color);
+    g.beginFill(fill || color, alpha);
     if(strokeWidth > 0){
       g.lineStyle(strokeWidth, strokeColor, 1);
     }
@@ -271,11 +271,11 @@ class RoundedRect extends PixiComponent {
     super(props)
   }
   render () {
-    const {color, fill, strokeWidth, strokeColor, x = 0, y =0, w, h, r} = this.props;
+    const {color, fill, strokeWidth, strokeColor, x = 0, y =0, w, h, r, alpha = 1} = this.props;
 
     const g = new PIXI.Graphics();
 
-    g.beginFill(fill || color);
+    g.beginFill(fill || color, alpha);
     if(strokeWidth > 0){
       g.lineStyle(strokeWidth, strokeColor, 1);
     }
