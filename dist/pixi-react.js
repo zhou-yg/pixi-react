@@ -2396,6 +2396,8 @@ function h(componentClass, props) {
   return node;
 }
 
+PactComponent.h = h;
+
 /***/ }),
 /* 43 */
 /***/ (function(module, exports, __webpack_require__) {

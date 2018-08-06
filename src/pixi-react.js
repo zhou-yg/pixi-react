@@ -103,3 +103,5 @@ export function h(componentClass, props, ...children) {
 
   return node;
 }
+
+PactComponent.h = h;
