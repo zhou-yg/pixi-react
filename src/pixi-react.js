@@ -43,8 +43,9 @@ export function h(componentClass, props, ...children) {
   if(!props){
     props = {};
   }
+  // 过滤 null
   children = children.filter(child => {
-    return typeof child === 'object' || isStr(child);
+    return (child && typeof child === 'object') || isStr(child);
   }).reduce((prev, next) => {
     // 带slots情况下,children是个二维数组, 需要用isSlot区分
     if(__ENV__ === 'dev'){

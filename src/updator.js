@@ -207,6 +207,12 @@ function updateComponent(instance) {
     log(`updateComponent`,instance.vNode.props, newVNode.props);
     log(`updateComponent`,instance.vNode.key, newVNode.key);
 
+    if (instance.vNode.key !== newVNode.key) {
+      syncProps(instance.vNode, newVNode);
+
+    } else {
+      patchVnode(instance.vNode, newVNode);
+    }
     // if (isEquivalentNode){
     //   syncProps(instance.vNode, newVNode);
     // } else {
@@ -214,7 +220,6 @@ function updateComponent(instance) {
     //   // syncProps(instance.vNode, newVNode);
     //   log(`updateComponent`, instance.vNode, newVNode);
     // }
-    patchVnode(instance.vNode, newVNode);
   }
   // debugger;
   instance.children.forEach(childInstance => {

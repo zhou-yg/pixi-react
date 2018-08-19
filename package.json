@@ -1,6 +1,6 @@
 {
   "name": "pixi-react",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "set/get data structure",
   "main": "./src/pixi-react.js",
   "files": [
@@ -46,7 +46,8 @@
     "webpack-bundle-analyzer": "^2.13.1"
   },
   "dependencies": {
-    "pixi.js": "^4.5.0",
-    "pixi-lib": "x.x.x"
+    "eventemitter3": "^3.1.0",
+    "pixi-lib": "x.x.x",
+    "pixi.js": "^4.5.0"
   }
 }

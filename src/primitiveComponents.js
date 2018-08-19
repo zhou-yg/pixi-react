@@ -1,11 +1,13 @@
 import {cloneDeep, merge} from 'lodash';
 import {updateComponentSync} from './updator';
 import {cloneProps} from './utils';
+import EventEmitter3 from 'eventemitter3';
 
 var PactComponentI = 0;
 
-export class PactComponent {
+export class PactComponent extends EventEmitter3 {
   constructor (props) {
+    super(props);
     this.state = {};
     this.props = props;
 
@@ -19,6 +21,17 @@ export class PactComponent {
     this.slots = props.slots || []; //插槽
     this.isTop = false; //是否为顶级
     this.refs = {}; // 引用
+
+    this._registerEvent();
+  }
+  _registerEvent () {
+    Object.keys(this.props).filter(k => /^on[A-Z]/.test(k))
+      .filter(k => eventsArr.indexOf(k) === -1)
+      .map(k => {
+        const cbFn = this.props[k];
+        this.off(k, cbFn);
+        this.on(k, cbFn);
+      });
   }
   setState (obj) {
 
@@ -84,6 +97,9 @@ class PixiComponent extends PactComponent{
         pixiObj.play();
       }
     }
+    // 开启事件响应
+    pixiObj.interactive = (member && member.interactive) || this.props.interactive;
+
     eventsArr.forEach(eventName => {
       const fn = this.props[eventName];
 
