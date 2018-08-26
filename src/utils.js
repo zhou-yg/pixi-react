@@ -1,7 +1,7 @@
 'use strict';
 import {primitiveMap} from './primitiveComponents.js';
 import chalk from 'chalk';
-import {cloneDeep, merge} from 'lodash';
+import {clone, merge} from 'lodash';
 
 export function cloneProps(props) {
   var t = [];
@@ -13,7 +13,7 @@ export function cloneProps(props) {
   const slots = props.slots.slice();
   slots.isSlot = true;
 
-  props = cloneDeep(props);
+  props = clone(props);
 
   t.forEach(([k, v]) => {
     props[k] = v;
@@ -147,4 +147,10 @@ export function log(){
     const args = [...arguments];
     console.log.apply(console,[chalk.green(args[0])].concat(args.slice(1)));
   }
+}
+
+export function firstLow(str) {
+  return str.replace(/^([\w])/, (s) => {
+    return s.toLowerCase();
+  });
 }

@@ -160,6 +160,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.primitiveMap = exports.NullSprite = exports.PactComponent = undefined;
 
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 exports.isPrimitiveClass = isPrimitiveClass;
@@ -220,8 +222,14 @@ var PactComponent = exports.PactComponent = function (_EventEmitter) {
         return eventsArr.indexOf(k) === -1;
       }).map(function (k) {
         var cbFn = _this2.props[k];
-        _this2.off(k, cbFn);
-        _this2.on(k, cbFn);
+        return [(0, _utils.firstLow)(k.replace(/^on/, '')), cbFn];
+      }).map(function (_ref) {
+        var _ref2 = _slicedToArray(_ref, 2),
+            k = _ref2[0],
+            cb = _ref2[1];
+
+        _this2.off(k, cb);
+        _this2.on(k, cb);
       });
     }
   }, {
@@ -672,7 +680,7 @@ var NullSprite = exports.NullSprite = function (_PIXI$Sprite) {
   _inherits(NullSprite, _PIXI$Sprite);
 
   function NullSprite() {
-    var _ref;
+    var _ref3;
 
     _classCallCheck(this, NullSprite);
 
@@ -680,7 +688,7 @@ var NullSprite = exports.NullSprite = function (_PIXI$Sprite) {
       arg[_key] = arguments[_key];
     }
 
-    var _this14 = _possibleConstructorReturn(this, (_ref = NullSprite.__proto__ || Object.getPrototypeOf(NullSprite)).call.apply(_ref, [this].concat(arg)));
+    var _this14 = _possibleConstructorReturn(this, (_ref3 = NullSprite.__proto__ || Object.getPrototypeOf(NullSprite)).call.apply(_ref3, [this].concat(arg)));
 
     _this14.isNullSprite = true;
     return _this14;
@@ -730,9 +738,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _cloneDeep2 = __webpack_require__(120);
+var _clone2 = __webpack_require__(120);
 
-var _cloneDeep3 = _interopRequireDefault(_cloneDeep2);
+var _clone3 = _interopRequireDefault(_clone2);
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
@@ -750,6 +758,7 @@ exports.equalVNodeChildren = equalVNodeChildren;
 exports.compareObject = compareObject;
 exports.isReservedType = isReservedType;
 exports.log = log;
+exports.firstLow = firstLow;
 
 var _primitiveComponents = __webpack_require__(3);
 
@@ -769,7 +778,7 @@ function cloneProps(props) {
   var slots = props.slots.slice();
   slots.isSlot = true;
 
-  props = (0, _cloneDeep3.default)(props);
+  props = (0, _clone3.default)(props);
 
   t.forEach(function (_ref) {
     var _ref2 = _slicedToArray(_ref, 2),
@@ -908,6 +917,12 @@ function log() {
     var args = [].concat(Array.prototype.slice.call(arguments));
     console.log.apply(console, [_chalk2.default.green(args[0])].concat(args.slice(1)));
   }
+}
+
+function firstLow(str) {
+  return str.replace(/^([\w])/, function (s) {
+    return s.toLowerCase();
+  });
 }
 
 /***/ }),
@@ -5342,32 +5357,39 @@ module.exports = stackSet;
 var baseClone = __webpack_require__(62);
 
 /** Used to compose bitmasks for cloning. */
-var CLONE_DEEP_FLAG = 1,
-    CLONE_SYMBOLS_FLAG = 4;
+var CLONE_SYMBOLS_FLAG = 4;
 
 /**
- * This method is like `_.clone` except that it recursively clones `value`.
+ * Creates a shallow clone of `value`.
+ *
+ * **Note:** This method is loosely based on the
+ * [structured clone algorithm](https://mdn.io/Structured_clone_algorithm)
+ * and supports cloning arrays, array buffers, booleans, date objects, maps,
+ * numbers, `Object` objects, regexes, sets, strings, symbols, and typed
+ * arrays. The own enumerable properties of `arguments` objects are cloned
+ * as plain objects. An empty object is returned for uncloneable values such
+ * as error objects, functions, DOM nodes, and WeakMaps.
  *
  * @static
  * @memberOf _
- * @since 1.0.0
+ * @since 0.1.0
  * @category Lang
- * @param {*} value The value to recursively clone.
- * @returns {*} Returns the deep cloned value.
- * @see _.clone
+ * @param {*} value The value to clone.
+ * @returns {*} Returns the cloned value.
+ * @see _.cloneDeep
  * @example
  *
  * var objects = [{ 'a': 1 }, { 'b': 2 }];
  *
- * var deep = _.cloneDeep(objects);
- * console.log(deep[0] === objects[0]);
- * // => false
+ * var shallow = _.clone(objects);
+ * console.log(shallow[0] === objects[0]);
+ * // => true
  */
-function cloneDeep(value) {
-  return baseClone(value, CLONE_DEEP_FLAG | CLONE_SYMBOLS_FLAG);
+function clone(value) {
+  return baseClone(value, CLONE_SYMBOLS_FLAG);
 }
 
-module.exports = cloneDeep;
+module.exports = clone;
 
 
 /***/ }),

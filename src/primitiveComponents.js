@@ -1,6 +1,6 @@
 import {cloneDeep, merge} from 'lodash';
 import {updateComponentSync} from './updator';
-import {cloneProps} from './utils';
+import {cloneProps, firstLow} from './utils';
 import EventEmitter3 from 'eventemitter3';
 
 var PactComponentI = 0;
@@ -29,8 +29,10 @@ export class PactComponent extends EventEmitter3 {
       .filter(k => eventsArr.indexOf(k) === -1)
       .map(k => {
         const cbFn = this.props[k];
-        this.off(k, cbFn);
-        this.on(k, cbFn);
+        return [firstLow(k.replace(/^on/, '')), cbFn];
+      }).map(([k, cb]) => {
+        this.off(k, cb);
+        this.on(k, cb);
       });
   }
   setState (obj) {
